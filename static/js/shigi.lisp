@@ -12,7 +12,17 @@
                 :with-ecs-components))
 (in-package :cl-shigi-simulator.static.js.shigi)
 
-(defvar.ps fps-stat (make-fps-stats))
+(defvar.ps stats nil)
+
+(defun.ps init-stats ()
+  (let ((stats (new (-stats))))
+    (stats.set-mode 0)
+    (with-slots (position left top) stats.dom-element.style
+      (setf position "absolute")
+      (setf left "0px")
+      (setf top "0px"))
+    ((@ (document.get-element-by-id "stats-output") append-child) stats.dom-element)
+    stats))
 
 (defun.ps init-camera (width height)
   (let* ((fov 60)
@@ -106,14 +116,9 @@
   (make-sample-rotate-entities)
   (make-mouse-pointer))
 
-(defun.ps print-fps ()
-  (update-fps-stats fps-stat)
-  (let ((div (document.query-selector "#debug")))
-    (setf #j.div.innerHTML# (+ "FPS: " (calc-average-fps fps-stat)))))
-
 (defun.ps update ()
   (process-input)
-  (print-fps)
+  (stats.update)
   (ecs-main))
 
 (defun.ps main ()
@@ -131,6 +136,7 @@
     (scene.add (make-line :pos-a '(0 0) :pos-b '(600 400) :color 0x00ff00 :z 1))
     (make-sample-entities)
     (refresh-entity-display)
+    (setf stats (init-stats))
     (labels ((render-loop ()
                (request-animation-frame render-loop)
                (renderer.render scene camera)
