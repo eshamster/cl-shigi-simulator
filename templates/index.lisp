@@ -9,7 +9,7 @@
 (in-package :cl-shigi-simulator.templates.index)
 
 (defun render ()
-  (with-default-layout (:title "Welcome to Caveman2")
+  (with-default-layout (:title "Welcome to Shigi simulator")
     (:div :id "main"
-          "Welcome to " (:a :href "http://8arrow.org/caveman/" "Caveman2") "!")
-    (:script :src (load-js :index) nil)))
+          (:div "Welcome to Shigi simulator" "!")
+          (:div :id "to_shigi" (:a :href "shigi" "Start")))))

@@ -26,7 +26,8 @@
                :sxql
 
                ;; for JavaScript
-               :parenscript)
+               :ps-experiment
+               :cl-ps-ecs)
   :components ((:module "src"
                 :components
                 ((:file "main" :depends-on ("config" "view" "db"))
@@ -38,10 +39,15 @@
                (:module "static/js"
                 :components
                 ((:file "utils")
-                 (:file "index" :depends-on ("utils"))))
+                 (:file "2d-geometry")
+                 (:file "basic-ecs")
+                 (:file "tools")
+                 (:file "input" :depends-on ("tools"))
+                 (:file "shigi" :depends-on ("utils" "basic-ecs" "tools" "input" "2d-geometry"))))
                (:module "templates"
                 :components
-                ((:file "index"))
+                ((:file "index")
+                 (:file "shigi"))
                 :depends-on ("templates/layouts" "static/js"))
                (:module "templates/layouts"
                 :components
