@@ -41,7 +41,8 @@
                  (:file "index" :depends-on ("utils"))))
                (:module "templates"
                 :components
-                ((:file "index"))
+                ((:file "index")
+                 (:file "shigi"))
                 :depends-on ("templates/layouts" "static/js"))
                (:module "templates/layouts"
                 :components

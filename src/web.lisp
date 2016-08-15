@@ -26,6 +26,9 @@
 (defroute "/" ()
   (render :index))
 
+(defroute "/shigi" ()
+  (render :shigi))
+
 ;;
 ;; Error pages
 

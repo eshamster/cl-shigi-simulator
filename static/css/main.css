@@ -19,3 +19,8 @@ a:hover {
 #main {
   text-align: center;
 }
+
+#to_shigi {
+  font-size: 200%;
+  text-decoration: underline;
+}
