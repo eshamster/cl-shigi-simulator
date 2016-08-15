@@ -15,8 +15,8 @@
             (:meta :charset "UTF-8")
             (:script :src "https://cdnjs.cloudflare.com/ajax/libs/three.js/r73/three.min.js" nil)
             (:script :src "js/copied/threex.keyboardstate.js" nil)
-            ;; TODO: (:script :src (load-ps :shigi) nil)
-            (:link :rel "stylesheet" :type "text/css" :href "css/test-three.css"))
+            (:script :src (load-js :shigi) nil)
+            (:link :rel "stylesheet" :type "text/css" :href "css/shigi.css"))
            (:body
             (:div (:a :href "/" "Top"))
             (:br)
