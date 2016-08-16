@@ -132,6 +132,7 @@
   (make-mouse-pointer))
 
 (defun.ps update ()
+  (clear-debug-area)
   (process-input)
   (stats.update)
   (ecs-main))

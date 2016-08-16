@@ -40,3 +40,16 @@
                                 :html component.constructor.name
                                 :class '("component" "tree"))))
             (tree.append-child component-div)))))))
+
+;; --- debug write --- ;;
+
+(defvar.ps *debug-area* nil)
+
+(defun.ps clear-debug-area ()
+  (setf *debug-area* (document.query-selector "#debug"))
+  (setf #j.*debug-area*.innerHTML# "Debug: "))
+
+(defun.ps append-debug-text (text)
+  (when *debug-area*
+    (incf #j.*debug-area*.innerHTML# (+ text ":"))
+))
