@@ -14,6 +14,21 @@
 
 (defvar.ps stats nil)
 
+(defvar.ps screen-width 800)
+(defvar.ps screen-height 600)
+
+(defun.ps calc-absolute-length (relative-length)
+  "Calculate an absolute length based on the screen height (1000 = screen-height)"
+  (* relative-length screen-height 0.001))
+
+(eval-when (:execute :compile-toplevel :load-toplevel)
+  "Ex. '#y0.5' represents a half length of the screen height"
+  (set-dispatch-macro-character
+   #\# #\y
+   #'(lambda (stream &rest rest)
+       (declare (ignore rest))
+       `(calc-absolute-length ,(read stream)))))
+
 (defun.ps init-stats ()
   (let ((stats (new (-stats))))
     (stats.set-mode 0)
@@ -39,12 +54,12 @@
   (let ((parent (make-ecs-entity))
         (child (make-ecs-entity)))
     ;; make parent
-    (add-ecs-component (make-model-2d :model (make-wired-rect :width 450 :height 300
+    (add-ecs-component (make-model-2d :model (make-wired-rect :width #y640 :height #y480
                                                               :color 0xff00ff)
                                       :depth 1)
                        parent)
     (add-ecs-component (make-point-2d) parent)
-    (add-ecs-component (make-speed-2d :x 0.6 :y 0.4) parent)
+    (add-ecs-component (make-speed-2d :x #y0.8 :y #y0.6) parent)
     (add-ecs-component (make-script-2d :func (lambda (entity)
                                                (with-ecs-components (point-2d) entity
                                                  (when (is-key-down-now :b)
@@ -52,12 +67,12 @@
                                                    (setf point-2d.y 0)))))
                        parent)
     ;; make child
-    (add-ecs-component (make-model-2d :model (make-solid-rect :width 40 :height 30
+    (add-ecs-component (make-model-2d :model (make-solid-rect :width #y30 :height #y50
                                                               :color 0x00ff00)
                                       :depth 1.1)
                        child)
-    (add-ecs-component (make-point-2d :center (make-vector-2d :x 20 :y 15)) child) 
-    (add-ecs-component (make-speed-2d :x 0.4) child)
+    (add-ecs-component (make-point-2d :center (make-vector-2d :x #y15 :y #y25)) child) 
+    (add-ecs-component (make-speed-2d :x #y0.4) child)
     (add-ecs-component (make-rotate-2d :speed (/ PI 120)) child)
     ;; register
     (add-ecs-entity parent)
@@ -65,18 +80,18 @@
 
 (defun.ps make-sample-rotate-entities ()
   (let ((parent (make-ecs-entity))
-        (parent-r 50)
+        (parent-r #y80)
         (child (make-ecs-entity))
-        (child-r 25)
-        (child-dist 120)
+        (child-r #y40)
+        (child-dist #y200)
         (gchild (make-ecs-entity))
-        (gchild-r 15)
-        (gchild-dist 50))
+        (gchild-r #y20)
+        (gchild-dist #y80))
     ;; make parent
     (add-ecs-component (make-model-2d :model (make-wired-regular-polygon :r parent-r :n 6 :color 0x00ffff)
                                       :depth 0.5)
                        parent)
-    (add-ecs-component (make-point-2d :x 300 :y 200 :center (make-vector-2d :x parent-r :y parent-r)) parent)
+    (add-ecs-component (make-point-2d :x #y600 :y #y450 :center (make-vector-2d :x parent-r :y parent-r)) parent)
     (add-ecs-component (make-rotate-2d :speed (/ PI 120)) parent)
     ;; make child
     (add-ecs-component (make-model-2d :model (make-wired-regular-polygon :r child-r :n 6 :color 0x00ffff)
@@ -123,17 +138,15 @@
 
 (defun.ps main ()
   (let* ((scene (new (#j.THREE.Scene#)))
-         (width 600)
-         (height 400)
-         (camera (init-camera width height))
+         (camera (init-camera screen-width screen-height))
          (renderer (new #j.THREE.WebGLRenderer#)))
     (register-default-systems scene)
-    (renderer.set-size width height)
+    (renderer.set-size screen-width screen-height)
     ((@ ((@ document.query-selector) "#renderer") append-child) renderer.dom-element)
     (let ((light (new (#j.THREE.DirectionalLight# 0xffffff))))
       (light.position.set 0 0.7 0.7)
       (scene.add light))
-    (scene.add (make-line :pos-a '(0 0) :pos-b '(600 400) :color 0x00ff00 :z 1))
+    (scene.add (make-line :pos-a '(0 0) :pos-b (list #y1333 #y1000) :color 0x00ff00 :z 1))
     (make-sample-entities)
     (refresh-entity-display)
     (setf stats (init-stats))
