@@ -61,6 +61,15 @@
 (def-wired-geometry make-wired-rect (width height)
   (push-vertices (0 0) (width 0) (width height) (0 height) (0 0)))
 
+(def-solid-geomery make-solid-regular-polygon (r n (start-angle 0))
+  (dotimes (i n)
+    (let ((angle (to-rad (+ (/ (* 360 i) n) start-angle))))
+      (push-vertices ((+ r (* r (cos angle)))
+                      (+ r (* r (sin angle)))))))
+  (push-vertices (r r))
+  (dotimes (i n)
+    (push-faces (n i (rem (1+ i) n)))))
+
 (def-wired-geometry make-wired-regular-polygon (r n (start-angle 0))
   (dotimes (i (1+ n))
     (let ((angle (to-rad (+ (/ (* 360 i) n) start-angle))))

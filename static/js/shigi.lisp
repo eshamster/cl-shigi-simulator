@@ -88,7 +88,7 @@
         (gchild-r #y20)
         (gchild-dist #y80))
     ;; make parent
-    (add-ecs-component (make-model-2d :model (make-wired-regular-polygon :r parent-r :n 6 :color 0x00ffff)
+    (add-ecs-component (make-model-2d :model (make-solid-regular-polygon :r parent-r :n 6 :color 0x00ffff)
                                       :depth 0.5)
                        parent)
     (add-ecs-component (make-point-2d :x #y600 :y #y450 :center (make-vector-2d :x parent-r :y parent-r)) parent)
