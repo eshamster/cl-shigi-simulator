@@ -14,21 +14,6 @@
 
 (defvar.ps stats nil)
 
-(defvar.ps screen-width 800)
-(defvar.ps screen-height 600)
-
-(defun.ps calc-absolute-length (relative-length)
-  "Calculate an absolute length based on the screen height (1000 = screen-height)"
-  (* relative-length screen-height 0.001))
-
-(eval-when (:execute :compile-toplevel :load-toplevel)
-  "Ex. '#y0.5' represents a half length of the screen height"
-  (set-dispatch-macro-character
-   #\# #\y
-   #'(lambda (stream &rest rest)
-       (declare (ignore rest))
-       `(calc-absolute-length ,(read stream)))))
-
 (defun.ps init-stats ()
   (let ((stats (new (-stats))))
     (stats.set-mode 0)
@@ -161,6 +146,7 @@
   (with-use-ps-pack (:cl-shigi-simulator.static.js.2d-geometry
                      :cl-shigi-simulator.static.js.tools
                      :cl-shigi-simulator.static.js.input
+                     :cl-shigi-simulator.static.js.player
                      :cl-shigi-simulator.static.js.basic-ecs
                      :this)
     (window.add-event-listener "mousemove" on-mouse-move-event)

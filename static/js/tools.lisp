@@ -51,5 +51,21 @@
 
 (defun.ps append-debug-text (text)
   (when *debug-area*
-    (incf #j.*debug-area*.innerHTML# (+ text ":"))
-))
+    (incf #j.*debug-area*.innerHTML# (+ text ":"))))
+
+;; --- about screensize --- ;;
+
+(defvar.ps screen-width 800)
+(defvar.ps screen-height 600)
+
+(defun.ps calc-absolute-length (relative-length)
+  "Calculate an absolute length based on the screen height (1000 = screen-height)"
+  (* relative-length screen-height 0.001))
+
+(eval-when (:execute :compile-toplevel :load-toplevel)
+  "Ex. '#y0.5' represents a half length of the screen height"
+  (set-dispatch-macro-character
+   #\# #\y
+   #'(lambda (stream &rest rest)
+       (declare (ignore rest))
+       `(calc-absolute-length ,(read stream)))))
