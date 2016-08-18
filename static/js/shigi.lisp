@@ -115,6 +115,7 @@
     (add-ecs-entity pointer)))
 
 (defun.ps make-sample-entities ()
+  (make-player)
   (make-sample-move-entities)
   (make-sample-rotate-entities)
   (make-mouse-pointer))
