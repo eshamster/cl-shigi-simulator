@@ -39,26 +39,27 @@
   (let ((parent (make-ecs-entity))
         (child (make-ecs-entity)))
     ;; make parent
-    (add-ecs-component (make-model-2d :model (make-wired-rect :width #y640 :height #y480
-                                                              :color 0xff00ff)
-                                      :depth 1)
-                       parent)
-    (add-ecs-component (make-point-2d) parent)
-    (add-ecs-component (make-speed-2d :x #y0.8 :y #y0.6) parent)
-    (add-ecs-component (make-script-2d :func (lambda (entity)
-                                               (with-ecs-components (point-2d) entity
-                                                 (when (is-key-down-now :b)
-                                                   (setf point-2d.x 0)
-                                                   (setf point-2d.y 0)))))
-                       parent)
+    (add-ecs-component-list
+     parent
+     (make-model-2d :model (make-wired-rect :width #y640 :height #y480
+                                            :color 0xff00ff)
+                    :depth 1)
+     (make-point-2d)
+     (make-speed-2d :x #y0.8 :y #y0.6)
+     (make-script-2d :func (lambda (entity)
+                             (with-ecs-components (point-2d) entity
+                               (when (is-key-down-now :b)
+                                 (setf point-2d.x 0)
+                                 (setf point-2d.y 0))))))
     ;; make child
-    (add-ecs-component (make-model-2d :model (make-solid-rect :width #y30 :height #y50
-                                                              :color 0x00ff00)
-                                      :depth 1.1)
-                       child)
-    (add-ecs-component (make-point-2d :center (make-vector-2d :x #y15 :y #y25)) child) 
-    (add-ecs-component (make-speed-2d :x #y0.4) child)
-    (add-ecs-component (make-rotate-2d :speed (/ PI 120)) child)
+    (add-ecs-component-list
+     child
+     (make-model-2d :model (make-solid-rect :width #y30 :height #y50
+                                            :color 0x00ff00)
+                    :depth 1.1)
+     (make-point-2d :center (make-vector-2d :x #y15 :y #y25))
+     (make-speed-2d :x #y0.4)
+     (make-rotate-2d :speed (/ PI 120)))
     ;; register
     (add-ecs-entity parent)
     (add-ecs-entity child parent)))
@@ -73,24 +74,27 @@
         (gchild-r #y20)
         (gchild-dist #y80))
     ;; make parent
-    (add-ecs-component (make-model-2d :model (make-solid-regular-polygon :r parent-r :n 6 :color 0x00ffff)
-                                      :depth 0.5)
-                       parent)
-    (add-ecs-component (make-point-2d :x #y600 :y #y450 :center (make-vector-2d :x parent-r :y parent-r)) parent)
-    (add-ecs-component (make-rotate-2d :speed (/ PI 120)) parent)
+    (add-ecs-component-list
+     parent
+     (make-model-2d :model (make-solid-regular-polygon :r parent-r :n 6 :color 0x00ffff)
+                    :depth 0.5)
+     (make-point-2d :x #y600 :y #y450 :center (make-vector-2d :x parent-r :y parent-r))
+     (make-rotate-2d :speed (/ PI 120)))
     ;; make child
-    (add-ecs-component (make-model-2d :model (make-wired-regular-polygon :r child-r :n 6 :color 0x00ffff)
-                                      :depth 0.5)
-                       child)
-    (add-ecs-component (make-point-2d :x child-dist :center (make-vector-2d :x child-r :y child-r)) child)
-    (add-ecs-component (make-rotate-2d :speed (* -1 (/ PI 60))) child)
-    (add-ecs-component (make-rotate-2d :speed (/ PI 360) :rot-offset (make-vector-2d :x child-dist)) child)
+    (add-ecs-component-list
+     child
+     (make-model-2d :model (make-wired-regular-polygon :r child-r :n 6 :color 0x00ffff)
+                    :depth 0.5)
+     (make-point-2d :x child-dist :center (make-vector-2d :x child-r :y child-r))
+     (make-rotate-2d :speed (* -1 (/ PI 60)))
+     (make-rotate-2d :speed (/ PI 360) :rot-offset (make-vector-2d :x child-dist)))
     ;; make grandchild
-    (add-ecs-component (make-model-2d :model (make-wired-regular-polygon :r gchild-r :n 6 :color 0x00ffff)
-                                      :depth 0.5)
-                       gchild)
-    (add-ecs-component (make-point-2d :x gchild-dist :center (make-vector-2d :x gchild-r :y gchild-r)) gchild)
-    (add-ecs-component (make-rotate-2d :speed (* -1 (/ PI 300)) :rot-offset (make-vector-2d :x gchild-dist)) gchild)
+    (add-ecs-component-list
+     gchild
+     (make-model-2d :model (make-wired-regular-polygon :r gchild-r :n 6 :color 0x00ffff)
+                    :depth 0.5)
+     (make-point-2d :x gchild-dist :center (make-vector-2d :x gchild-r :y gchild-r))
+     (make-rotate-2d :speed (* -1 (/ PI 300)) :rot-offset (make-vector-2d :x gchild-dist)))
     ;; register
     (add-ecs-entity parent)
     (add-ecs-entity child parent)
@@ -99,16 +103,15 @@
 (defun.ps make-mouse-pointer ()
   (let ((pointer (make-ecs-entity))
         (r 5))
-    (add-ecs-component (make-point-2d :center (make-vector-2d :x r :y r)) pointer)
-    (add-ecs-component (make-model-2d :model (make-wired-regular-polygon :n 60 :color 0xff0000
-                                                                         :r r)
-                                      :depth 1)
-                       pointer)
-    (add-ecs-component (make-script-2d :func (lambda (entity)
-                                               (with-ecs-components (point-2d) entity
-                                                 (setf point-2d.x (get-mouse-x))
-                                                 (setf point-2d.y (get-mouse-y)))))
-                       pointer)
+    (add-ecs-component-list
+     pointer
+     (make-point-2d :center (make-vector-2d :x r :y r))
+     (make-model-2d :model (make-wired-regular-polygon :n 60 :color 0xff0000 :r r)
+                    :depth 1)
+     (make-script-2d :func (lambda (entity)
+                             (with-ecs-components (point-2d) entity
+                               (setf point-2d.x (get-mouse-x))
+                               (setf point-2d.y (get-mouse-y))))))
     (add-ecs-entity pointer)))
 
 (defun.ps make-sample-entities ()
