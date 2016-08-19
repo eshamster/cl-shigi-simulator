@@ -25,14 +25,10 @@
     stats))
 
 (defun.ps init-camera (width height)
-  (let* ((fov 60)
-         (rad-fov (/ (* fov PI) 180))
-         (aspect (/ width height))
-         (z (abs (* (/ height 2)
-                    (/ 1 (tan (/ rad-fov 2))))))
-         (camera (new (#j.THREE.PerspectiveCamera# fov aspect
-                                                   (/ z 2) (* z 2)))))
-    (camera.position.set (/ width 2) (/ height 2) z)
+  (let* ((z 1000)
+         (camera (new (#j.THREE.OrthographicCamera#
+                       0 width height 0 0 (* z 2)))))
+    (camera.position.set 0 0 z)
     camera))
 
 (defun.ps make-sample-move-entities ()
