@@ -29,20 +29,30 @@
      (make-point-2d :x (* r -1) :y (* r -1)))
     body))
 
+(defun.ps move-player (player)
+  (let ((speed (get-param :player :speed))
+        (r (get-param :player :body-r)))
+    (with-ecs-components (point-2d) player
+      (macrolet ((move (direction move)
+                   `(when (is-key-down ,direction) ,move)))
+        (move :left  (decf point-2d.x speed))
+        (move :right (incf point-2d.x speed))
+        (move :down  (decf point-2d.y speed))
+        (move :up    (incf point-2d.y speed)))
+      (macrolet ((fix-position (op place value)
+                   `(when (,op ,place ,value)
+                      (setf ,place ,value))))
+        (fix-position < point-2d.x r)
+        (fix-position > point-2d.x (- screen-width r))
+        (fix-position < point-2d.y r)
+        (fix-position > point-2d.y (- screen-height r))))))
+
 (defun.ps make-player-center ()
-  (let ((body (make-ecs-entity))
-        (speed (get-param :player :speed)))
+  (let ((body (make-ecs-entity)))
     (add-ecs-component-list
      body
      (make-point-2d :x #y(* 500 4/3) :y #y100)
-     (macrolet ((move (direction move)
-                  `(when (is-key-down ,direction) ,move)))
-       (make-script-2d :func (lambda (entity)
-                               (with-ecs-components (point-2d) entity
-                                 (move :left  (decf point-2d.x speed))
-                                 (move :right (incf point-2d.x speed))
-                                 (move :down  (decf point-2d.y speed))
-                                 (move :up    (incf point-2d.y speed)))))))
+     (make-script-2d :func #'move-player))
     body))
 
 (defun.ps make-player ()
