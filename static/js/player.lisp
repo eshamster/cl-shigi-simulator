@@ -4,34 +4,34 @@
         :cl-ppcre
         :ps-experiment
         :cl-ps-ecs
-        :parenscript))
+        :parenscript
+        :cl-shigi-simulator.static.js.tools))
 (in-package :cl-shigi-simulator.static.js.player)
-
 (enable-ps-experiment-syntax)
 
 (defun.ps make-player-ring ()
   (let ((ring (make-ecs-entity))
-        (r #y70))
+        (r (get-param :player :ring-r)))
     (add-ecs-component-list
      ring
      (make-model-2d :model (make-wired-regular-polygon :r r :n 100 :color 0x4444ff)
-                 :depth 0.5)
+                 :depth (get-param :player :depth))
      (make-point-2d :x (* r -1) :y (* r -1)))
     ring))
 
 (defun.ps make-player-body ()
   (let ((body (make-ecs-entity))
-        (r #y5))
+        (r (get-param :player :body-r)))
     (add-ecs-component-list
      body
      (make-model-2d :model (make-solid-regular-polygon :r r :n 100 :color 0x4444ff)
-                 :depth 0.5)
+                 :depth (get-param :player :depth))
      (make-point-2d :x (* r -1) :y (* r -1)))
     body))
 
 (defun.ps make-player-center ()
   (let ((body (make-ecs-entity))
-        (speed #y2))
+        (speed (get-param :player :speed)))
     (add-ecs-component-list
      body
      (make-point-2d :x #y(* 500 4/3) :y #y100)
