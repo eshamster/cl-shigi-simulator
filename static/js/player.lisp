@@ -30,15 +30,19 @@
     body))
 
 (defun.ps make-player-center ()
-  (let ((body (make-ecs-entity)))
+  (let ((body (make-ecs-entity))
+        (speed #y2))
     (add-ecs-component-list
      body
      (make-point-2d :x #y(* 500 4/3) :y #y100)
-     (make-script-2d :func (lambda (entity)
-                             (with-ecs-components (point-2d) entity
-                               (when (is-key-down-now :b)
-                                 (setf point-2d.x 0)
-                                 (setf point-2d.y 0))))))
+     (macrolet ((move (direction move)
+                  `(when (is-key-down ,direction) ,move)))
+       (make-script-2d :func (lambda (entity)
+                               (with-ecs-components (point-2d) entity
+                                 (move :left  (decf point-2d.x speed))
+                                 (move :right (incf point-2d.x speed))
+                                 (move :down  (decf point-2d.y speed))
+                                 (move :up    (incf point-2d.y speed)))))))
     body))
 
 (defun.ps make-player ()
