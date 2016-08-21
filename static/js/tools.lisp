@@ -11,6 +11,23 @@
 
 (enable-ps-experiment-syntax)
 
+;; --- about screensize --- ;;
+
+(eval-when (:execute :compile-toplevel :load-toplevel)
+  (defvar.ps+ screen-width 800)
+  (defvar.ps+ screen-height 600)
+  
+  (defun.ps+ calc-absolute-length (relative-length)
+    "Calculate an absolute length based on the screen height (1000 = screen-height)"
+    (* relative-length screen-height 0.001))
+  
+  "Ex. '#y0.5' represents a half length of the screen height"
+  (set-dispatch-macro-character
+   #\# #\y
+   #'(lambda (stream &rest rest)
+       (declare (ignore rest))
+       `(calc-absolute-length ,(read stream)))))
+
 ;; --- constant value manager --- ;;
 
 (defun.ps to-json (list)
@@ -88,23 +105,6 @@
 (defun.ps append-debug-text (text)
   (when *debug-area*
     (incf #j.*debug-area*.innerHTML# (+ text ":"))))
-
-;; --- about screensize --- ;;
-
-(eval-when (:execute :compile-toplevel :load-toplevel)
-  (defvar.ps+ screen-width 800)
-  (defvar.ps+ screen-height 600)
-  
-  (defun.ps+ calc-absolute-length (relative-length)
-    "Calculate an absolute length based on the screen height (1000 = screen-height)"
-    (* relative-length screen-height 0.001))
-  
-  "Ex. '#y0.5' represents a half length of the screen height"
-  (set-dispatch-macro-character
-   #\# #\y
-   #'(lambda (stream &rest rest)
-       (declare (ignore rest))
-       `(calc-absolute-length ,(read stream)))))
 
 ;; --- others --- ;;
 
