@@ -17,15 +17,19 @@
         (dist (get-param :shigi :bit :dist)))
     (dotimes (i num-bit)
       (let* ((bit (make-ecs-entity))
-             (angle (* 2 PI i (/ 1 num-bit))) 
-             (center (make-vector-2d :x (- (* dist (cos angle)) r)
-                                     :y (- (* dist (sin angle)) r))))
+             (angle (* 2 PI i (/ 1 num-bit)))
+             (center (make-vector-2d :x r :y r))
+             (point (make-vector-2d :x (* dist (cos angle))
+                                    :y (* dist (sin angle)))))
         (add-ecs-component-list
          bit
          (make-model-2d :model (make-wired-regular-polygon :r r :n 100 :color 0x44ff44)
                         :depth (get-param :player :depth))
-         (make-point-2d :x center.x :y center.y)))
-        (push bit result)))
+         (make-point-2d :x point.x :y point.y :center center)
+         (make-rotate-2d :speed rot-speed
+                         :rot-offset (make-vector-2d :x point.x
+                                                     :y point.y))))
+      (push bit result))
     result))
 
 (defun.ps make-shigi-center ()
