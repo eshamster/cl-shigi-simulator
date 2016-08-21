@@ -96,6 +96,18 @@
     (add-ecs-entity child parent)
     (add-ecs-entity gchild child)))
 
+(defun.ps make-sample-polygon ()
+  (let ((obj (make-ecs-entity)))
+    (add-ecs-component-list
+     obj
+     (make-model-2d :model (make-wired-polygon
+                            :pnt-list '((#.#y10 #.#y100) (#.#y20 #.#y200)
+                                        (#.#y50 #.#y150) (#.#y30 #.#y50))
+                            :color 0xffff00)
+                    :depth 0.5)
+     (make-point-2d :x #y1000 :y #y0))
+    (add-ecs-entity obj)))
+
 (defun.ps make-mouse-pointer ()
   (let ((pointer (make-ecs-entity))
         (r 5))
@@ -114,6 +126,7 @@
   (make-player)
   (make-sample-move-entities)
   (make-sample-rotate-entities)
+  (make-sample-polygon)
   (make-mouse-pointer))
 
 (defun.ps update ()
