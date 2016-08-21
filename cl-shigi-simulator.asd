@@ -43,7 +43,10 @@
                  (:file "basic-ecs")
                  (:file "tools")
                  (:file "input" :depends-on ("tools"))
-                 (:file "shigi" :depends-on ("utils" "basic-ecs" "tools" "input" "2d-geometry"))))
+                 (:file "player" :depends-on ("basic-ecs" "2d-geometry" "tools"))
+                 (:file "shigi" :depends-on ("basic-ecs" "2d-geometry" "tools"))
+                 (:file "shigi-simulator"
+                        :depends-on ("utils" "basic-ecs" "tools" "input" "2d-geometry"))))
                (:module "templates"
                 :components
                 ((:file "index")
