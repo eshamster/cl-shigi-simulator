@@ -132,6 +132,7 @@
 
 (defun.ps make-sample-entities ()
   (make-player)
+  (make-shigi)
   (make-sample-move-entities)
   (make-sample-rotate-entities)
   (make-sample-polygon)
@@ -168,6 +169,7 @@
   (with-use-ps-pack (:cl-shigi-simulator.static.js.2d-geometry
                      :cl-shigi-simulator.static.js.tools
                      :cl-shigi-simulator.static.js.input
+                     :cl-shigi-simulator.static.js.shigi
                      :cl-shigi-simulator.static.js.player
                      :cl-shigi-simulator.static.js.basic-ecs
                      :this)

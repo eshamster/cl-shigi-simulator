@@ -51,7 +51,10 @@
     (to-json '(:player (:speed #.#y4
                         :depth 100
                         :ring-r #.#y70
-                        :body-r #.#y7))))
+                        :body-r #.#y7)
+               :shigi (:bit (:r #.#y30
+                             :dist #.#y100
+                             :rot-speed -0.02)))))
 
 (defmacro.ps get-param (&rest keys)
   (labels ((rec (rest-keys result)
