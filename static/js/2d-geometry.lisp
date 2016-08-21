@@ -80,8 +80,17 @@
 
 ;; --- arbitrary polygon --- ;;
 
-(def-wired-geometry make-wired-polygon (pnt-list)
+(def-solid-geometry make-wired-polygon (pnt-list)
   (dolist (pnt pnt-list)
     (push-vertices ((car pnt) (cadr pnt))))
   (let ((first (car pnt-list)))
     (push-vertices ((car first) (cadr first)))))
+
+(def-solid-geomery make-solid-polygon (pnt-list)
+  (dolist (pnt pnt-list)
+    (push-vertices ((car pnt) (cadr pnt))))
+  (let ((len (length pnt-list))))
+  (dotimes (i (1- len))
+    (push-faces (0
+                 (+ i 1)
+                 (rem (+ i 2) len)))))

@@ -97,16 +97,24 @@
     (add-ecs-entity gchild child)))
 
 (defun.ps make-sample-polygon ()
-  (let ((obj (make-ecs-entity)))
-    (add-ecs-component-list
-     obj
-     (make-model-2d :model (make-wired-polygon
-                            :pnt-list '((#.#y10 #.#y100) (#.#y20 #.#y200)
-                                        (#.#y50 #.#y150) (#.#y30 #.#y50))
-                            :color 0xffff00)
-                    :depth 0.5)
-     (make-point-2d :x #y1000 :y #y0))
-    (add-ecs-entity obj)))
+  (let ((pnts '((#.#y10 #.#y100) (#.#y30 #.#y50)
+                (#.#y50 #.#y150) (#.#y20 #.#y200)))
+        (x #y1000)
+        (y #y0))
+    (let ((obj (make-ecs-entity)))
+      (add-ecs-component-list
+       obj
+       (make-model-2d :model (make-wired-polygon :pnt-list pnts :color 0xffff00)
+                      :depth 0.5)
+       (make-point-2d :x x :y y))
+      (add-ecs-entity obj))
+    (let ((obj (make-ecs-entity)))
+      (add-ecs-component-list
+       obj
+       (make-model-2d :model (make-solid-polygon :pnt-list pnts :color 0x00aa00)
+                      :depth 0)
+       (make-point-2d :x x :y y))
+      (add-ecs-entity obj))))
 
 (defun.ps make-mouse-pointer ()
   (let ((pointer (make-ecs-entity))
