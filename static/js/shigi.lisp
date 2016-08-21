@@ -57,12 +57,9 @@
     result))
 
 (defun.ps make-shigi-center ()
-  (let ((center (make-ecs-entity))
-        (point (make-vector-2d :x (* dist (cos angle))
-                               :y (* dist (sin angle)))))
+  (let ((center (make-ecs-entity)))
     (add-ecs-component-list
      center
-     (make-model-2d :model)
      (make-point-2d :x #y(* 500 4/3) :y #y800))
     center))
 
