@@ -52,7 +52,8 @@
                         :depth 100
                         :ring-r #.#y70
                         :body-r #.#y7)
-               :shigi (:bit (:r #.#y30
+               :shigi (:depth 50
+                       :bit (:r #.#y30
                              :dist #.#y100
                              :rot-speed -0.02)))))
 
