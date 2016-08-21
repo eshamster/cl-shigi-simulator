@@ -32,7 +32,8 @@
   (with-slots (x y) vector
     (if (= x 0)
         0
-        (atan (/ y x)))))
+        (+ (atan (/ y x))
+           (if (< x 0) PI 0)))))
 
 (defun.ps+ incf-vector (target-vec diff-vec)
   (incf (vector-2d-x target-vec) (vector-2d-x diff-vec))
