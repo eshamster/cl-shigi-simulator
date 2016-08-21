@@ -1,5 +1,5 @@
 (in-package :cl-user)
-(defpackage cl-shigi-simulator.static.js.shigi
+(defpackage cl-shigi-simulator.static.js.shigi-simulator
   (:use :cl
         :cl-ppcre
         :parenscript)
@@ -10,7 +10,7 @@
                 :with-use-ps-pack) 
   (:import-from :cl-ps-ecs
                 :with-ecs-components))
-(in-package :cl-shigi-simulator.static.js.shigi)
+(in-package :cl-shigi-simulator.static.js.shigi-simulator)
 
 (defvar.ps stats nil)
 
