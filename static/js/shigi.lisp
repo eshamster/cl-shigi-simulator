@@ -32,6 +32,30 @@
       (push bit result))
     result))
 
+(defun.ps make-shigi-bodies ()
+  (let ((result '())
+        (pnt-list '((#.#y0 #.#y76.8) (#.#y76.8 #.#y115.2)
+                    (#.#y92.16 #.#y-57.6) (#.#y0 #.#y-144))))
+    (labels ((reverse-list-by-x (pnt-list)
+               (let ((result '()))
+                 (dolist (pnt pnt-list)
+                   (push (list (* (car pnt) -1) (cadr pnt)) result))
+                 result)))
+      (dotimes (i 2)
+        (let ((body (make-ecs-entity)))
+          (add-ecs-component-list
+           body
+           (make-model-2d :model (make-wired-polygon
+                                  :pnt-list (if (= i 0)
+                                                pnt-list
+                                                (reverse-list-by-x pnt-list))
+                                  :color 0x44ff44)
+                          :depth (get-param :shigi :depth))
+           (make-point-2d :x 0 :y 0))
+          
+          (push body result))))
+    result))
+
 (defun.ps make-shigi-center ()
   (let ((center (make-ecs-entity)))
     (add-ecs-component-list
@@ -41,7 +65,10 @@
 
 (defun.ps make-shigi ()
   (let ((center (make-shigi-center))
+        (bodies (make-shigi-bodies))
         (bit-list (make-shigi-bits)))
     (add-ecs-entity center)
+    (dolist (body bodies)
+      (add-ecs-entity body center))
     (dolist (bit bit-list)
       (add-ecs-entity bit center))))
