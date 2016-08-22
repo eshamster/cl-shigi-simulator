@@ -12,4 +12,7 @@
   (with-default-layout (:title "Welcome to Shigi simulator")
     (:div :id "main"
           (:div "Welcome to Shigi simulator" "!")
-          (:div :id "to_shigi" (:a :href "shigi" "Start")))))
+          (:div :id "to_shigi" (:a :href "shigi" "Start"))
+          (:div :id "test_pages"
+                (:div "Tests")
+                (:div :class "test_url" (:a :href "test/collision" "Collision test"))))))
