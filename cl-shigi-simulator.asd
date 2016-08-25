@@ -40,7 +40,8 @@
                 :components
                 ((:file "utils")
                  (:file "2d-geometry")
-                 (:file "basic-ecs")
+                 (:file "basic-components")
+                 (:file "basic-ecs" :depends-on ("basic-components"))
                  (:file "tools")
                  (:file "input" :depends-on ("tools"))
                  (:file "player" :depends-on ("basic-ecs" "2d-geometry" "tools"))

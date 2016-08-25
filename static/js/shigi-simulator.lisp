@@ -83,6 +83,7 @@
                      :cl-shigi-simulator.static.js.input
                      :cl-shigi-simulator.static.js.shigi
                      :cl-shigi-simulator.static.js.player
+                     :cl-shigi-simulator.static.js.basic-components
                      :cl-shigi-simulator.static.js.basic-ecs
                      :this)
     (window.add-event-listener "mousemove" on-mouse-move-event)
