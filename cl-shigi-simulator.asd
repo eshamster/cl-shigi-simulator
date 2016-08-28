@@ -40,18 +40,25 @@
                 :components
                 ((:file "utils")
                  (:file "2d-geometry")
-                 (:file "basic-ecs")
+                 (:file "basic-components")
+                 (:file "collision" :depends-on ("basic-components"))
+                 (:file "basic-ecs" :depends-on ("basic-components" "collision"))
                  (:file "tools")
                  (:file "input" :depends-on ("tools"))
                  (:file "player" :depends-on ("basic-ecs" "2d-geometry" "tools"))
                  (:file "shigi" :depends-on ("basic-ecs" "2d-geometry" "tools"))
                  (:file "shigi-simulator"
                         :depends-on ("utils" "basic-ecs" "tools" "input" "2d-geometry"))))
+               (:module "static/js/test" 
+                :components
+                ((:file "collision"))
+                :depends-on ("static/js"))
                (:module "templates"
                 :components
                 ((:file "index")
-                 (:file "shigi"))
-                :depends-on ("templates/layouts" "static/js"))
+                 (:file "shigi")
+                 (:file "test-collision"))
+                :depends-on ("templates/layouts" "static/js" "static/js/test"))
                (:module "templates/layouts"
                 :components
                 ((:file "utils")

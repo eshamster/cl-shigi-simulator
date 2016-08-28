@@ -24,3 +24,15 @@ a:hover {
   font-size: 200%;
   text-decoration: underline;
 }
+
+#test_pages {
+  border: solid 1px #000000;
+  margin-top: 50px;
+  margin-left: auto;
+  margin-right: auto;
+  width: 150px;
+}
+
+.test_url {
+  text-decoration: underline;
+}

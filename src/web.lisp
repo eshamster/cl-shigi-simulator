@@ -29,6 +29,9 @@
 (defroute "/shigi" ()
   (render :shigi))
 
+(defroute "/test/collision" ()
+  (render :test-collision))
+
 ;;
 ;; Error pages
 
