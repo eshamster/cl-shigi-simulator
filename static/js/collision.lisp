@@ -73,6 +73,18 @@
           (/ (- yt (* slope xt) offset)
              (sqrt (+ 1 (expt slope 2))))))))
 
+(defun.ps+ is-pnt-in-triangle (target-x target-y x1 y1 x2 y2 x3 y3)
+  "Judge if a target point is in triangle or not by calculating vector product"
+  (labels ((calc-vector-product (x1 y1 x2 y2)
+             (- (* x1 y2) (* x2 y1)))
+           (is-same-sign (a b c)
+             (or (and (<= a 0) (<= b 0) (<= c 0))
+                 (and (>= a 0) (>= b 0) (>= c 0)))))
+    (is-same-sign
+     (calc-vector-product (- x2 x1) (- y2 y1) (- target-x x1) (- target-y y1))
+     (calc-vector-product (- x3 x2) (- y3 y2) (- target-x x2) (- target-y y2))
+     (calc-vector-product (- x1 x3) (- y1 y3) (- target-x x3) (- target-y y3)))))
+
 (defun.ps+ process-collision (entity1 entity2)
   (with-ecs-components ((ph1 physic-2d) (pnt1 point-2d)) entity1
     (with-ecs-components ((ph2 physic-2d) (pnt2 point-2d)) entity2
