@@ -5,8 +5,12 @@
         :ps-experiment
         :cl-ps-ecs
         :parenscript)
-  (:export :vector-2d-x
+  (:export :make-vector-2d
+           :vector-2d
+           :vector-2d-x
            :vector-2d-y
+
+           :point-2d
            :point-2d-x
            :point-2d-y
            :point-2d-center

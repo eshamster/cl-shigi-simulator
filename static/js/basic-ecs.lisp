@@ -5,6 +5,7 @@
         :ps-experiment
         :cl-ps-ecs
         :cl-shigi-simulator.static.js.basic-components
+        :cl-shigi-simulator.static.js.collision
         :parenscript))
 (in-package :cl-shigi-simulator.static.js.basic-ecs)
 
@@ -87,4 +88,5 @@
                                                 (scene.remove (model-2d-model model-2d))))))
   (register-ecs-system "move2d" (make-move-system))
   (register-ecs-system "rotate2d" (make-rotate-system))
-  (register-ecs-system "script2d" (make-script-system)))
+  (register-ecs-system "script2d" (make-script-system))
+  (register-ecs-system "collision" (make-collision-system)))

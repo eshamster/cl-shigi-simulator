@@ -26,9 +26,21 @@
     (camera.position.set 0 0 z)
     camera))
 
+(defun.ps make-circle ()
+  (let* ((circle (make-ecs-entity))
+         (r #y100))
+    (add-entity-tag circle "circle")
+    (add-ecs-component-list
+     circle
+     (make-point-2d :x #y300 :y #y600 :center (make-vector-2d :x r :y r))
+     (make-model-2d :model (make-wired-regular-polygon :n 60 :color 0xff0000 :r r)
+                    :depth 1)
+     (make-physic-circle :r r))
+    (add-ecs-entity circle)))
+
 (defun.ps make-mouse-pointer ()
   (let ((pointer (make-ecs-entity))
-        (r 5))
+        (r 30))
     (add-ecs-component-list
      pointer
      (make-point-2d :center (make-vector-2d :x r :y r))
@@ -37,7 +49,11 @@
      (make-script-2d :func (lambda (entity)
                              (with-ecs-components (point-2d) entity
                                (setf point-2d.x (get-mouse-x))
-                               (setf point-2d.y (get-mouse-y))))))
+                               (setf point-2d.y (get-mouse-y)))))
+     (make-physic-circle :r r
+                         :on-collision (lambda (mine target)
+                                         (with-slots (tags) target
+                                           (append-debug-text (+ "Collies to " (car tags)))))))
     (add-ecs-entity pointer)))
 
 (defun.ps update ()
@@ -59,6 +75,7 @@
     (scene.add (make-line :pos-a (list #y1333 #y500) :pos-b (list 0 #y500) :color 0x00ff00 :z 1))
     (scene.add (make-line :pos-a (list #y666 #y0) :pos-b (list #y666 #y1000) :color 0x00ff00 :z 1))
     (make-mouse-pointer)
+    (make-circle)
     (refresh-entity-display)
     (setf stats (init-stats))
     (labels ((render-loop ()
@@ -71,6 +88,7 @@
   (with-use-ps-pack (:cl-shigi-simulator.static.js.2d-geometry
                      :cl-shigi-simulator.static.js.tools
                      :cl-shigi-simulator.static.js.input
+                     :cl-shigi-simulator.static.js.collision
                      :cl-shigi-simulator.static.js.basic-ecs
                      :this)
     (window.add-event-listener "mousemove" on-mouse-move-event)
