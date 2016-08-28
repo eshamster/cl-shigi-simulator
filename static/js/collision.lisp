@@ -62,6 +62,17 @@
 
 ;; --- auxiliary functions --- ;;
 
+(defun.ps+ calc-dist-to-line (target-pnt line-pnt1 line-pnt2)
+  (with-slots-pair (((x1 x) (y1 y)) line-pnt1
+                    ((x2 x) (y2 y)) line-pnt2
+                    ((xt x) (yt y)) target-pnt)
+    (if (= x1 x2)
+        (- xt x1)
+        (let* ((slope (/ (- y2 y1) (- x2 x1)))
+               (offset (- y1 (* slope x1))))
+          (/ (- yt (* slope xt) offset)
+             (sqrt (+ 1 (expt slope 2))))))))
+
 (defun.ps+ process-collision (entity1 entity2)
   (with-ecs-components ((ph1 physic-2d) (pnt1 point-2d)) entity1
     (with-ecs-components ((ph2 physic-2d) (pnt2 point-2d)) entity2
