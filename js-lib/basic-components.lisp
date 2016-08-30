@@ -1,5 +1,5 @@
 (in-package :cl-user)
-(defpackage cl-shigi-simulator.static.js.basic-components
+(defpackage cl-web-2d-game.basic-components
   (:use :cl
         :cl-ppcre
         :ps-experiment
@@ -16,9 +16,13 @@
            :point-2d-center
            :point-2d-angle
 
+           :model-2d
            :model-2d-model
-           :model-2d-depth))
-(in-package :cl-shigi-simulator.static.js.basic-components)
+           :model-2d-depth
+
+           :incf-rotate-diff
+           :decf-rotate-diff))
+(in-package :cl-web-2d-game.basic-components)
 
 (enable-ps-experiment-syntax)
 
@@ -55,6 +59,24 @@
   (decf (vector-2d-x target-vec) (vector-2d-x diff-vec))
   (decf (vector-2d-y target-vec) (vector-2d-y diff-vec))
   target-vec)
+
+(defun.ps+ incf-rotate-diff (target-vector offset-vector now-angle diff-angle)
+  (let* ((r (vector-abs offset-vector))
+         (now-angle-with-offset (+ now-angle (vector-angle offset-vector)))
+         (cos-now (cos now-angle-with-offset))
+         (sin-now (sin now-angle-with-offset))
+         (cos-diff (cos diff-angle))
+         (sin-diff (sin diff-angle)))
+    (with-slots (x y) target-vector
+      (incf x (- (* r cos-now cos-diff)
+                 (* r sin-now sin-diff)
+                 (* r cos-now)))
+      (incf y (- (+ (* r sin-now cos-diff)
+                    (* r cos-now sin-diff))
+                 (* r sin-now))))))
+
+(defun.ps+ decf-rotate-diff (vector offset-vector now-angle diff-angle)
+  (incf-rotate-diff vector offset-vector now-angle (* -1 diff-angle)))
 
 (defun.ps+ calc-model-position (entity)
   (labels ((rec (result parent)

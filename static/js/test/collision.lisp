@@ -4,8 +4,8 @@
         :cl-ppcre
         :parenscript
         :ps-experiment
-        :cl-shigi-simulator.static.js.tools
-        :cl-shigi-simulator.static.js.basic-components
+        :cl-web-2d-game
+        :cl-shigi-simulator.static.js.tools 
         :cl-ps-ecs))
 (in-package :cl-shigi-simulator.static.js.test.collision)
 

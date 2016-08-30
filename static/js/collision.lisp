@@ -4,7 +4,7 @@
         :parenscript
         :cl-ps-ecs
         :ps-experiment
-        :cl-shigi-simulator.static.js.basic-components)
+        :cl-web-2d-game)
   (:export :process-collision
            :collision-system
            :make-collision-system))
