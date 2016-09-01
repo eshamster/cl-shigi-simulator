@@ -3,8 +3,9 @@
   (:use :cl
         :cl-ppcre
         :parenscript)
+  (:import-from :ps-experiment.common-macros
+                :setf-with)
   (:import-from :ps-experiment
-                :setf-with
                 :defun.ps
                 :defvar.ps
                 :with-use-ps-pack) 

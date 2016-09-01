@@ -5,6 +5,8 @@
         :cl-ps-ecs
         :ps-experiment
         :cl-web-2d-game)
+  (:import-from :ps-experiment.common-macros
+                :with-slots-pair)
   (:export :process-collision
            :collision-system
            :make-collision-system))
@@ -18,18 +20,6 @@
   (on-collision (lambda (mine target) (declare (ignore mine target)) nil)))
 
 (defstruct.ps+ (physic-circle (:include physic-2d (kind :circle))) (r 0))
-
-;; --- utils --- ;;
-;; TODO: move this definition to more appropriate package
-(defmacro.ps+ with-slots-pair (pair &body body)
-  (unless (evenp (length pair))
-    (error "with-slots-pair needs an even number length list as a first argument"))
-  (labels ((rec (rest-pair)
-             (if rest-pair
-                 `((with-slots ,(car rest-pair) ,(cadr rest-pair)
-                     ,@(rec (cddr rest-pair))))
-                 body)))
-    (car (rec pair))))
 
 ;; --- basic funcions --- ;;
 
@@ -61,17 +51,6 @@
                 point2 offset2 r2)))
 
 ;; --- auxiliary functions --- ;;
-
-(defun.ps+ calc-dist-to-line (target-pnt line-pnt1 line-pnt2)
-  (with-slots-pair (((x1 x) (y1 y)) line-pnt1
-                    ((x2 x) (y2 y)) line-pnt2
-                    ((xt x) (yt y)) target-pnt)
-    (if (= x1 x2)
-        (- xt x1)
-        (let* ((slope (/ (- y2 y1) (- x2 x1)))
-               (offset (- y1 (* slope x1))))
-          (/ (- yt (* slope xt) offset)
-             (sqrt (+ 1 (expt slope 2))))))))
 
 (defun.ps+ is-pnt-in-triangle (target-x target-y x1 y1 x2 y2 x3 y3)
   "Judge if a target point is in triangle or not by calculating vector product"
