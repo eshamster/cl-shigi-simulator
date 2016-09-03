@@ -108,7 +108,7 @@
 
 (defun.ps append-debug-text (text)
   (when *debug-area*
-    (incf #j.*debug-area*.innerHTML# (+ text ":"))))
+    (incf #j.*debug-area*.innerHTML# (+ text "<br>"))))
 
 ;; --- others --- ;;
 

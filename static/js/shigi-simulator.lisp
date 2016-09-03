@@ -3,8 +3,9 @@
   (:use :cl
         :cl-ppcre
         :parenscript)
+  (:import-from :ps-experiment.common-macros
+                :setf-with)
   (:import-from :ps-experiment
-                :setf-with
                 :defun.ps
                 :defvar.ps
                 :with-use-ps-pack) 
@@ -83,7 +84,6 @@
                      :cl-shigi-simulator.static.js.input
                      :cl-shigi-simulator.static.js.shigi
                      :cl-shigi-simulator.static.js.player
-                     :cl-shigi-simulator.static.js.basic-components
                      :cl-shigi-simulator.static.js.basic-ecs
                      :this)
     (window.add-event-listener "mousemove" on-mouse-move-event)

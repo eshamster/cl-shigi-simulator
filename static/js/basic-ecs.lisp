@@ -4,7 +4,7 @@
         :cl-ppcre
         :ps-experiment
         :cl-ps-ecs
-        :cl-shigi-simulator.static.js.basic-components
+        :cl-web-2d-game
         :cl-shigi-simulator.static.js.collision
         :parenscript))
 (in-package :cl-shigi-simulator.static.js.basic-ecs)
@@ -36,23 +36,6 @@
                (process (lambda (entity)
                           (with-ecs-components (point-2d speed-2d) entity
                             (incf-vector point-2d speed-2d)))))))
-
-(defun.ps+ incf-rotate-diff (vector offset-vector now-angle diff-angle)
-  (let* ((r (vector-abs offset-vector))
-         (now-angle-with-offset (+ now-angle (vector-angle offset-vector)))
-         (cos-now (cos now-angle-with-offset))
-         (sin-now (sin now-angle-with-offset))
-         (cos-diff (cos diff-angle))
-         (sin-diff (sin diff-angle)))
-    (incf (vector-2d-x vector) (- (* r cos-now cos-diff)
-                                  (* r sin-now sin-diff)
-                                  (* r cos-now)))
-    (incf (vector-2d-y vector) (-  (+ (* r sin-now cos-diff)
-                                      (* r cos-now sin-diff))
-                                   (* r sin-now)))))
-
-(defun.ps+ decf-rotate-diff (vector offset-vector now-angle diff-angle)
-  (incf-rotate-diff vector offset-vector now-angle (* -1 diff-angle)))
 
 (defstruct.ps+
     (rotate-system

@@ -36,19 +36,26 @@
                  (:file "db" :depends-on ("config"))
                  (:file "config"))
                 :depends-on ("templates"))
+               ;; This js-lib will be separated to an independent project
+               (:module "js-lib"
+                :serial t
+                :components
+                ((:file "basic-components")
+                 (:file "calc")
+                 (:file "cl-web-2d-game")))
                (:module "static/js"
                 :components
                 ((:file "utils")
                  (:file "2d-geometry")
-                 (:file "basic-components")
-                 (:file "collision" :depends-on ("basic-components"))
-                 (:file "basic-ecs" :depends-on ("basic-components" "collision"))
+                 (:file "collision")
+                 (:file "basic-ecs" :depends-on ("collision"))
                  (:file "tools")
                  (:file "input" :depends-on ("tools"))
                  (:file "player" :depends-on ("basic-ecs" "2d-geometry" "tools"))
                  (:file "shigi" :depends-on ("basic-ecs" "2d-geometry" "tools"))
                  (:file "shigi-simulator"
-                        :depends-on ("utils" "basic-ecs" "tools" "input" "2d-geometry"))))
+                        :depends-on ("utils" "basic-ecs" "tools" "input" "2d-geometry")))
+                :depends-on ("js-lib"))
                (:module "static/js/test" 
                 :components
                 ((:file "collision"))
