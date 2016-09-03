@@ -40,6 +40,7 @@
      (make-physic-circle :r r))
     (add-ecs-entity circle)))
 
+;; --- test dist-to-line --- ;;
 (defvar.ps+ *test-line-pnts* (list (make-vector-2d :x #y000 :y #y100)
                                    (make-vector-2d :x #y1333 :y #y700)))
 
@@ -59,11 +60,31 @@
     (labels ((calc-dist (pnt1 pnt2)
                (let ((dist (calc-dist-to-line mouse-pnt pnt1 pnt2)))
                  (dist.to-fixed 2))))
-      (append-debug-text (+ "to blue-line"
+      (append-debug-text (+ "to blue-line="
                             (calc-dist (car *test-line-pnts*)
                                        (cadr *test-line-pnts*))))
       (append-debug-text (+ "to x-axis=" (calc-dist hor-pnt-1 hor-pnt-2)))
       (append-debug-text (+ "to y-axis=" (calc-dist ver-pnt-1 ver-pnt-2))))))
+
+;; --- test dist-to-line-seg --- ;;
+(defvar.ps+ *test-line-seg-pnts* (list (make-vector-2d :x #y800 :y #y500)
+                                       (make-vector-2d :x #y1100 :y #y300)))
+
+(defun.ps make-test-line-seg-for-calc-dist-to-line-seg (scene)
+  (scene.add (make-line :pos-a (list (vector-2d-x (car *test-line-seg-pnts*))
+                                     (vector-2d-y (car *test-line-seg-pnts*)))
+                        :pos-b (list (vector-2d-x (cadr *test-line-seg-pnts*))
+                                     (vector-2d-y (cadr *test-line-seg-pnts*)))
+                        :color 0x00ffff :z 1)))
+
+(defun.ps test-dist-line-seg (mouse-x mouse-y)
+  (let ((mouse-pnt (make-vector-2d :x mouse-x :y mouse-y)))
+    (labels ((calc-dist (pnt1 pnt2)
+               (let ((dist (calc-dist-to-line-seg mouse-pnt pnt1 pnt2)))
+                 (dist.to-fixed 2))))
+      (append-debug-text (+ "to cyan-line-seg"
+                            (calc-dist (car *test-line-seg-pnts*)
+                                       (cadr *test-line-seg-pnts*)))))))
 
 (defun.ps make-mouse-pointer ()
   (let ((pointer (make-ecs-entity))
@@ -77,7 +98,8 @@
                              (with-ecs-components (point-2d) entity
                                (setf point-2d.x (get-mouse-x))
                                (setf point-2d.y (get-mouse-y)))
-                             (test-dist-line (get-mouse-x) (get-mouse-y))))
+                             (test-dist-line (get-mouse-x) (get-mouse-y))
+                             (test-dist-line-seg (get-mouse-x) (get-mouse-y))))
      (make-physic-circle :r r
                          :on-collision (lambda (mine target)
                                          (with-slots (tags) target
@@ -104,6 +126,8 @@
     (scene.add (make-line :pos-a (list #y666 #y0) :pos-b (list #y666 #y1000) :color 0x00ff00 :z 1))
     ;; for test of calc-dist-to-line
     (make-test-line-for-calc-dist-to-line scene)
+    (make-test-line-seg-for-calc-dist-to-line-seg scene)
+    
     (make-mouse-pointer)
     (make-circle)
     (refresh-entity-display)
