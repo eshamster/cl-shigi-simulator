@@ -28,6 +28,8 @@
     (camera.position.set 0 0 z)
     camera))
 
+;; --- test col-cc --- ;;
+
 (defun.ps make-circle ()
   (let* ((circle (make-ecs-entity))
          (r #y100))
@@ -39,6 +41,28 @@
                     :depth 1)
      (make-physic-circle :r r))
     (add-ecs-entity circle)))
+
+;; --- test col-ct --- ;;
+
+(defvar.ps+ *test-tri-pnts* (list (make-vector-2d :x #y-100 :y #y100)
+                                  (make-vector-2d :x #y200 :y #y-100)
+                                  (make-vector-2d :x #y100 :y #y300)))
+
+(defun.ps make-triangle ()
+  (let ((triangle (make-ecs-entity)))
+    (add-entity-tag triangle "triangle")
+    (add-ecs-component-list
+     triangle
+     (make-point-2d :x #y550 :y #y500 :center (make-vector-2d))
+     (make-model-2d :model (make-wired-polygon
+                            :pnt-list (mapcar #'(lambda (vec) (with-slots (x y) vec (list x y)))
+                                              *test-tri-pnts*)
+                            :color 0xff4444)
+                    :depth 1)
+     (make-physic-triangle :pnt1 (nth 0 *test-tri-pnts*)
+                           :pnt2 (nth 1 *test-tri-pnts*)
+                           :pnt3 (nth 2 *test-tri-pnts*)))
+    (add-ecs-entity triangle)))
 
 ;; --- test dist-to-line --- ;;
 (defvar.ps+ *test-line-pnts* (list (make-vector-2d :x #y000 :y #y100)
@@ -130,6 +154,7 @@
     
     (make-mouse-pointer)
     (make-circle)
+    (make-triangle)
     (refresh-entity-display)
     (setf stats (init-stats))
     (labels ((render-loop ()
