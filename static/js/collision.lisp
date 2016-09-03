@@ -4,8 +4,7 @@
         :parenscript
         :cl-ps-ecs
         :ps-experiment
-        :cl-web-2d-game
-        :cl-web-2d-game.calc)
+        :cl-web-2d-game)
   (:import-from :ps-experiment.common-macros
                 :with-slots-pair)
   (:export :process-collision
@@ -96,7 +95,7 @@
 
 ;; --- auxiliary functions --- ;;
 
-(defun.ps intersects-line-and-circle (cx cy cr lx1 ly1 lx2 ly2)
+(defun.ps+ intersects-line-and-circle (cx cy cr lx1 ly1 lx2 ly2)
   ;; TODO: Reduce memory allocations
   ;; TODO: Compare distance using distance^2
   (> cr
