@@ -9,25 +9,6 @@
         :cl-ps-ecs))
 (in-package :cl-shigi-simulator.static.js.test.collision)
 
-(defvar.ps stats nil)
-
-(defun.ps init-stats ()
-  (let ((stats (new (-stats))))
-    (stats.set-mode 0)
-    (with-slots (position left top) stats.dom-element.style
-      (setf position "absolute")
-      (setf left "0px")
-      (setf top "0px"))
-    ((@ (document.get-element-by-id "stats-output") append-child) stats.dom-element)
-    stats))
-
-(defun.ps init-camera (width height)
-  (let* ((z 1000)
-         (camera (new (#j.THREE.OrthographicCamera#
-                       0 width height 0 0 (* z 2)))))
-    (camera.position.set 0 0 z)
-    camera))
-
 ;; --- test col-cc --- ;;
 
 (defun.ps make-circle ()
@@ -130,38 +111,26 @@
                                            (append-debug-text (+ "Collies to " (car tags)))))))
     (add-ecs-entity pointer)))
 
+(defun.ps init (scene)
+  (scene.add (make-line :pos-a (list #y1333 #y500) :pos-b (list 0 #y500) :color 0x00ff00 :z 1))
+  (scene.add (make-line :pos-a (list #y666 #y0) :pos-b (list #y666 #y1000) :color 0x00ff00 :z 1))
+  ;; for test of calc-dist-to-line
+  (make-test-line-for-calc-dist-to-line scene)
+  (make-test-line-seg-for-calc-dist-to-line-seg scene)
+    
+  (make-mouse-pointer)
+  (make-circle)
+  (make-triangle)
+  
+  (refresh-entity-display))
+
 (defun.ps update ()
   (clear-debug-area)
   (process-input)
-  (stats.update)
   (ecs-main))
 
 (defun.ps main ()
-  (let* ((scene (new (#j.THREE.Scene#)))
-         (camera (init-camera screen-width screen-height))
-         (renderer (new #j.THREE.WebGLRenderer#)))
-    (register-default-systems scene)
-    (renderer.set-size screen-width screen-height)
-    ((@ ((@ document.query-selector) "#renderer") append-child) renderer.dom-element)
-    (let ((light (new (#j.THREE.DirectionalLight# 0xffffff))))
-      (light.position.set 0 0.7 0.7)
-      (scene.add light))
-    (scene.add (make-line :pos-a (list #y1333 #y500) :pos-b (list 0 #y500) :color 0x00ff00 :z 1))
-    (scene.add (make-line :pos-a (list #y666 #y0) :pos-b (list #y666 #y1000) :color 0x00ff00 :z 1))
-    ;; for test of calc-dist-to-line
-    (make-test-line-for-calc-dist-to-line scene)
-    (make-test-line-seg-for-calc-dist-to-line-seg scene)
-    
-    (make-mouse-pointer)
-    (make-circle)
-    (make-triangle)
-    (refresh-entity-display)
-    (setf stats (init-stats))
-    (labels ((render-loop ()
-               (request-animation-frame render-loop)
-               (renderer.render scene camera)
-               (update)))
-      (render-loop))))
+  (start-game screen-width screen-height init update))
 
 (defun js-main ()
   (with-use-ps-pack (:cl-shigi-simulator.static.js.2d-geometry
