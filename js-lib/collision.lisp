@@ -1,16 +1,27 @@
 (in-package :cl-user)
-(defpackage cl-shigi-simulator.static.js.collision
+(defpackage cl-web-2d-game.collision
   (:use :cl
         :parenscript
         :cl-ps-ecs
         :ps-experiment
-        :cl-web-2d-game)
+        :cl-web-2d-game.basic-components
+        :cl-web-2d-game.calc)
   (:import-from :ps-experiment.common-macros
                 :with-slots-pair)
   (:export :process-collision
+
+           :physic-2d
+           :make-physic-2d
+
+           :physic-circle
+           :make-physic-circle
+
+           :physic-triangle
+           :make-physic-triangle
+
            :collision-system
            :make-collision-system))
-(in-package :cl-shigi-simulator.static.js.collision)
+(in-package :cl-web-2d-game.collision)
 
 ;; --- components --- ;;
 

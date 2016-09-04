@@ -5,7 +5,6 @@
         :ps-experiment
         :cl-ps-ecs
         :cl-web-2d-game
-        :cl-shigi-simulator.static.js.collision
         :parenscript))
 (in-package :cl-shigi-simulator.static.js.basic-ecs)
 
