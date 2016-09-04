@@ -69,6 +69,8 @@
                (:module "templates/layouts"
                 :components
                 ((:file "utils")
-                 (:file "default" :depends-on ("utils")))))
+                 (:file "default" :depends-on ("utils"))
+                 (:file "three" :depends-on ("utils")))
+                :depends-on ("static/js")))
   :description ""
   :in-order-to ((test-op (load-op cl-shigi-simulator-test))))
