@@ -58,13 +58,15 @@
                 :depends-on ("js-lib"))
                (:module "static/js/test" 
                 :components
-                ((:file "collision"))
+                ((:file "collision")
+                 (:file "ray"))
                 :depends-on ("static/js"))
                (:module "templates"
                 :components
                 ((:file "index")
                  (:file "shigi")
-                 (:file "test-collision"))
+                 (:file "test-collision")
+                 (:file "test-ray"))
                 :depends-on ("templates/layouts" "static/js" "static/js/test"))
                (:module "templates/layouts"
                 :components

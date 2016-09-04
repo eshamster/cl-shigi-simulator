@@ -32,6 +32,9 @@
 (defroute "/test/collision" ()
   (render :test-collision))
 
+(defroute "/test/ray" ()
+  (render :test-ray))
+
 ;;
 ;; Error pages
 
