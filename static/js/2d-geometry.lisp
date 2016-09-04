@@ -58,6 +58,10 @@
   (push-vertices ((aref pos-a 0) (aref pos-a 1))
                  ((aref pos-b 0) (aref pos-b 1))))
 
+(def-wired-geometry make-lines (pnt-list)
+  (dolist (pnt pnt-list)
+    (push-vertices ((aref pnt 0) (aref pnt 1)))))
+
 (def-wired-geometry make-wired-rect (width height)
   (push-vertices (0 0) (width 0) (width height) (0 height) (0 0)))
 
