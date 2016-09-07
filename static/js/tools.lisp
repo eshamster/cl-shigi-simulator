@@ -104,6 +104,9 @@
                         :ring-r #.#y70
                         :body-r #.#y7)
                :shigi (:depth 50
+                       :body (:max-rot-speed 0.0175
+                              :max-rot-accell 8.72e-4
+                              :rot-gravity 0.002)
                        :bit (:r #.#y30
                              :dist #.#y173
                              :rot-speed -0.0272)))))

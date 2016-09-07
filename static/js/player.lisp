@@ -49,6 +49,7 @@
 
 (defun.ps make-player-center ()
   (let ((body (make-ecs-entity)))
+    (add-entity-tag body "player")
     (add-ecs-component-list
      body
      (make-point-2d :x #y(* 500 4/3) :y #y100)
