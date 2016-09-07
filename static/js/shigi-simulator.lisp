@@ -55,5 +55,7 @@
                      :cl-shigi-simulator.static.js.basic-ecs
                      :this)
     (window.add-event-listener "mousemove" on-mouse-move-event)
+    (window.add-event-listener "touchstart" on-touch-move-event)
+    (window.add-event-listener "touchmove" on-touch-move-event)
     (window.add-event-listener "keydown" (lambda (e) (e.prevent-default)))
     (window.add-event-listener "DOMContentLoaded" main false))) 

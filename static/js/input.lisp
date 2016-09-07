@@ -60,5 +60,18 @@
     (setf _mouse-y (- canvas.height
                       (- e.client-y renderer.offset-top)))))
 
+(defun.ps on-touch-move-event (e)
+  (let* ((renderer (document.query-selector "#renderer"))
+         (canvas (renderer.query-selector "canvas")))
+    (let ((point (aref e.touches 0)))
+      (setf _mouse-x (- point.client-x renderer.offset-left))
+      (setf _mouse-y (- canvas.height
+                        (- point.client-y renderer.offset-top)))
+      ;; test
+      (let* ((player (find-a-entity-by-tag "player"))
+             (center (get-ecs-component 'point-2d player)))
+        (setf center.x _mouse-x)
+        (setf center.y _mouse-y)))))
+
 (defun.ps get-mouse-x () _mouse-x)
 (defun.ps get-mouse-y () _mouse-y)
