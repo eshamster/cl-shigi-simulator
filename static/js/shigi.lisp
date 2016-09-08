@@ -56,27 +56,38 @@
           (let ((max-speed ))
             (setf speed (round-by-abs speed (get-param :shigi :body :max-rot-speed)))))))))
 
+(defun.ps+ calc-average-point (pnt-list)
+  (let ((result (list 0 0)))
+    (dolist (pnt pnt-list)
+      (incf (car result) (car pnt))
+      (incf (cadr result) (cadr pnt)))
+    (mapcar #'(lambda (x) (/ x (length pnt-list))) result)))
+
 (defun.ps make-shigi-bodies ()
-  (let ((result '())
-        (pnt-list '((#.#y0 #.#y76.8) (#.#y76.8 #.#y115.2)
-                    (#.#y92.16 #.#y-57.6) (#.#y0 #.#y-144))))
+  (let* ((result '())
+         (pnt-list '((#.#y0 #.#y76.8) (#.#y76.8 #.#y115.2)
+                     (#.#y92.16 #.#y-57.6) (#.#y0 #.#y-144)))) 
     (labels ((reverse-list-by-x (pnt-list)
                (let ((result '()))
                  (dolist (pnt pnt-list)
                    (push (list (* (car pnt) -1) (cadr pnt)) result))
                  result)))
       (dotimes (i 2)
-        (let ((body (make-ecs-entity))
-              (rotate (make-rotate-2d :speed 0)))
+        (let* ((body (make-ecs-entity))
+               (modified-pnt-list (if (= i 0)
+                                      pnt-list
+                                      (reverse-list-by-x pnt-list)))
+               (center (calc-average-point modified-pnt-list))
+               (center-vec (make-vector-2d :x (car center) :y (cadr center)))
+               (rotate (make-rotate-2d :speed 0 :rot-offset center-vec)))
           (add-ecs-component-list
            body
            (make-model-2d :model (make-wired-polygon
-                                  :pnt-list (if (= i 0)
-                                                pnt-list
-                                                (reverse-list-by-x pnt-list))
+                                  :pnt-list modified-pnt-list
                                   :color 0x44ff44)
                           :depth (get-param :shigi :depth))
-           (make-point-2d :x 0 :y 0)
+           (make-point-2d :x (car center) :y (cadr center)
+                          :center center-vec)
            rotate
            (make-script-2d :func #'rotate-shigi-body)) 
           (push body result))))
