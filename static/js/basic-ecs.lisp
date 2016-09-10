@@ -20,7 +20,7 @@
                (target-component-types '(point-2d model-2d))
                (process (lambda (entity)
                           (with-ecs-components (model-2d point-2d) entity
-                            (let ((new-pos (calc-model-position entity)))
+                            (let ((new-pos (calc-global-point entity)))
                               (with-slots (model) model-2d
                                 (model.position.set
                                  (point-2d-x new-pos)
