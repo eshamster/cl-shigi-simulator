@@ -104,6 +104,7 @@
                         :ring-r #.#y70
                         :body-r #.#y7)
                :shigi (:depth 50
+                       :marker-size #.#y10
                        :body (:max-rot-speed 0.0175
                               :max-rot-accell 8.72e-4
                               :rot-gravity 0.002)

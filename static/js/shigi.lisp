@@ -13,6 +13,17 @@
 
 (enable-ps-experiment-syntax)
 
+(defun.ps make-center-point-marker ()
+  (let* ((marker (make-ecs-entity))
+         (len (get-param :shigi :marker-size))
+         (offset (* -1 (/ len 2))))
+    (add-ecs-component-list
+     marker
+     (make-model-2d :model (make-wired-rect :width len :height len)
+                    :depth (get-param :shigi :depth))
+     (make-point-2d :x offset :y offset))
+    marker))
+
 (defun.ps make-shigi-bits ()
   (let ((result '())
         (num-bit 4)
@@ -107,6 +118,8 @@
         (bit-list (make-shigi-bits)))
     (add-ecs-entity center)
     (dolist (body bodies)
-      (add-ecs-entity body center))
+      (add-ecs-entity body center)
+      (add-ecs-entity (make-center-point-marker) body))
     (dolist (bit bit-list)
-      (add-ecs-entity bit center))))
+      (add-ecs-entity bit center)
+      (add-ecs-entity (make-center-point-marker) bit))))
