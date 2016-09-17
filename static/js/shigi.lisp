@@ -36,6 +36,7 @@
              (center (make-vector-2d :x r :y r))
              (point (make-vector-2d :x (* dist (cos angle))
                                     :y (* dist (sin angle)))))
+        (add-entity-tag bit "shigi-part" "shigi-bit")
         (add-ecs-component-list
          bit
          (make-model-2d :model (make-wired-regular-polygon :r r :n 100 :color 0x44ff44)
@@ -91,6 +92,7 @@
                (center (calc-average-point modified-pnt-list))
                (center-vec (make-vector-2d :x (car center) :y (cadr center)))
                (rotate (make-rotate-2d :speed 0 :rot-offset center-vec)))
+          (add-entity-tag body "shigi-part" "shigi-body")
           (add-ecs-component-list
            body
            (make-model-2d :model (make-wired-polygon
