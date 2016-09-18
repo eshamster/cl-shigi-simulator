@@ -35,18 +35,18 @@
       (let* ((bit (make-ecs-entity))
              (angle (* 2 PI i (/ 1 num-bit)))
              (model-offset (make-vector-2d :x (* -1 r) :y (* -1 r) :angle 0))
-             (point (make-vector-2d :x (* dist (cos angle))
-                                    :y (* dist (sin angle)))))
+             (point (make-point-2d)))
+        (adjustf-point-by-rotate point dist angle)
         (add-entity-tag bit "shigi-part" "shigi-bit")
         (add-ecs-component-list
          bit
          (make-model-2d :model (make-wired-regular-polygon :r r :n 100 :color 0x44ff44)
                         :depth (get-param :player :depth)
                         :offset model-offset)
-         (make-point-2d :x point.x :y point.y)
+         point
          (make-rotate-2d :speed rot-speed
-                         :rot-offset (make-vector-2d :x point.x
-                                                     :y point.y))))
+                         :angle angle
+                         :radious dist)))
       (push bit result))
     result))
 
@@ -94,9 +94,11 @@
                (center (calc-average-point modified-pnt-list))
                (center-vec (make-vector-2d :x (car center) :y (cadr center)))
                (model-offset (make-point-2d :x (* -1 (car center))
-                                             :y (* -1 (cadr center))
-                                             :angle 0))
-               (rotate (make-rotate-2d :speed 0 :rot-offset center-vec)))
+                                            :y (* -1 (cadr center))
+                                            :angle 0))
+               (rotate (make-rotate-2d :speed 0
+                                       :radious (vector-abs center-vec)
+                                       :angle (vector-angle center-vec))))
           (add-entity-tag body "shigi-part" "shigi-body")
           (add-ecs-component-list
            body

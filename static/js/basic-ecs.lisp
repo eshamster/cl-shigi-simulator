@@ -45,8 +45,9 @@
                           (with-ecs-components (point-2d) entity
                             (do-ecs-components-of-entity (rotate-2d entity)
                               (when (rotate-2d-p rotate-2d)
-                                (with-slots (speed (rot-angle angle) rot-offset) rotate-2d
-                                  (incf-rotate-diff point-2d rot-offset rot-angle speed)
+                                (with-slots (speed (rot-angle angle) radious) rotate-2d
+                                  (incf-rotate-diff point-2d radious
+                                                    rot-angle speed)
                                   (with-slots (angle) point-2d
                                     (incf angle speed))
                                   (incf rot-angle speed))))))))))
