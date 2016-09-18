@@ -17,8 +17,9 @@
     (add-entity-tag circle "circle")
     (add-ecs-component-list
      circle
-     (make-point-2d :x #y300 :y #y600 :center (make-vector-2d :x r :y r))
+     (make-point-2d :x #y300 :y #y600)
      (make-model-2d :model (make-wired-regular-polygon :n 60 :color 0xff0000 :r r)
+                    :offset (make-vector-2d :x (* -1 r) :y (* -1 r))
                     :depth 1)
      (make-physic-circle :r r))
     (add-ecs-entity circle)))
@@ -34,7 +35,7 @@
     (add-entity-tag triangle "triangle")
     (add-ecs-component-list
      triangle
-     (make-point-2d :x #y550 :y #y500 :center (make-vector-2d))
+     (make-point-2d :x #y550 :y #y500)
      (make-model-2d :model (make-wired-polygon
                             :pnt-list (mapcar #'(lambda (vec) (with-slots (x y) vec (list x y)))
                                               *test-tri-pnts*)
@@ -96,8 +97,9 @@
         (r 30))
     (add-ecs-component-list
      pointer
-     (make-point-2d :center (make-vector-2d :x r :y r))
+     (make-point-2d)
      (make-model-2d :model (make-wired-regular-polygon :n 60 :color 0xff0000 :r r)
+                    :offset (make-vector-2d :x (* -1 r) :y (* -1 r))
                     :depth 1)
      (make-script-2d :func (lambda (entity)
                              (with-ecs-components (point-2d) entity

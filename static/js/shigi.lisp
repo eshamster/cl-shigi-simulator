@@ -20,8 +20,9 @@
     (add-ecs-component-list
      marker
      (make-model-2d :model (make-wired-rect :width len :height len)
-                    :depth (get-param :shigi :depth))
-     (make-point-2d :x offset :y offset))
+                    :depth (get-param :shigi :depth)
+                    :offset (make-point-2d :x offset :y offset))
+     (make-point-2d))
     marker))
 
 (defun.ps make-shigi-bits ()
@@ -33,15 +34,16 @@
     (dotimes (i num-bit)
       (let* ((bit (make-ecs-entity))
              (angle (* 2 PI i (/ 1 num-bit)))
-             (center (make-vector-2d :x r :y r))
+             (model-offset (make-vector-2d :x (* -1 r) :y (* -1 r) :angle 0))
              (point (make-vector-2d :x (* dist (cos angle))
                                     :y (* dist (sin angle)))))
         (add-entity-tag bit "shigi-part" "shigi-bit")
         (add-ecs-component-list
          bit
          (make-model-2d :model (make-wired-regular-polygon :r r :n 100 :color 0x44ff44)
-                        :depth (get-param :player :depth))
-         (make-point-2d :x point.x :y point.y :center center)
+                        :depth (get-param :player :depth)
+                        :offset model-offset)
+         (make-point-2d :x point.x :y point.y)
          (make-rotate-2d :speed rot-speed
                          :rot-offset (make-vector-2d :x point.x
                                                      :y point.y))))
@@ -91,6 +93,9 @@
                                       (reverse-list-by-x pnt-list)))
                (center (calc-average-point modified-pnt-list))
                (center-vec (make-vector-2d :x (car center) :y (cadr center)))
+               (model-offset (make-point-2d :x (* -1 (car center))
+                                             :y (* -1 (cadr center))
+                                             :angle 0))
                (rotate (make-rotate-2d :speed 0 :rot-offset center-vec)))
           (add-entity-tag body "shigi-part" "shigi-body")
           (add-ecs-component-list
@@ -98,9 +103,9 @@
            (make-model-2d :model (make-wired-polygon
                                   :pnt-list modified-pnt-list
                                   :color 0x44ff44)
-                          :depth (get-param :shigi :depth))
-           (make-point-2d :x (car center) :y (cadr center)
-                          :center center-vec)
+                          :depth (get-param :shigi :depth)
+                          :offset model-offset)
+           (make-point-2d :x (car center) :y (cadr center))
            rotate
            (make-script-2d :func #'rotate-shigi-body)) 
           (push body result))))
