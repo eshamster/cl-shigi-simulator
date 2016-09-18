@@ -5,7 +5,6 @@
         :ps-experiment
         :cl-ps-ecs
         :cl-web-2d-game
-        :cl-shigi-simulator.static.js.collision
         :parenscript))
 (in-package :cl-shigi-simulator.static.js.basic-ecs)
 
@@ -21,13 +20,14 @@
                (target-component-types '(point-2d model-2d))
                (process (lambda (entity)
                           (with-ecs-components (model-2d point-2d) entity
-                            (let ((new-pos (calc-model-position entity)))
+                            (let ((new-pos (calc-global-point entity
+                                                              (model-2d-offset model-2d))))
                               (with-slots (model) model-2d
                                 (model.position.set
                                  (point-2d-x new-pos)
                                  (point-2d-y new-pos)
                                  (model-2d-depth model-2d)) 
-                                (setf model.rotation.z (point-2d-angle point-2d))))))))))
+                                (setf model.rotation.z (point-2d-angle new-pos))))))))))
 
 (defstruct.ps+
     (move-system
@@ -45,11 +45,11 @@
                           (with-ecs-components (point-2d) entity
                             (do-ecs-components-of-entity (rotate-2d entity)
                               (when (rotate-2d-p rotate-2d)
-                                (with-slots (speed (rot-angle angle) rot-offset) rotate-2d
-                                  (incf-rotate-diff point-2d rot-offset rot-angle speed)
-                                  (with-slots (center angle) point-2d
-                                    (incf angle speed)
-                                    (decf-rotate-diff point-2d center angle speed))
+                                (with-slots (speed (rot-angle angle) radious) rotate-2d
+                                  (incf-rotate-diff point-2d radious
+                                                    rot-angle speed)
+                                  (with-slots (angle) point-2d
+                                    (incf angle speed))
                                   (incf rot-angle speed))))))))))
 
 (defstruct.ps+

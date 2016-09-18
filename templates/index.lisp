@@ -15,4 +15,5 @@
           (:div :id "to_shigi" (:a :href "shigi" "Start"))
           (:div :id "test_pages"
                 (:div "Tests")
-                (:div :class "test_url" (:a :href "test/collision" "Collision test"))))))
+                (:div :class "test_url" (:a :href "test/collision" "Collision test"))
+                (:div :class "test_url" (:a :href "test/ray" "Ray test"))))))

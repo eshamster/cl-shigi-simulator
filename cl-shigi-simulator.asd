@@ -42,13 +42,13 @@
                 :components
                 ((:file "basic-components")
                  (:file "calc")
+                 (:file "collision")
                  (:file "cl-web-2d-game")))
                (:module "static/js"
                 :components
                 ((:file "utils")
                  (:file "2d-geometry")
-                 (:file "collision")
-                 (:file "basic-ecs" :depends-on ("collision"))
+                 (:file "basic-ecs")
                  (:file "tools")
                  (:file "input" :depends-on ("tools"))
                  (:file "player" :depends-on ("basic-ecs" "2d-geometry" "tools"))
@@ -58,17 +58,21 @@
                 :depends-on ("js-lib"))
                (:module "static/js/test" 
                 :components
-                ((:file "collision"))
+                ((:file "collision")
+                 (:file "ray"))
                 :depends-on ("static/js"))
                (:module "templates"
                 :components
                 ((:file "index")
                  (:file "shigi")
-                 (:file "test-collision"))
+                 (:file "test-collision")
+                 (:file "test-ray"))
                 :depends-on ("templates/layouts" "static/js" "static/js/test"))
                (:module "templates/layouts"
                 :components
                 ((:file "utils")
-                 (:file "default" :depends-on ("utils")))))
+                 (:file "default" :depends-on ("utils"))
+                 (:file "three" :depends-on ("utils")))
+                :depends-on ("static/js")))
   :description ""
   :in-order-to ((test-op (load-op cl-shigi-simulator-test))))

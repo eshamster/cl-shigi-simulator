@@ -11,6 +11,57 @@
 
 (enable-ps-experiment-syntax)
 
+;; --- for initialize --- ;;
+
+;; - stats -
+
+(defvar.ps *stats* nil)
+
+(defun.ps init-stats ()
+  (setf *stats* (new (-stats)))
+  (let ((stats *stats*))
+    (stats.set-mode 0)
+    (with-slots (position left top) stats.dom-element.style
+      (setf position "absolute")
+      (setf left "0px")
+      (setf top "0px"))
+    ((@ (document.get-element-by-id "stats-output") append-child) stats.dom-element)
+    stats))
+
+(defun.ps update-stats ()
+  (*stats*.update))
+
+;; - camera -
+
+(defun.ps init-camera (width height)
+  (let* ((z 1000)
+         (camera (new (#j.THREE.OrthographicCamera#
+                       0 width height 0 0 (* z 2)))))
+    (camera.position.set 0 0 z)
+    camera))
+
+;; - others -
+
+(defun.ps start-game (screen-width screen-height init-function update-function)
+  (init-stats)
+  (let* ((scene (new (#j.THREE.Scene#)))
+         (camera (init-camera screen-width screen-height))
+         (renderer (new #j.THREE.WebGLRenderer#)))
+    (register-default-systems scene)
+    (renderer.set-size screen-width screen-height)
+    ((@ ((@ document.query-selector) "#renderer") append-child) renderer.dom-element)
+    (let ((light (new (#j.THREE.DirectionalLight# 0xffffff))))
+      (light.position.set 0 0.7 0.7)
+      (scene.add light))
+
+    (funcall init-function scene)
+    (labels ((render-loop ()
+               (request-animation-frame render-loop)
+               (renderer.render scene camera)
+               (update-stats)
+               (funcall update-function)))
+      (render-loop))))
+
 ;; --- about screensize --- ;;
 
 (eval-when (:execute :compile-toplevel :load-toplevel)
@@ -53,6 +104,10 @@
                         :ring-r #.#y70
                         :body-r #.#y7)
                :shigi (:depth 50
+                       :marker-size #.#y10
+                       :body (:max-rot-speed 0.0175
+                              :max-rot-accell 8.72e-4
+                              :rot-gravity 0.002)
                        :bit (:r #.#y30
                              :dist #.#y173
                              :rot-speed -0.0272)))))
