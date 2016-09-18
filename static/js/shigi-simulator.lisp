@@ -16,6 +16,7 @@
 (defun.ps make-mouse-pointer ()
   (let ((pointer (make-ecs-entity))
         (r 5))
+    (add-entity-tag pointer "mouse")
     (add-ecs-component-list
      pointer
      (make-point-2d :center (make-vector-2d :x r :y r))
@@ -52,6 +53,7 @@
                      :cl-shigi-simulator.static.js.input
                      :cl-shigi-simulator.static.js.shigi
                      :cl-shigi-simulator.static.js.player
+                     :cl-shigi-simulator.static.js.color-chip
                      :cl-shigi-simulator.static.js.basic-ecs
                      :this)
     (window.add-event-listener "mousemove" on-mouse-move-event)

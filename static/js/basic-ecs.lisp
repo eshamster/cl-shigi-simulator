@@ -72,4 +72,5 @@
   (register-ecs-system "move2d" (make-move-system))
   (register-ecs-system "rotate2d" (make-rotate-system))
   (register-ecs-system "script2d" (make-script-system))
-  (register-ecs-system "collision" (make-collision-system)))
+  (register-ecs-system "collision" (make-collision-system))
+  (register-ecs-system "color-chip" (make-color-chip-system)))

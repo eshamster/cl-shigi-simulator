@@ -53,6 +53,7 @@
                  (:file "input" :depends-on ("tools"))
                  (:file "player" :depends-on ("basic-ecs" "2d-geometry" "tools"))
                  (:file "shigi" :depends-on ("basic-ecs" "2d-geometry" "tools"))
+                 (:file "color-chip" :depends-on ("basic-ecs" "2d-geometry" "tools"))
                  (:file "shigi-simulator"
                         :depends-on ("utils" "basic-ecs" "tools" "input" "2d-geometry")))
                 :depends-on ("js-lib"))
