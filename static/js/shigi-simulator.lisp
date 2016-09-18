@@ -56,6 +56,7 @@
                      :cl-shigi-simulator.static.js.color-chip
                      :cl-shigi-simulator.static.js.basic-ecs
                      :this)
+    (register-ecs-system "color-chip" (make-color-chip-system))
     (window.add-event-listener "mousemove" on-mouse-move-event)
     (window.add-event-listener "touchstart" on-touch-move-event)
     (window.add-event-listener "touchmove" on-touch-move-event)
