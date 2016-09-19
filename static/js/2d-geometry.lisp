@@ -98,3 +98,11 @@
     (push-faces (0
                  (+ i 1)
                  (rem (+ i 2) len)))))
+
+;; --- auxiliary functions --- ;;
+
+(defun.ps change-model-color (model-2d new-color-rgb)
+  (with-slots (model) model-2d
+    (setf model.material.color (new (#j.THREE.Color# new-color-rgb)))
+    (setf model.material.needs-update t))
+  model-2d)

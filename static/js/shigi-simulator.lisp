@@ -37,7 +37,8 @@
   (scene.add (make-line :pos-a (list #y1333 #y500) :pos-b (list 0 #y500) :color 0x00ff00 :z 1))
   (scene.add (make-line :pos-a (list #y666 #y0) :pos-b (list #y666 #y1000) :color 0x00ff00 :z 1))
   (make-sample-entities)
-  (refresh-entity-display))
+  (refresh-entity-display)
+  (generate-all-color-chips))
 
 (defun.ps update ()
   (clear-debug-area)
