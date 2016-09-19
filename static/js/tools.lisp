@@ -112,7 +112,13 @@
                               :rot-gravity 0.002)
                        :bit (:r #.#y30
                              :dist #.#y173
-                             :rot-speed -0.0272)))))
+                             :rot-speed -0.0272))
+               :color-chip (:colors (0 #x13579b
+                                     1 #xb13579
+                                     2 #x9b1357
+                                     3 #x79b135
+                                     4 #x579b13
+                                     5 #x3579b1)))))
 
 (defmacro.ps get-param (&rest keys)
   (labels ((rec (rest-keys result)

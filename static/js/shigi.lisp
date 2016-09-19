@@ -47,7 +47,8 @@
          point
          (make-rotate-2d :speed rot-speed
                          :angle angle
-                         :radious dist)))
+                         :radious dist)
+         (init-entity-params :color (nth i (get-param :color-chip :colors)))))
       (push bit result))
     result))
 
@@ -110,7 +111,9 @@
                           :offset model-offset)
            (make-point-2d :x (car center) :y (cadr center))
            rotate
-           (make-script-2d :func #'rotate-shigi-body)) 
+           (make-script-2d :func #'rotate-shigi-body)
+           ;; TODO: parameterize 4 (which is the number of the bit)
+           (init-entity-params :color (nth (+ i 4) (get-param :color-chip :colors)))) 
           (push body result))))
     result))
 
