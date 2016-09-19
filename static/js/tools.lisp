@@ -101,11 +101,11 @@
 (defvar.ps *all-params*
     (to-json '(:player (:speed #.#y4
                         :depth 100
-                        :color #x4444ff
+                        :color #x000000
                         :ring-r #.#y70
                         :body-r #.#y7)
                :shigi (:depth 50
-                       :color #x44ffff
+                       :color #x112222
                        :marker-size #.#y10
                        :body (:max-rot-speed 0.0175
                               :max-rot-accell 8.72e-4
@@ -113,12 +113,13 @@
                        :bit (:r #.#y30
                              :dist #.#y173
                              :rot-speed -0.0272))
-               :color-chip (:colors (0 #x13579b
-                                     1 #xb13579
-                                     2 #x9b1357
-                                     3 #x79b135
-                                     4 #x579b13
-                                     5 #x3579b1)
+               :cursor (:color #x771111)
+               :color-chip (:colors (0 #x7777bd
+                                     1 #xee579b
+                                     2 #xbd7777
+                                     3 #x9bee57
+                                     4 #x77bd77
+                                     5 #x579bee)
                             :depth -50
                             :size #.#y50))))
 

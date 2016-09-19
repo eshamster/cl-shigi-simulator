@@ -10,7 +10,9 @@
                 :defvar.ps
                 :with-use-ps-pack) 
   (:import-from :cl-ps-ecs
-                :with-ecs-components))
+                :with-ecs-components)
+  (:import-from :cl-shigi-simulator.static.js.tools
+                :get-param))
 (in-package :cl-shigi-simulator.static.js.shigi-simulator)
 
 (defun.ps make-mouse-pointer ()
@@ -20,7 +22,8 @@
     (add-ecs-component-list
      pointer
      (make-point-2d :center (make-vector-2d :x r :y r))
-     (make-model-2d :model (make-wired-regular-polygon :n 60 :color 0xff0000 :r r)
+     (make-model-2d :model (make-wired-regular-polygon :n 60 :r r
+                                                       :color (get-param :cursor :color))
                     :depth 1)
      (make-script-2d :func (lambda (entity)
                              (with-ecs-components (point-2d) entity
