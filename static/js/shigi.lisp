@@ -66,7 +66,7 @@
           (incf speed
                 (round-by-abs (* (diff-angle angle-to-player (- angle (/ PI 2)))
                                  (get-param :shigi :body :rot-gravity))
-                              (get-param :shigi :body :max-rot-speed)))
+                              (get-param :shigi :body :max-rot-accell)))
           (let ((max-speed ))
             (setf speed (round-by-abs speed (get-param :shigi :body :max-rot-speed)))))))))
 
