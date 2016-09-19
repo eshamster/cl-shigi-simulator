@@ -101,9 +101,11 @@
 (defvar.ps *all-params*
     (to-json '(:player (:speed #.#y4
                         :depth 100
+                        :color #x4444ff
                         :ring-r #.#y70
                         :body-r #.#y7)
                :shigi (:depth 50
+                       :color #x44ffff
                        :marker-size #.#y10
                        :body (:max-rot-speed 0.0175
                               :max-rot-accell 8.72e-4

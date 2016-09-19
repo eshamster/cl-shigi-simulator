@@ -40,8 +40,9 @@
         (add-entity-tag bit "shigi-part" "shigi-bit")
         (add-ecs-component-list
          bit
-         (make-model-2d :model (make-wired-regular-polygon :r r :n 100 :color 0x44ff44)
-                        :depth (get-param :player :depth)
+         (make-model-2d :model (make-wired-regular-polygon :r r :n 100
+                                                           :color (get-param :shigi :color))
+                        :depth (get-param :shigi :depth)
                         :offset model-offset)
          point
          (make-rotate-2d :speed rot-speed
@@ -104,7 +105,7 @@
            body
            (make-model-2d :model (make-wired-polygon
                                   :pnt-list modified-pnt-list
-                                  :color 0x44ff44)
+                                  :color (get-param :shigi :color))
                           :depth (get-param :shigi :depth)
                           :offset model-offset)
            (make-point-2d :x (car center) :y (cadr center))
