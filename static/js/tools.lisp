@@ -176,10 +176,3 @@
   (when *debug-area*
     (incf #j.*debug-area*.innerHTML# (+ text "<br>"))))
 
-;; --- others --- ;;
-
-;; TODO: Move this to cl-ps-ecs
-
-(defun.ps+ add-ecs-component-list (entity &rest component-list)
-  (dolist (component component-list)
-    (add-ecs-component component entity)))
