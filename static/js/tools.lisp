@@ -72,9 +72,11 @@
     (funcall init-function scene)
     (labels ((render-loop ()
                (request-animation-frame render-loop)
-               (renderer.render scene camera)
+               (with-trace "render"
+                 (renderer.render scene camera))
                (update-stats)
-               (funcall update-function)))
+               (with-trace "update"
+                 (funcall update-function))))
       (render-loop))))
 
 ;; --- about screensize --- ;;
