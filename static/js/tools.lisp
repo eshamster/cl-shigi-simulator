@@ -6,10 +6,25 @@
         :cl-ps-ecs
         :parenscript)
   (:export :create-html-element
-           :get-param))
+           :get-param
+           :with-trace))
 (in-package :cl-shigi-simulator.static.js.tools)
 
 (enable-ps-experiment-syntax)
+
+;; --- for profiling --- ;;
+
+;; Note: this is depend on Web Tracing Framework (wtf-trace.js)
+
+(defmacro.ps with-trace (title &body body)
+  `(let ((scope (#j.WTF.trace.enterScope# ,title)))
+     ,@body
+     (#j.WTF.trace.leaveScope# scope ,title)))
+(defmacro with-trace (title &body body)
+  "(dummy)"
+  (declare (ignore title))
+  `(progn ,@body))
+
 
 ;; --- for initialize --- ;;
 

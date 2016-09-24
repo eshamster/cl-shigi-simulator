@@ -17,7 +17,8 @@
      (html5 (:head
              (:title ,title)
              (:meta :charset "UTF-8")
-             (:script :src "https://cdnjs.cloudflare.com/ajax/libs/three.js/r73/three.min.js" nil)
+             (:script :src ,(merge-pathnames "js/copied/wtf-trace.js" base-path) nil)
+             (:script :src "https://cdnjs.cloudflare.com/ajax/libs/three.js/r73/three.js" nil)
              (:script :src ,(merge-pathnames "js/copied/threex.keyboardstate.js" base-path) nil)
              (:script :src ,(merge-pathnames "js/copied/stats.js" base-path) nil)
              (:script :src (load-js ,js-name :base-path ,base-path) nil)
