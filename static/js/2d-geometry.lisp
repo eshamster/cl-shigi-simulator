@@ -11,6 +11,8 @@
 
 (enable-ps-experiment-syntax)
 
+;; --- basic funcations and macros
+
 ;; Without eval-when, "defun"s are compiled after "defmacro.ps"
 (eval-when (:compile-toplevel :load-toplevel :execute)
   (defun make-push-vertices (vertices raw-vertex-lst)
@@ -25,34 +27,38 @@
 (defun.ps to-rad (degree)
   (/ (* degree pi) 180))
 
+(defun.ps make-line-model (geometry color z)
+  (let ((material (new (#j.THREE.LineBasicMaterial# (create :color color)))))
+    (new (#j.THREE.Line# geometry material))))
+
 (defmacro.ps+ def-wired-geometry (name args &body body)
-  (with-ps-gensyms (geometry vertices material)
+  (with-ps-gensyms (geometry vertices)
     `(defun.ps ,name (&key ,@args color z)
        (let* ((,geometry (new (#j.THREE.Geometry#)))
-              (,vertices (@ ,geometry vertices))
-              (,material (new (#j.THREE.LineBasicMaterial# (create :color color))))) 
+              (,vertices (@ ,geometry vertices)))
          (macrolet ((push-vertices (&rest rest)
                       (make-push-vertices ',vertices rest)))
            ,@body)
-         (new (#j.THREE.Line# ,geometry ,material))))))
+         (make-line-model ,geometry color z)))))
+
+(defun.ps make-solid-model (geometry color z)
+  (let ((material (new (#j.THREE.MeshBasicMaterial# (create :color color)))))
+    (new (#j.THREE.Mesh# geometry material))))
 
 (defmacro.ps+ def-solid-geometry (name args &body body)
-  (with-ps-gensyms (geometry vertices faces material)
+  (with-ps-gensyms (geometry vertices faces)
     `(defun.ps ,name (&key ,@args color z)
        (let* ((,geometry (new (#j.THREE.Geometry#)))
               (,vertices (@ ,geometry vertices))
-              (,faces (@ ,geometry faces))
-              (,material (new (#j.THREE.MeshBasicMaterial# (create :color color)))))
+              (,faces (@ ,geometry faces)))
          (macrolet ((push-vertices (&rest rest)
                       (make-push-vertices ',vertices rest))
                     (push-faces (&rest rest)
                       (make-push-faces ',faces rest)))
            ,@body)
-         (new (#j.THREE.Mesh# ,geometry ,material))))))
+         (make-solid-model ,geometry color z)))))
 
-(def-solid-geometry make-solid-rect (width height)
-  (push-vertices (0 0) (width 0) (width height) (0 height))
-  (push-faces (0 1 2) (2 3 0)))
+;; --- line --- ;;
 
 (def-wired-geometry make-line (pos-a pos-b)
   (push-vertices ((aref pos-a 0) (aref pos-a 1))
@@ -61,6 +67,12 @@
 (def-wired-geometry make-lines (pnt-list)
   (dolist (pnt pnt-list)
     (push-vertices ((aref pnt 0) (aref pnt 1)))))
+
+;; --- rectangle --- ;;
+
+(def-solid-geometry make-solid-rect (width height)
+  (push-vertices (0 0) (width 0) (width height) (0 height))
+  (push-faces (0 1 2) (2 3 0)))
 
 (def-wired-geometry make-wired-rect (width height)
   (push-vertices (0 0) (width 0) (width height) (0 height) (0 0)))
