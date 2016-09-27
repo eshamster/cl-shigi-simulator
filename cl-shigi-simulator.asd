@@ -43,12 +43,13 @@
                 ((:file "basic-components")
                  (:file "calc")
                  (:file "collision")
+                 (:file "draw-model-system")
                  (:file "cl-web-2d-game")))
                (:module "static/js"
                 :components
                 ((:file "utils")
                  (:file "2d-geometry")
-                 (:file "basic-ecs")
+                 (:file "basic-ecs" :depends-on ("tools"))
                  (:file "tools")
                  (:file "input" :depends-on ("tools"))
                  (:file "player" :depends-on ("basic-ecs" "2d-geometry" "tools"))
