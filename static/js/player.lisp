@@ -14,7 +14,8 @@
         (r (get-param :player :ring-r)))
     (add-ecs-component-list
      ring
-     (make-model-2d :model (make-wired-regular-polygon :r r :n 100 :color 0x4444ff)
+     (make-model-2d :model (make-wired-regular-polygon :r r :n 100
+                                                       :color (get-param :player :color))
                  :depth (get-param :player :depth))
      (make-point-2d :x (* r -1) :y (* r -1)))
     ring))
@@ -24,7 +25,8 @@
         (r (get-param :player :body-r)))
     (add-ecs-component-list
      body
-     (make-model-2d :model (make-solid-regular-polygon :r r :n 100 :color 0x4444ff)
+     (make-model-2d :model (make-solid-regular-polygon :r r :n 100
+                                                       :color (get-param :player :color))
                  :depth (get-param :player :depth))
      (make-point-2d :x (* r -1) :y (* r -1)))
     body))

@@ -40,13 +40,15 @@
         (add-entity-tag bit "shigi-part" "shigi-bit")
         (add-ecs-component-list
          bit
-         (make-model-2d :model (make-wired-regular-polygon :r r :n 100 :color 0x44ff44)
-                        :depth (get-param :player :depth)
+         (make-model-2d :model (make-wired-regular-polygon :r r :n 100
+                                                           :color (get-param :shigi :color))
+                        :depth (get-param :shigi :depth)
                         :offset model-offset)
          point
          (make-rotate-2d :speed rot-speed
                          :angle angle
-                         :radious dist)))
+                         :radious dist)
+         (init-entity-params :color (nth i (get-param :color-chip :colors)))))
       (push bit result))
     result))
 
@@ -66,7 +68,7 @@
           (incf speed
                 (round-by-abs (* (diff-angle angle-to-player (- angle (/ PI 2)))
                                  (get-param :shigi :body :rot-gravity))
-                              (get-param :shigi :body :max-rot-speed)))
+                              (get-param :shigi :body :max-rot-accell)))
           (let ((max-speed ))
             (setf speed (round-by-abs speed (get-param :shigi :body :max-rot-speed)))))))))
 
@@ -104,12 +106,14 @@
            body
            (make-model-2d :model (make-wired-polygon
                                   :pnt-list modified-pnt-list
-                                  :color 0x44ff44)
+                                  :color (get-param :shigi :color))
                           :depth (get-param :shigi :depth)
                           :offset model-offset)
            (make-point-2d :x (car center) :y (cadr center))
            rotate
-           (make-script-2d :func #'rotate-shigi-body)) 
+           (make-script-2d :func #'rotate-shigi-body)
+           ;; TODO: parameterize 4 (which is the number of the bit)
+           (init-entity-params :color (nth (+ i 4) (get-param :color-chip :colors)))) 
           (push body result))))
     result))
 

@@ -6,10 +6,25 @@
         :cl-ps-ecs
         :parenscript)
   (:export :create-html-element
-           :get-param))
+           :get-param
+           :with-trace))
 (in-package :cl-shigi-simulator.static.js.tools)
 
 (enable-ps-experiment-syntax)
+
+;; --- for profiling --- ;;
+
+;; Note: this is depend on Web Tracing Framework (wtf-trace.js)
+
+(defmacro.ps with-trace (title &body body)
+  `(let ((scope (#j.WTF.trace.enterScope# ,title)))
+     ,@body
+     (#j.WTF.trace.leaveScope# scope ,title)))
+(defmacro with-trace (title &body body)
+  "(dummy)"
+  (declare (ignore title))
+  `(progn ,@body))
+
 
 ;; --- for initialize --- ;;
 
@@ -57,9 +72,11 @@
     (funcall init-function scene)
     (labels ((render-loop ()
                (request-animation-frame render-loop)
-               (renderer.render scene camera)
+               (with-trace "render"
+                 (renderer.render scene camera))
                (update-stats)
-               (funcall update-function)))
+               (with-trace "update"
+                 (funcall update-function))))
       (render-loop))))
 
 ;; --- about screensize --- ;;
@@ -101,16 +118,27 @@
 (defvar.ps *all-params*
     (to-json '(:player (:speed #.#y4
                         :depth 100
+                        :color #x000000
                         :ring-r #.#y70
                         :body-r #.#y7)
                :shigi (:depth 50
+                       :color #x112222
                        :marker-size #.#y10
                        :body (:max-rot-speed 0.0175
                               :max-rot-accell 8.72e-4
                               :rot-gravity 0.002)
                        :bit (:r #.#y30
                              :dist #.#y173
-                             :rot-speed -0.0272)))))
+                             :rot-speed -0.0272))
+               :cursor (:color #x771111)
+               :color-chip (:colors (0 #x7777bd
+                                     1 #xee579b
+                                     2 #xbd7777
+                                     3 #x9bee57
+                                     4 #x77bd77
+                                     5 #x579bee)
+                            :depth -50
+                            :size #.#y50))))
 
 (defmacro.ps get-param (&rest keys)
   (labels ((rec (rest-keys result)
@@ -165,10 +193,3 @@
   (when *debug-area*
     (incf #j.*debug-area*.innerHTML# (+ text "<br>"))))
 
-;; --- others --- ;;
-
-;; TODO: Move this to cl-ps-ecs
-
-(defun.ps+ add-ecs-component-list (entity &rest component-list)
-  (dolist (component component-list)
-    (add-ecs-component component entity)))

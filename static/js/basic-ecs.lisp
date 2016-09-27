@@ -14,21 +14,6 @@
 
 ;; --- systems --- ;;
 
-(defstruct.ps
-    (draw-model-system
-     (:include ecs-system
-               (target-component-types '(point-2d model-2d))
-               (process (lambda (entity)
-                          (with-ecs-components (model-2d point-2d) entity
-                            (let ((new-pos (calc-global-point entity
-                                                              (model-2d-offset model-2d))))
-                              (with-slots (model) model-2d
-                                (model.position.set
-                                 (point-2d-x new-pos)
-                                 (point-2d-y new-pos)
-                                 (model-2d-depth model-2d)) 
-                                (setf model.rotation.z (point-2d-angle new-pos))))))))))
-
 (defstruct.ps+
     (move-system
      (:include ecs-system
@@ -57,18 +42,12 @@
      (:include ecs-system
                (target-component-types '(script-2d))
                (process (lambda (entity)
-                          (with-ecs-components (script-2d) entity
-                            (funcall (script-2d-func script-2d) entity)))))))
+                          (cl-shigi-simulator.static.js.tools:with-trace "script_system"
+                            (with-ecs-components (script-2d) entity
+                              (funcall (script-2d-func script-2d) entity))))))))
 
 (defun.ps register-default-systems (scene)
-  (register-ecs-system "draw2d"
-                       (make-draw-model-system
-                        :add-entity-hook (lambda (entity)
-                                           (with-ecs-components (model-2d) entity
-                                             (scene.add (model-2d-model model-2d))))
-                        :delete-entity-hook (lambda (entity)
-                                              (with-ecs-components (model-2d) entity
-                                                (scene.remove (model-2d-model model-2d))))))
+  (register-ecs-system "draw2d" (init-draw-model-system scene))
   (register-ecs-system "move2d" (make-move-system))
   (register-ecs-system "rotate2d" (make-rotate-system))
   (register-ecs-system "script2d" (make-script-system))
