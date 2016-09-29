@@ -60,6 +60,17 @@
     (setf _mouse-y (- canvas.height
                       (- e.client-y renderer.offset-top)))))
 
+(defun.ps on-mouse-down-event (e)
+  (do-tagged-ecs-entities (part "shigi-part")
+    (when (> (random) 0.5)
+      (toggle-shigi-part part))))
+
+(defun.ps on-touch-start (e)
+  (when (= e.touches.length 2)
+    (do-tagged-ecs-entities (part "shigi-bit")
+      (when (> (random) 0.5)
+        (toggle-shigi-part part)))))
+
 (defun.ps on-touch-move-event (e)
   (let* ((renderer (document.query-selector "#renderer"))
          (canvas (renderer.query-selector "canvas")))

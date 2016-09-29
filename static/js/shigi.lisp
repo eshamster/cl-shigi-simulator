@@ -8,10 +8,28 @@
         :cl-web-2d-game
         :cl-shigi-simulator.static.js.tools)
   (:import-from :ps-experiment.common-macros
-                :with-slots-pair))
+                :with-slots-pair)
+  (:export :shigi-part-valid-p))
 (in-package :cl-shigi-simulator.static.js.shigi)
 
 (enable-ps-experiment-syntax)
+
+(defun.ps+ check-shigi-part (entity)
+  (unless (has-entity-tag entity "shigi-part")
+    (error "Accepts only a shigi-part.")))
+
+(defun.ps toggle-shigi-part (shigi-part)
+  (check-shigi-part shigi-part)
+  (let ((enable (get-entity-param shigi-part :enable)))
+    (if enable
+        (progn (set-entity-param shigi-part :enable nil)
+               (disable-model-2d shigi-part))
+        (progn (set-entity-param shigi-part :enable t)
+               (enable-model-2d shigi-part)))))
+
+(defun.ps+ shigi-part-valid-p (shigi-part)
+  (check-shigi-part shigi-part)
+  (get-entity-param shigi-part :enable))
 
 (defun.ps make-center-point-marker ()
   (let* ((marker (make-ecs-entity))
@@ -48,7 +66,8 @@
          (make-rotate-2d :speed rot-speed
                          :angle angle
                          :radious dist)
-         (init-entity-params :color (nth i (get-param :color-chip :colors)))))
+         (init-entity-params :color (nth i (get-param :color-chip :colors))
+                             :enable t)))
       (push bit result))
     result))
 
@@ -113,7 +132,8 @@
            rotate
            (make-script-2d :func #'rotate-shigi-body)
            ;; TODO: parameterize 4 (which is the number of the bit)
-           (init-entity-params :color (nth (+ i 4) (get-param :color-chip :colors)))) 
+           (init-entity-params :color (nth (+ i 4) (get-param :color-chip :colors))
+                               :enable t))
           (push body result))))
     result))
 
