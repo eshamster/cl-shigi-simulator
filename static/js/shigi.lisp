@@ -62,6 +62,12 @@
                                                            :color (get-param :shigi :color))
                         :depth (get-param :shigi :depth)
                         :offset model-offset)
+         (make-physic-circle :r r
+                             :on-collision
+                             (lambda (mine target)
+                               (when (and (= (get-left-mouse-state) :down-now)
+                                          (has-entity-tag target "mouse"))
+                                 (toggle-shigi-part mine))))
          point
          (make-rotate-2d :speed rot-speed
                          :angle angle
@@ -101,7 +107,7 @@
 (defun.ps make-shigi-bodies ()
   (let* ((result '())
          (pnt-list '((#.#y0 #.#y76.8) (#.#y76.8 #.#y115.2)
-                     (#.#y92.16 #.#y-57.6) (#.#y0 #.#y-144)))) 
+                     (#.#y92.16 #.#y-57.6) (#.#y0 #.#y-144))))
     (labels ((reverse-list-by-x (pnt-list)
                (let ((result '()))
                  (dolist (pnt pnt-list)

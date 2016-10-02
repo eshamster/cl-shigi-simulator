@@ -10,6 +10,23 @@
 
 (enable-ps-experiment-syntax)
 
+(defun.ps process-input ()
+  (process-keyboard-input)
+  (process-mouse-input))
+
+;; --- common --- ;;
+
+(defun.ps+ calc-next-input-state (now-state device-state)
+  "now-state = :down-now | :down | :up-now | :up
+device-state = boolean-value"
+  (if device-state
+      (case now-state
+        ((:down-now :down) :down)
+        (t :down-now))
+      (case now-state
+        ((:up-now :up) :up)
+        (t :up-now))))
+
 ;; ---- keyboard ---- ;;
 
 (defvar.ps keyboard (new (#j.THREEx.KeyboardState#)))
@@ -33,56 +50,80 @@
     (and (not (null value))
          (eq value :up-now))))
 
-(defun.ps process-input ()
-
+(defun.ps process-keyboard-input ()
   (maphash (lambda (k v)
-             (symbol-macrolet ((value (gethash k key-status)))
-               (if v
-                   (case value
-                     (:down-now (setf value :down))
-                     (:down)
-                     (t (setf value :down-now)))
-                   (case value
-                     (:up-now (setf value :up))
-                     (:up)
-                     (t (setf value :up-now))))))
+             (setf (gethash k key-status)
+                   (calc-next-input-state (gethash k key-status) v)))
            keyboard.key-codes))
 
 ;; ---- mouse ---- ;;
 
+;; variables
+
 (defvar.ps _mouse-x -100)
 (defvar.ps _mouse-y -100)
+(defvar.ps _mouse-left :up)
+
+(defvar.ps *mouse-x-buffer* -100)
+(defvar.ps *mouse-y-buffer* -100)
+(defvar.ps *mouse-left-buffer* nil)
+
+(defvar.ps *mouse-left-button-id* 1)
+(defvar.ps *mouse-right-button-id* 3)
+
+;; main
+
+(defun.ps process-mouse-input ()
+  (setf _mouse-x *mouse-x-buffer*)
+  (setf _mouse-y *mouse-y-buffer*)
+  (setf _mouse-left
+        (calc-next-input-state _mouse-left
+                               *mouse-left-buffer*)))
+
+;; interfaces
+
+(defun.ps get-mouse-x () _mouse-x)
+(defun.ps get-mouse-y () _mouse-y)
+(defun.ps get-left-mouse-state () _mouse-left)
+
+;; callbacks
 
 (defun.ps on-mouse-move-event (e)
   (let* ((renderer (document.query-selector "#renderer"))
          (canvas (renderer.query-selector "canvas")))
-    (setf _mouse-x (- e.client-x renderer.offset-left))
-    (setf _mouse-y (- canvas.height
-                      (- e.client-y renderer.offset-top)))))
+    (setf *mouse-x-buffer* (- e.client-x renderer.offset-left))
+    (setf *mouse-y-buffer* (- canvas.height
+                              (- e.client-y renderer.offset-top)))))
 
 (defun.ps on-mouse-down-event (e)
-  (do-tagged-ecs-entities (part "shigi-part")
-    (when (> (random) 0.5)
-      (toggle-shigi-part part))))
+  (when (= e.which *mouse-left-button-id*)
+    (setf *mouse-left-buffer* t)))
 
-(defun.ps on-touch-start (e)
-  (when (= e.touches.length 2)
-    (do-tagged-ecs-entities (part "shigi-bit")
-      (when (> (random) 0.5)
-        (toggle-shigi-part part)))))
+(defun.ps on-mouse-up-event (e)
+  (when (= e.which *mouse-left-button-id*)
+    (setf *mouse-left-buffer* nil)))
 
-(defun.ps on-touch-move-event (e)
+(defun.ps set-point-by-touch (e)
   (let* ((renderer (document.query-selector "#renderer"))
          (canvas (renderer.query-selector "canvas")))
     (let ((point (aref e.touches 0)))
-      (setf _mouse-x (- point.client-x renderer.offset-left))
-      (setf _mouse-y (- canvas.height
-                        (- point.client-y renderer.offset-top)))
-      ;; test
-      (let* ((player (find-a-entity-by-tag "player"))
-             (center (get-ecs-component 'point-2d player)))
-        (setf center.x _mouse-x)
-        (setf center.y _mouse-y)))))
+      (setf *mouse-x-buffer* (- point.client-x renderer.offset-left))
+      (setf *mouse-y-buffer* (- canvas.height
+                                (- point.client-y renderer.offset-top))))))
 
-(defun.ps get-mouse-x () _mouse-x)
-(defun.ps get-mouse-y () _mouse-y)
+(defun.ps on-touch-start (e)
+  (set-point-by-touch e)
+  (setf *mouse-left-buffer* t))
+
+(defun.ps on-touch-end (e)
+  (when (= e.touches.length 0)
+    (setf *mouse-left-buffer* nil)))
+
+(defun.ps on-touch-move-event (e)
+  (set-point-by-touch e)
+  (let ((point (aref e.touches 0))) 
+    ;; test
+    (let* ((player (find-a-entity-by-tag "player"))
+           (center (get-ecs-component 'point-2d player)))
+      (setf center.x *mouse-x-buffer*)
+      (setf center.y *mouse-y-buffer*))))
