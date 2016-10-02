@@ -28,7 +28,8 @@
      (make-script-2d :func (lambda (entity)
                              (with-ecs-components (point-2d) entity
                                (setf point-2d.x (get-mouse-x))
-                               (setf point-2d.y (get-mouse-y))))))
+                               (setf point-2d.y (get-mouse-y)))))
+     (make-physic-circle :r r))
     (add-ecs-entity pointer)))
 
 (defun.ps make-sample-entities ()
@@ -60,7 +61,10 @@
                      :cl-shigi-simulator.static.js.basic-ecs
                      :this)
     (window.add-event-listener "mousemove" on-mouse-move-event)
-    (window.add-event-listener "touchstart" on-touch-move-event)
+    (window.add-event-listener "mousedown" on-mouse-down-event)
+    (window.add-event-listener "mouseup" on-mouse-up-event)
+    (window.add-event-listener "touchstart" on-touch-start)
+    (window.add-event-listener "touchend" on-touch-end)
     (window.add-event-listener "touchmove" on-touch-move-event)
     (window.add-event-listener "keydown" (lambda (e) (e.prevent-default)))
     (window.add-event-listener "DOMContentLoaded" main false))) 

@@ -6,6 +6,7 @@
         :cl-ps-ecs
         :parenscript
         :cl-web-2d-game
+        :cl-shigi-simulator.static.js.shigi
         :cl-shigi-simulator.static.js.tools)
   (:import-from :ps-experiment.common-macros
                 :with-slots-pair))
@@ -58,9 +59,11 @@
         (setf (point-2d-y buffer-pnt) (* (+ 0.5 y) size))
         (dotimes (x (get-chip-num-x))
           (setf (point-2d-x buffer-pnt) (* (+ 0.5 x) size))
-          (let* ((nearest-part (get-nearest-shigi-part pair-list buffer-pnt))
-                 (new-id (ecs-entity-id nearest-part)))
-            (set-chip-color geometry x y (get-entity-param nearest-part :color))))))))
+          (let* ((nearest-part (get-nearest-shigi-part pair-list buffer-pnt)))
+            (set-chip-color geometry x y
+                            (if nearest-part
+                                (get-entity-param nearest-part :color)
+                                #xffffff))))))))
 
 (defun.ps generate-color-grid ()
   (let ((grid (make-ecs-entity)))
@@ -76,8 +79,9 @@
 (defun.ps+ make-shigi-part-point-pairs ()
   (let ((result '()))
     (do-tagged-ecs-entities (entity "shigi-part")
-      (push (list entity (calc-global-point entity))
-            result))
+      (when (shigi-part-valid-p entity)
+        (push (list entity (calc-global-point entity))
+              result)))
     result))
 
 (defun.ps+ get-nearest-shigi-part (shigi-parts-points pnt)
