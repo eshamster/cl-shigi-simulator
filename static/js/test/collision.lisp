@@ -41,6 +41,7 @@
                                               *test-tri-pnts*)
                             :color 0xff4444)
                     :depth 1)
+     (make-rotate-2d :speed (/ PI 240))
      (make-physic-triangle :pnt1 (nth 0 *test-tri-pnts*)
                            :pnt2 (nth 1 *test-tri-pnts*)
                            :pnt3 (nth 2 *test-tri-pnts*)))
@@ -142,4 +143,4 @@
                      :this)
     (window.add-event-listener "mousemove" on-mouse-move-event)
     (window.add-event-listener "keydown" (lambda (e) (e.prevent-default)))
-    (window.add-event-listener "DOMContentLoaded" main false))) 
+    (window.add-event-listener "DOMContentLoaded" main false)))
