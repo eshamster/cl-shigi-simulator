@@ -44,6 +44,7 @@
                  (:file "calc")
                  (:file "collision")
                  (:file "draw-model-system")
+                 (:file "gui")
                  (:file "cl-web-2d-game")))
                (:module "static/js"
                 :components
