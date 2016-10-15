@@ -43,6 +43,17 @@
      (make-point-2d))
     marker))
 
+(defun.ps change-shigi-bit-speed (bit scale)
+  (unless (has-entity-tag bit "shigi-bit")
+    (error "The entity is not shigi-bit."))
+  (with-ecs-components (rotate-2d) bit
+    (setf (rotate-2d-speed rotate-2d)
+          (* (get-param :shigi :bit :rot-speed) scale))))
+
+(defun.ps change-all-shigi-bits-speed (scale)
+  (do-tagged-ecs-entities (bit "shigi-bit")
+    (change-shigi-bit-speed bit scale)))
+
 (defun.ps make-shigi-bits ()
   (let ((result '())
         (num-bit 4)
@@ -148,7 +159,15 @@
     (add-entity-tag center "shigi-center")
     (add-ecs-component-list
      center
-     (make-point-2d :x #y(* 500 4/3) :y #y800))
+     (make-point-2d :x #y(* 500 4/3) :y #y800)
+     (make-script-2d :func (lambda (entity)
+                             (change-all-shigi-bits-speed
+                              (get-entity-param entity :bit-speed-scale))))
+     (init-entity-params :bit-speed-scale 1))
+    (add-panel-number 'bit-speed 1
+                      :min 0 :max 1 :step 0.1
+                      :on-change (lambda (value)
+                                   (set-entity-param center :bit-speed-scale value)))
     center))
 
 (defun.ps make-shigi ()
