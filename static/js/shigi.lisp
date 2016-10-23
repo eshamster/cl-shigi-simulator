@@ -15,8 +15,7 @@
 (enable-ps-experiment-syntax)
 
 (defun.ps+ check-shigi-part (entity)
-  (unless (has-entity-tag entity "shigi-part")
-    (error "Accepts only a shigi-part.")))
+  (check-entity-tags entity "shigi-part"))
 
 (defun.ps toggle-shigi-part (shigi-part)
   (check-shigi-part shigi-part)
@@ -44,8 +43,7 @@
     marker))
 
 (defun.ps change-shigi-bit-speed (bit scale)
-  (unless (has-entity-tag bit "shigi-bit")
-    (error "The entity is not shigi-bit."))
+  (check-entity-tags bit "shigi-bit")
   (with-ecs-components (rotate-2d) bit
     (setf (rotate-2d-speed rotate-2d)
           (* (get-param :shigi :bit :rot-speed) scale))))
