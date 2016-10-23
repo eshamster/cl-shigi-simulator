@@ -93,20 +93,23 @@
   (with-ecs-components (rotate-2d point-2d) body
     (with-slots-pair ((speed) rotate-2d
                       (angle) point-2d)
-      (let* ((player (find-a-entity-by-tag "player"))
-             (center (find-a-entity-by-tag "shigi-center"))
-             (angle-to-player (vector-angle
-                               (decf-vector (clone-vector (get-ecs-component 'point-2d player))
-                                            (get-ecs-component 'point-2d center)))))
-        (labels ((round-by-abs (value max-value)
-                   (max (* -1 max-value)
-                        (min value max-value))))
-          (incf speed
-                (round-by-abs (* (diff-angle angle-to-player (- angle (/ PI 2)))
-                                 (get-param :shigi :body :rot-gravity))
-                              (get-param :shigi :body :max-rot-accell)))
-          (let ((max-speed ))
-            (setf speed (round-by-abs speed (get-param :shigi :body :max-rot-speed)))))))))
+      (let ((center (find-a-entity-by-tag "shigi-center")))
+        (if (get-entity-param center :body-rotate-p)
+            (let* ((player (find-a-entity-by-tag "player"))
+                   (angle-to-player (vector-angle
+                                     (decf-vector (clone-vector (get-ecs-component 'point-2d player))
+                                                  (get-ecs-component 'point-2d center)))))
+              (labels ((round-by-abs (value max-value)
+                         (max (* -1 max-value)
+                              (min value max-value))))
+                (incf speed
+                      (round-by-abs (* (diff-angle angle-to-player (- angle (/ PI 2)))
+                                       (get-param :shigi :body :rot-gravity))
+                                    (get-param :shigi :body :max-rot-accell)))
+                (let ((max-speed))
+                  (setf speed (round-by-abs speed (get-param :shigi :body :max-rot-speed))))))
+            ;; else
+            (setf speed 0))))))
 
 (defun.ps+ calc-average-point (pnt-list)
   (let ((result (list 0 0)))
@@ -163,11 +166,15 @@
      (make-script-2d :func (lambda (entity)
                              (change-all-shigi-bits-speed
                               (get-entity-param entity :bit-speed-scale))))
-     (init-entity-params :bit-speed-scale 1))
+     (init-entity-params :bit-speed-scale 1
+                         :body-rotate-p t))
     (add-panel-number 'bit-speed 1
                       :min 0 :max 1 :step 0.1
                       :on-change (lambda (value)
                                    (set-entity-param center :bit-speed-scale value)))
+    (add-panel-bool 'body-rotate t
+                    :on-change (lambda (value)
+                                 (set-entity-param center :body-rotate-p value)))
     center))
 
 (defun.ps make-shigi ()
