@@ -16,15 +16,17 @@
 (in-package :cl-shigi-simulator.static.js.shigi-simulator)
 
 (defun.ps make-mouse-pointer ()
-  (let ((pointer (make-ecs-entity))
-        (r 5))
+  (let* ((pointer (make-ecs-entity))
+         (r 5)
+         (model-offset (make-point-2d :x (* -1 r) :y (* -1 r))))
     (add-entity-tag pointer "mouse")
     (add-ecs-component-list
      pointer
-     (make-point-2d :center (make-vector-2d :x r :y r))
+     (make-point-2d)
      (make-model-2d :model (make-wired-regular-polygon :n 60 :r r
                                                        :color (get-param :cursor :color))
-                    :depth 1)
+                    :depth 1
+                    :offset model-offset)
      (make-script-2d :func (lambda (entity)
                              (with-ecs-components (point-2d) entity
                                (setf point-2d.x (get-mouse-x))
