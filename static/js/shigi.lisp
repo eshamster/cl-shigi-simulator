@@ -26,6 +26,11 @@
         (progn (set-entity-param shigi-part :enable t)
                (enable-model-2d shigi-part)))))
 
+(defun.ps toggle-shigi-part-by-mouse (shigi-part target)
+  (when (and (= (get-left-mouse-state) :down-now)
+             (has-entity-tag target "mouse"))
+    (toggle-shigi-part shigi-part)))
+
 (defun.ps+ shigi-part-valid-p (shigi-part)
   (check-shigi-part shigi-part)
   (get-entity-param shigi-part :enable))
@@ -72,11 +77,7 @@
                         :depth (get-param :shigi :depth)
                         :offset model-offset)
          (make-physic-circle :r r
-                             :on-collision
-                             (lambda (mine target)
-                               (when (and (= (get-left-mouse-state) :down-now)
-                                          (has-entity-tag target "mouse"))
-                                 (toggle-shigi-part mine))))
+                             :on-collision #'toggle-shigi-part-by-mouse)
          point
          (make-rotate-2d :speed rot-speed
                          :angle angle
@@ -146,6 +147,13 @@
                                   :color (get-param :shigi :color))
                           :depth (get-param :shigi :depth)
                           :offset model-offset)
+           (make-physic-polygon :pnt-list
+                                (mapcar (lambda (pnt-by-list)
+                                          (make-vector-2d :x (car pnt-by-list)
+                                                          :y (cadr pnt-by-list)))
+                                        modified-pnt-list)
+                                :offset model-offset
+                                :on-collision #'toggle-shigi-part-by-mouse)
            (make-point-2d :x (car center) :y (cadr center))
            rotate
            (make-script-2d :func #'rotate-shigi-body)
