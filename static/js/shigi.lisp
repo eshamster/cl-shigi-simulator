@@ -15,8 +15,7 @@
 (enable-ps-experiment-syntax)
 
 (defun.ps+ check-shigi-part (entity)
-  (unless (has-entity-tag entity "shigi-part")
-    (error "Accepts only a shigi-part.")))
+  (check-entity-tags entity "shigi-part"))
 
 (defun.ps toggle-shigi-part (shigi-part)
   (check-shigi-part shigi-part)
@@ -26,6 +25,11 @@
                (disable-model-2d shigi-part))
         (progn (set-entity-param shigi-part :enable t)
                (enable-model-2d shigi-part)))))
+
+(defun.ps toggle-shigi-part-by-mouse (shigi-part target)
+  (when (and (= (get-left-mouse-state) :down-now)
+             (has-entity-tag target "mouse"))
+    (toggle-shigi-part shigi-part)))
 
 (defun.ps+ shigi-part-valid-p (shigi-part)
   (check-shigi-part shigi-part)
@@ -42,6 +46,16 @@
                     :offset (make-point-2d :x offset :y offset))
      (make-point-2d))
     marker))
+
+(defun.ps change-shigi-bit-speed (bit scale)
+  (check-entity-tags bit "shigi-bit")
+  (with-ecs-components (rotate-2d) bit
+    (setf (rotate-2d-speed rotate-2d)
+          (* (get-param :shigi :bit :rot-speed) scale))))
+
+(defun.ps change-all-shigi-bits-speed (scale)
+  (do-tagged-ecs-entities (bit "shigi-bit")
+    (change-shigi-bit-speed bit scale)))
 
 (defun.ps make-shigi-bits ()
   (let ((result '())
@@ -63,11 +77,7 @@
                         :depth (get-param :shigi :depth)
                         :offset model-offset)
          (make-physic-circle :r r
-                             :on-collision
-                             (lambda (mine target)
-                               (when (and (= (get-left-mouse-state) :down-now)
-                                          (has-entity-tag target "mouse"))
-                                 (toggle-shigi-part mine))))
+                             :on-collision #'toggle-shigi-part-by-mouse)
          point
          (make-rotate-2d :speed rot-speed
                          :angle angle
@@ -82,20 +92,23 @@
   (with-ecs-components (rotate-2d point-2d) body
     (with-slots-pair ((speed) rotate-2d
                       (angle) point-2d)
-      (let* ((player (find-a-entity-by-tag "player"))
-             (center (find-a-entity-by-tag "shigi-center"))
-             (angle-to-player (vector-angle
-                               (decf-vector (clone-vector (get-ecs-component 'point-2d player))
-                                            (get-ecs-component 'point-2d center)))))
-        (labels ((round-by-abs (value max-value)
-                   (max (* -1 max-value)
-                        (min value max-value))))
-          (incf speed
-                (round-by-abs (* (diff-angle angle-to-player (- angle (/ PI 2)))
-                                 (get-param :shigi :body :rot-gravity))
-                              (get-param :shigi :body :max-rot-accell)))
-          (let ((max-speed ))
-            (setf speed (round-by-abs speed (get-param :shigi :body :max-rot-speed)))))))))
+      (let ((center (find-a-entity-by-tag "shigi-center")))
+        (if (get-entity-param center :body-rotate-p)
+            (let* ((player (find-a-entity-by-tag "player"))
+                   (angle-to-player (vector-angle
+                                     (decf-vector (clone-vector (get-ecs-component 'point-2d player))
+                                                  (get-ecs-component 'point-2d center)))))
+              (labels ((round-by-abs (value max-value)
+                         (max (* -1 max-value)
+                              (min value max-value))))
+                (incf speed
+                      (round-by-abs (* (diff-angle angle-to-player (- angle (/ PI 2)))
+                                       (get-param :shigi :body :rot-gravity))
+                                    (get-param :shigi :body :max-rot-accell)))
+                (let ((max-speed))
+                  (setf speed (round-by-abs speed (get-param :shigi :body :max-rot-speed))))))
+            ;; else
+            (setf speed 0))))))
 
 (defun.ps+ calc-average-point (pnt-list)
   (let ((result (list 0 0)))
@@ -134,6 +147,13 @@
                                   :color (get-param :shigi :color))
                           :depth (get-param :shigi :depth)
                           :offset model-offset)
+           (make-physic-polygon :pnt-list
+                                (mapcar (lambda (pnt-by-list)
+                                          (make-vector-2d :x (car pnt-by-list)
+                                                          :y (cadr pnt-by-list)))
+                                        modified-pnt-list)
+                                :offset model-offset
+                                :on-collision #'toggle-shigi-part-by-mouse)
            (make-point-2d :x (car center) :y (cadr center))
            rotate
            (make-script-2d :func #'rotate-shigi-body)
@@ -148,7 +168,19 @@
     (add-entity-tag center "shigi-center")
     (add-ecs-component-list
      center
-     (make-point-2d :x #y(* 500 4/3) :y #y800))
+     (make-point-2d :x #y(* 500 4/3) :y #y800)
+     (make-script-2d :func (lambda (entity)
+                             (change-all-shigi-bits-speed
+                              (get-entity-param entity :bit-speed-scale))))
+     (init-entity-params :bit-speed-scale 1
+                         :body-rotate-p t))
+    (add-panel-number 'bit-speed 1
+                      :min 0 :max 1 :step 0.1
+                      :on-change (lambda (value)
+                                   (set-entity-param center :bit-speed-scale value)))
+    (add-panel-bool 'body-rotate t
+                    :on-change (lambda (value)
+                                 (set-entity-param center :body-rotate-p value)))
     center))
 
 (defun.ps make-shigi ()

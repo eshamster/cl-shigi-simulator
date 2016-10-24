@@ -59,6 +59,7 @@
 
 (defun.ps start-game (screen-width screen-height init-function update-function)
   (init-stats)
+  (init-gui)
   (let* ((scene (new (#j.THREE.Scene#)))
          (camera (init-camera screen-width screen-height))
          (renderer (new #j.THREE.WebGLRenderer#)))
