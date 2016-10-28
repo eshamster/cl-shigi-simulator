@@ -45,16 +45,16 @@
                    `(when (,op ,place ,value)
                       (setf ,place ,value))))
         (fix-position < point-2d.x r)
-        (fix-position > point-2d.x (- screen-width r))
+        (fix-position > point-2d.x (- (get-param :play-area :width) r))
         (fix-position < point-2d.y r)
-        (fix-position > point-2d.y (- screen-height r))))))
+        (fix-position > point-2d.y (- (get-param :play-area :height) r))))))
 
 (defun.ps make-player-center ()
   (let ((body (make-ecs-entity)))
     (add-entity-tag body "player")
     (add-ecs-component-list
      body
-     (make-point-2d :x #y(* 500 4/3) :y #y100)
+     (make-point-2d :x (/ (get-param :play-area :width) 2) :y #y100)
      (make-script-2d :func #'move-player))
     body))
 

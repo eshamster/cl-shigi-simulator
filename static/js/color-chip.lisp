@@ -15,10 +15,10 @@
 (enable-ps-experiment-syntax)
 
 (defun.ps get-chip-num-x ()
-  (floor (1+ (/ screen-width (get-param :color-chip :size)))))
+  (floor (1+ (/ (get-param :play-area :width) (get-param :color-chip :size)))))
 
 (Defun.ps get-chip-num-y ()
-  (floor (1+ (/ screen-height (get-param :color-chip :size)))))
+  (floor (1+ (/ (get-param :play-area :height) (get-param :color-chip :size)))))
 
 (defun.ps set-chip-color (grid-geometry x-index y-index color)
   "Note: A chip consists of 2 triangles. Caller should set true to geometry.colorsNeedUpdate."

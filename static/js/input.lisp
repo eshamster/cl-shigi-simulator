@@ -86,14 +86,20 @@ device-state = boolean-value"
 (defun.ps get-mouse-y () _mouse-y)
 (defun.ps get-left-mouse-state () _mouse-left)
 
+;; (private)
+(defun.ps set-mouse-point (x y)
+  (let* ((renderer (document.query-selector "#renderer"))
+         (canvas (renderer.query-selector "canvas")))
+    (setf *mouse-x-buffer* (- x renderer.offset-left
+                              (get-param :play-area :x)))
+    (setf *mouse-y-buffer* (- canvas.height
+                              (- y renderer.offset-top)
+                              (get-param :play-area :y)))))
+
 ;; callbacks
 
 (defun.ps on-mouse-move-event (e)
-  (let* ((renderer (document.query-selector "#renderer"))
-         (canvas (renderer.query-selector "canvas")))
-    (setf *mouse-x-buffer* (- e.client-x renderer.offset-left))
-    (setf *mouse-y-buffer* (- canvas.height
-                              (- e.client-y renderer.offset-top)))))
+  (set-mouse-point e.client-x e.client-y))
 
 (defun.ps on-mouse-down-event (e)
   (when (= e.which *mouse-left-button-id*)
@@ -104,12 +110,8 @@ device-state = boolean-value"
     (setf *mouse-left-buffer* nil)))
 
 (defun.ps set-point-by-touch (e)
-  (let* ((renderer (document.query-selector "#renderer"))
-         (canvas (renderer.query-selector "canvas")))
-    (let ((point (aref e.touches 0)))
-      (setf *mouse-x-buffer* (- point.client-x renderer.offset-left))
-      (setf *mouse-y-buffer* (- canvas.height
-                                (- point.client-y renderer.offset-top))))))
+  (let ((point (aref e.touches 0)))
+    (set-mouse-point point.client-x point.client-y)))
 
 (defun.ps on-touch-start (e)
   (set-point-by-touch e)

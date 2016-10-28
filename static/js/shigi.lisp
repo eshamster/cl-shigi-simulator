@@ -168,7 +168,7 @@
     (add-entity-tag center "shigi-center")
     (add-ecs-component-list
      center
-     (make-point-2d :x #y(* 500 4/3) :y #y800)
+     (make-point-2d :x (/ (get-param :play-area :width) 2) :y #y800)
      (make-script-2d :func (lambda (entity)
                              (change-all-shigi-bits-speed
                               (get-entity-param entity :bit-speed-scale))))

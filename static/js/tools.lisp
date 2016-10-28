@@ -25,6 +25,85 @@
   (declare (ignore title))
   `(progn ,@body))
 
+;; --- about screensize --- ;;
+
+(eval-when (:execute :compile-toplevel :load-toplevel)
+  (defvar.ps+ screen-width 800)
+  (defvar.ps+ screen-height 600)
+  ;; width : height = 3 : 4
+  (defvar.ps+ play-area-height 570)
+  (defvar.ps+ play-area-width (/ (* play-area-height 3) 4))
+  
+  (defun.ps+ calc-absolute-length (relative-length base-length)
+    "Calculate an absolute length based on the screen height (1000 = base-length)"
+    (* relative-length base-length 0.001))
+  
+  "Ex1. '#y0.5' represents a half length of the play-area height."
+  "Ex2. '#ys0.5' represents a half length of the screen height."
+  (set-dispatch-macro-character
+   #\# #\y
+   #'(lambda (stream &rest rest)
+       (declare (ignore rest))
+       (case (peek-char nil stream)
+         (#\s (read-char stream)
+            `(calc-absolute-length ,(read stream) screen-height))
+         (t `(calc-absolute-length ,(read stream) play-area-height))))))
+
+;; --- constant value manager --- ;;
+
+(defun.ps to-json (list)
+  (labels ((rec (list table)
+             (when (> (length list) 0)
+               (let ((key (car list))
+                     ;; TODO: check value != null
+                     (value (cadr list))
+                     (rest (cddr list)))
+                 (setf (gethash key table)
+                       (if (instanceof value -array)
+                           (rec value (make-hash-table))
+                           value))
+                 (rec rest table)))
+             table))
+    (let ((table (make-hash-table)))
+      (rec list table)
+      table)))
+
+(defvar.ps *all-params*
+    (to-json '(:play-area (:x #.#y326.7544
+                           :y #.#y25
+                           :width #.play-area-width
+                           :height #.play-area-height)
+               :player (:speed #.#y4
+                        :depth 100
+                        :color #x000000
+                        :ring-r #.#y70
+                        :body-r #.#y7)
+               :shigi (:depth 50
+                       :color #x112222
+                       :marker-size #.#y10
+                       :body (:max-rot-speed 0.0175
+                              :max-rot-accell 8.72e-4
+                              :rot-gravity 0.002)
+                       :bit (:r #.#y30
+                             :dist #.#y173
+                             :rot-speed -0.0272))
+               :cursor (:color #x771111)
+               :color-chip (:colors (0 #x7777bd
+                                     1 #xee579b
+                                     2 #xbd7777
+                                     3 #x9bee57
+                                     4 #x77bd77
+                                     5 #x579bee)
+                            :depth -50
+                            :size #.#y40))))
+
+(defmacro.ps get-param (&rest keys)
+  (labels ((rec (rest-keys result)
+             (if rest-keys
+                 (rec (cdr rest-keys)
+                      (list '@ result (car rest-keys)))
+                 result)))
+    (rec keys '*all-params*)))
 
 ;; --- for initialize --- ;;
 
@@ -49,9 +128,13 @@
 ;; - camera -
 
 (defun.ps init-camera (width height)
-  (let* ((z 1000)
+  (let* ((x (get-param :play-area :x))
+         (y (get-param :play-area :y))
+         (z 1000)
          (camera (new (#j.THREE.OrthographicCamera#
-                       0 width height 0 0 (* z 2)))))
+                       (* x -1) (- width x)
+                       (- height y) (* y -1)
+                       0 (* z 2)))))
     (camera.position.set 0 0 z)
     camera))
 
@@ -79,75 +162,6 @@
                (with-trace "update"
                  (funcall update-function))))
       (render-loop))))
-
-;; --- about screensize --- ;;
-
-(eval-when (:execute :compile-toplevel :load-toplevel)
-  (defvar.ps+ screen-width 800)
-  (defvar.ps+ screen-height 600)
-  
-  (defun.ps+ calc-absolute-length (relative-length)
-    "Calculate an absolute length based on the screen height (1000 = screen-height)"
-    (* relative-length screen-height 0.001))
-  
-  "Ex. '#y0.5' represents a half length of the screen height"
-  (set-dispatch-macro-character
-   #\# #\y
-   #'(lambda (stream &rest rest)
-       (declare (ignore rest))
-       `(calc-absolute-length ,(read stream)))))
-
-;; --- constant value manager --- ;;
-
-(defun.ps to-json (list)
-  (labels ((rec (list table)
-             (when (> (length list) 0)
-               (let ((key (car list))
-                     ;; TODO: check value != null
-                     (value (cadr list))
-                     (rest (cddr list)))
-                 (setf (gethash key table)
-                       (if (instanceof value -array)
-                           (rec value (make-hash-table))
-                           value))
-                 (rec rest table)))
-             table))
-    (let ((table (make-hash-table)))
-      (rec list table)
-      table)))
-
-(defvar.ps *all-params*
-    (to-json '(:player (:speed #.#y4
-                        :depth 100
-                        :color #x000000
-                        :ring-r #.#y70
-                        :body-r #.#y7)
-               :shigi (:depth 50
-                       :color #x112222
-                       :marker-size #.#y10
-                       :body (:max-rot-speed 0.0175
-                              :max-rot-accell 8.72e-4
-                              :rot-gravity 0.002)
-                       :bit (:r #.#y30
-                             :dist #.#y173
-                             :rot-speed -0.0272))
-               :cursor (:color #x771111)
-               :color-chip (:colors (0 #x7777bd
-                                     1 #xee579b
-                                     2 #xbd7777
-                                     3 #x9bee57
-                                     4 #x77bd77
-                                     5 #x579bee)
-                            :depth -50
-                            :size #.#y50))))
-
-(defmacro.ps get-param (&rest keys)
-  (labels ((rec (rest-keys result)
-             (if rest-keys
-                 (rec (cdr rest-keys)
-                      (list '@ result (car rest-keys)))
-                 result)))
-    (rec keys '*all-params*)))
 
 ;; --- html --- ;;
 
