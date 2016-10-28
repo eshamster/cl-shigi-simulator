@@ -59,7 +59,8 @@
         (setf (point-2d-y buffer-pnt) (* (+ 0.5 y) size))
         (dotimes (x (get-chip-num-x))
           (setf (point-2d-x buffer-pnt) (* (+ 0.5 x) size))
-          (let* ((nearest-part (get-nearest-shigi-part pair-list buffer-pnt)))
+          (let* ((nearest-part (and (get-entity-param grid :enable-chips)
+                                    (get-nearest-shigi-part pair-list buffer-pnt))))
             (set-chip-color geometry x y
                             (if nearest-part
                                 (get-entity-param nearest-part :color)
@@ -71,7 +72,11 @@
      grid
      (make-point-2d)
      (make-model-2d :model (make-color-grid-mesh))
-     (make-script-2d :func process-color-grid))
+     (make-script-2d :func process-color-grid)
+     (init-entity-params :enable-chips t))
+    (add-panel-bool 'color-grid t
+                    :on-change (lambda (value)
+                                 (set-entity-param grid :enable-chips value)))
     (add-ecs-entity grid)))
 
 ;; -----------------
