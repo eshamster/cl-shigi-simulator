@@ -13,7 +13,7 @@
 
 ;; --- lazer (kaihou) --- ;;
 
-(defun.ps make-lazer+ (player)
+(defun.ps make-lazer (player)
   (check-entity-tags player "player")
   (let ((lazer (make-ecs-entity)))
     ;;--- TODO: (Now, only sample to test dynamical generating or deleting eneity.)
