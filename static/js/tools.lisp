@@ -78,6 +78,7 @@
                         :color #x000000
                         :ring-r #.#y70
                         :body-r #.#y7)
+               :lazer (:depth 70)
                :shigi (:depth 50
                        :color #x112222
                        :marker-size #.#y10

@@ -5,9 +5,36 @@
         :ps-experiment
         :cl-ps-ecs
         :parenscript
+        :cl-web-2d-game
         :cl-shigi-simulator.static.js.tools))
 (in-package :cl-shigi-simulator.static.js.player)
+
 (enable-ps-experiment-syntax)
+
+;; --- lazer (kaihou) --- ;;
+
+(defun.ps make-lazer+ (player)
+  (check-entity-tags player "player")
+  (let ((lazer (make-ecs-entity)))
+    ;;--- TODO: (Now, only sample to test dynamical generating or deleting eneity.)
+    (add-entity-tag lazer "lazer")
+    (with-ecs-components (point-2d) player
+      (add-ecs-component-list
+       lazer
+       (make-point-2d :x (point-2d-x point-2d)
+                      :y (point-2d-y point-2d))
+       (make-model-2d :model (make-solid-regular-polygon :r 10 :n 6
+                                                         :color #xff0000)
+                      :depth (get-param :lazer :depth))
+       (make-script-2d :func #'(lambda (entity)
+                                 (let ((duration (get-entity-param entity :duration)))
+                                   (when (< duration 0)
+                                     (delete-ecs-entity entity))
+                                   (set-entity-param entity :duration (1- duration)))))
+       (init-entity-params :duration 120)))
+    lazer))
+
+;; --- body --- ;;
 
 (defun.ps make-player-ring ()
   (let ((ring (make-ecs-entity))
@@ -30,6 +57,11 @@
                  :depth (get-param :player :depth))
      (make-point-2d :x (* r -1) :y (* r -1)))
     body))
+
+(defun.ps shot-lazer (player)
+  (when (is-key-down-now :x)
+    (let ((lazer (make-lazer player)))
+      (add-ecs-entity-to-buffer lazer))))
 
 (defun.ps move-player (player)
   (let ((speed (get-param :player :speed))
@@ -55,7 +87,9 @@
     (add-ecs-component-list
      body
      (make-point-2d :x (/ (get-param :play-area :width) 2) :y #y100)
-     (make-script-2d :func #'move-player))
+     (make-script-2d :func #'(lambda (player)
+                               (move-player player)
+                               (shot-lazer player))))
     body))
 
 (defun.ps make-player ()
