@@ -6,32 +6,66 @@
         :cl-ps-ecs
         :parenscript
         :cl-web-2d-game
-        :cl-shigi-simulator.static.js.tools))
+        :cl-shigi-simulator.static.js.tools)
+  (:import-from :ps-experiment.common-macros
+                :with-slots-pair))
 (in-package :cl-shigi-simulator.static.js.player)
 
 (enable-ps-experiment-syntax)
 
 ;; --- lazer (kaihou) --- ;;
 
+(defun.ps update-lazer-point (lazer)
+  ;; Note that a model space is relative to the point of the entity. (Ex. (0, 0) in the model space is the same to the point of the entity in the absolute coordinate.)
+  (check-entity-tags "lazer")
+  (with-ecs-components ((new-point point-2d) model-2d) lazer
+    (let* ((geometry model-2d.model.geometry)
+           (pnt-list geometry.vertices)
+           (len (length pnt-list)))
+      (with-slots-pair (((pre-x x) (pre-y y)) (get-entity-param lazer :pre-point)
+                        ((new-x x) (new-y y)) new-point)
+        (dotimes (i (1- len))
+          (let ((index (- len (1+ i))))
+            (with-slots-pair (((x1 x) (y1 y)) (aref pnt-list index)
+                              ((x0 x) (y0 y)) (aref pnt-list (1- index)))
+              (setf x1 (- x0 (- new-x pre-x))
+                    y1 (- y0 (- new-y pre-y))))))
+        (setf pre-x new-x
+              pre-y new-y))
+      (setf geometry.vertices-need-update t))))
+
+;; only prototype to delete an entity.
+(defun.ps sample-to-delete (entity)
+  (check-entity-tags "lazer")
+  (let ((duration (get-entity-param entity :duration)))
+    (when (< duration 0)
+      (delete-ecs-entity entity))
+    (set-entity-param entity :duration (1- duration))))
+
 (defun.ps make-lazer (player)
   (check-entity-tags player "player")
-  (let ((lazer (make-ecs-entity)))
+  (let ((lazer (make-ecs-entity))
+        (num-pnts 30)
+        (pnt-list '()))
     ;;--- TODO: (Now, only sample to test dynamical generating or deleting eneity.)
     (add-entity-tag lazer "lazer")
     (with-ecs-components (point-2d) player
-      (add-ecs-component-list
-       lazer
-       (make-point-2d :x (point-2d-x point-2d)
-                      :y (point-2d-y point-2d))
-       (make-model-2d :model (make-solid-regular-polygon :r 10 :n 6
-                                                         :color #xff0000)
-                      :depth (get-param :lazer :depth))
-       (make-script-2d :func #'(lambda (entity)
-                                 (let ((duration (get-entity-param entity :duration)))
-                                   (when (< duration 0)
-                                     (delete-ecs-entity entity))
-                                   (set-entity-param entity :duration (1- duration)))))
-       (init-entity-params :duration 120)))
+      (with-slots (x y) point-2d
+        (dotimes (i num-pnts)
+          (push (list 0 0) pnt-list))
+        (add-ecs-component-list
+         lazer
+         (make-point-2d :x x :y y)
+         (make-model-2d :model (make-lines :pnt-list pnt-list :color 0xff0000)
+                        :depth (get-param :lazer :depth))
+         (make-speed-2d :x #y1 :y #y3) ; dummy to move lazer
+         (make-script-2d :func #'(lambda (entity)
+                                   (with-ecs-components (speed-2d) entity
+                                     (incf speed-2d.y #y0.05))
+                                   (update-lazer-point entity)
+                                   (sample-to-delete entity)))
+         (init-entity-params :duration 120
+                             :pre-point (make-vector-2d :x x :y y)))))
     lazer))
 
 ;; --- body --- ;;
