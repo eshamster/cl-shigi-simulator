@@ -37,10 +37,19 @@
 ;; only prototype to delete an entity.
 (defun.ps sample-to-delete (entity)
   (check-entity-tags "lazer")
-  (let ((duration (get-entity-param entity :duration)))
-    (when (< duration 0)
-      (delete-ecs-entity entity))
-    (set-entity-param entity :duration (1- duration))))
+  (cond ((not (get-entity-param entity :hitp))
+         (with-ecs-components (speed-2d) entity
+           (incf speed-2d.y #y0.05)
+           (let ((max-duration (get-entity-param entity :max-duration)))
+             (when (= max-duration 0)
+               (setf speed-2d.x 0
+                     speed-2d.y 0)
+               (set-entity-param entity :hitp t))
+             (set-entity-param entity :max-duration (1- max-duration)))))
+        (t (let ((duration (get-entity-param entity :duration)))
+             (when (< duration 0)
+               (delete-ecs-entity entity))
+             (set-entity-param entity :duration (1- duration))))))
 
 (defun.ps make-lazer (player)
   (check-entity-tags player "player")
@@ -60,11 +69,11 @@
                         :depth (get-param :lazer :depth))
          (make-speed-2d :x #y1 :y #y3) ; dummy to move lazer
          (make-script-2d :func #'(lambda (entity)
-                                   (with-ecs-components (speed-2d) entity
-                                     (incf speed-2d.y #y0.05))
                                    (update-lazer-point entity)
                                    (sample-to-delete entity)))
-         (init-entity-params :duration 120
+         (init-entity-params :duration num-pnts
+                             :hitp nil
+                             :max-duration 120
                              :pre-point (make-vector-2d :x x :y y)))))
     lazer))
 
