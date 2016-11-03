@@ -39,17 +39,22 @@
   (check-entity-tags "lazer")
   (cond ((not (get-entity-param entity :hitp))
          (with-ecs-components (speed-2d) entity
-           (incf speed-2d.y #y0.05)
+           (incf speed-2d.y #y0.1)
            (let ((max-duration (get-entity-param entity :max-duration)))
              (when (= max-duration 0)
-               (setf speed-2d.x 0
-                     speed-2d.y 0)
                (set-entity-param entity :hitp t))
              (set-entity-param entity :max-duration (1- max-duration)))))
         (t (let ((duration (get-entity-param entity :duration)))
              (when (< duration 0)
                (delete-ecs-entity entity))
              (set-entity-param entity :duration (1- duration))))))
+
+(defun.ps process-lazer-collision (mine target)
+  (when (has-entity-tag target "shigi-part")
+    (with-ecs-components (speed-2d) mine
+      (setf speed-2d.x 0
+            speed-2d.y 0)
+      (set-entity-param mine :hitp t))))
 
 (defun.ps make-lazer (player)
   (check-entity-tags player "player")
@@ -71,9 +76,10 @@
          (make-script-2d :func #'(lambda (entity)
                                    (update-lazer-point entity)
                                    (sample-to-delete entity)))
+         (make-physic-circle :r 0 :on-collision #'process-lazer-collision)
          (init-entity-params :duration num-pnts
                              :hitp nil
-                             :max-duration 120
+                             :max-duration 600
                              :pre-point (make-vector-2d :x x :y y)))))
     lazer))
 
