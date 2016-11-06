@@ -9,7 +9,9 @@
         :cl-shigi-simulator.static.js.tools)
   (:import-from :ps-experiment.common-macros
                 :with-slots-pair)
-  (:export :shigi-part-valid-p))
+  (:export :shigi-part-valid-p
+           :make-shigi-part-point-pairs
+           :get-nearest-shigi-part))
 (in-package :cl-shigi-simulator.static.js.shigi)
 
 (enable-ps-experiment-syntax)
@@ -194,3 +196,24 @@
     (dolist (bit bit-list)
       (add-ecs-entity bit center)
       (add-ecs-entity (make-center-point-marker) bit))))
+
+;; --- tools --- ;;
+
+(defun.ps+ make-shigi-part-point-pairs ()
+  (let ((result '()))
+    (do-tagged-ecs-entities (entity "shigi-part")
+      (when (shigi-part-valid-p entity)
+        (push (list entity (calc-global-point entity))
+              result)))
+    result))
+
+(defun.ps+ get-nearest-shigi-part (pnt &optional (shigi-parts-points (make-shigi-part-point-pairs)))
+  (let ((min-len -1)
+        (nearest-part nil))
+    (dolist (part-pnt-pair shigi-parts-points)
+      (let ((dist (calc-dist-p2 pnt (cadr part-pnt-pair))))
+        (when (or (< min-len 0)
+                  (< dist min-len))
+          (setf min-len dist)
+          (setf nearest-part (car part-pnt-pair)))))
+    nearest-part))

@@ -60,7 +60,7 @@
         (dotimes (x (get-chip-num-x))
           (setf (point-2d-x buffer-pnt) (* (+ 0.5 x) size))
           (let* ((nearest-part (and (get-entity-param grid :enable-chips)
-                                    (get-nearest-shigi-part pair-list buffer-pnt))))
+                                    (get-nearest-shigi-part buffer-pnt pair-list))))
             (set-chip-color geometry x y
                             (if nearest-part
                                 (get-entity-param nearest-part :color)
@@ -78,26 +78,4 @@
                     :on-change (lambda (value)
                                  (set-entity-param grid :enable-chips value)))
     (add-ecs-entity grid)))
-
-;; -----------------
-;; TODO: Move these to a more proper package because the player also uses this.
-(defun.ps+ make-shigi-part-point-pairs ()
-  (let ((result '()))
-    (do-tagged-ecs-entities (entity "shigi-part")
-      (when (shigi-part-valid-p entity)
-        (push (list entity (calc-global-point entity))
-              result)))
-    result))
-
-(defun.ps+ get-nearest-shigi-part (shigi-parts-points pnt)
-  (let ((min-len -1)
-        (nearest-part nil))
-    (dolist (part-pnt-pair shigi-parts-points)
-      (let ((dist (calc-dist-p2 pnt (cadr part-pnt-pair))))
-        (when (or (< min-len 0)
-                  (< dist min-len))
-          (setf min-len dist)
-          (setf nearest-part (car part-pnt-pair)))))
-    nearest-part))
-;; -----------------
 
