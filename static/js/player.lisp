@@ -22,13 +22,14 @@
     (vector-angle (decf-vector (clone-vector target-pnt) lazer-pnt))))
 
 (defun.ps+ turn-lazer-to-target (lazer)
-  (with-ecs-components (speed-2d) lazer
-    (let* ((target (get-entity-param lazer :target))
-           (now-angle (vector-angle speed-2d))
-           (target-angle (angle-to-target lazer target)))
-      (setf-vector-angle speed-2d
-                         (adjust-to-target now-angle target-angle
-                                           (get-param :lazer :max-rot-speed))))))
+  (unless (get-entity-param lazer :stop-homing-p)
+    (with-ecs-components (speed-2d) lazer
+      (let* ((target (get-entity-param lazer :target))
+             (now-angle (vector-angle speed-2d))
+             (target-angle (angle-to-target lazer target)))
+        (setf-vector-angle speed-2d
+                           (adjust-to-target now-angle target-angle
+                                             (get-param :lazer :max-rot-speed)))))))
 
 (defun.ps update-lazer-tails (lazer)
   ;; Note that a model space is relative to the point of the entity. (Ex. (0, 0) in the model space is the same to the point of the entity in the absolute coordinate.)
@@ -64,8 +65,9 @@
              (set-entity-param entity :duration (1- duration))))))
 
 (defun.ps process-lazer-collision (mine target)
-  (when (= (ecs-entity-id target)
-           (ecs-entity-id (get-entity-param mine :target)))
+  (when (and (not (get-entity-param mine :stop-homing-p))
+             (= (ecs-entity-id target)
+                (ecs-entity-id (get-entity-param mine :target))))
     (with-ecs-components (speed-2d) mine
       (setf speed-2d.x 0
             speed-2d.y 0)
@@ -73,6 +75,7 @@
 
 (defun.ps make-lazer (player target)
   (check-entity-tags player "player")
+  (check-entity-tags target "shigi-part")
   (let ((lazer (make-ecs-entity))
         (num-pnts (get-param :lazer :tail-length))
         (pnt-list '()))
@@ -88,12 +91,15 @@
                         :depth (get-param :lazer :depth))
          (make-speed-2d :x (get-param :lazer :max-speed))
          (make-script-2d :func #'(lambda (entity)
+                                   (unless (shigi-part-valid-p (get-entity-param entity :target))
+                                     (set-entity-param entity :stop-homing-p t))
                                    (turn-lazer-to-target entity)
                                    (update-lazer-tails entity)
                                    (sample-to-delete entity)))
          (make-physic-circle :r 0 :on-collision #'process-lazer-collision)
          (init-entity-params :duration num-pnts
                              :hitp nil
+                             :stop-homing-p nil
                              :max-duration 600
                              :pre-point (make-vector-2d :x x :y y)
                              :target target))))
