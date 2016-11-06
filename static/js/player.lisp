@@ -30,7 +30,7 @@
                          (adjust-to-target now-angle target-angle
                                            (get-param :lazer :max-rot-speed))))))
 
-(defun.ps update-lazer-point (lazer)
+(defun.ps update-lazer-tails (lazer)
   ;; Note that a model space is relative to the point of the entity. (Ex. (0, 0) in the model space is the same to the point of the entity in the absolute coordinate.)
   (check-entity-tags "lazer")
   (with-ecs-components ((new-point point-2d) model-2d) lazer
@@ -89,7 +89,7 @@
          (make-speed-2d :x (get-param :lazer :max-speed))
          (make-script-2d :func #'(lambda (entity)
                                    (turn-lazer-to-target entity)
-                                   (update-lazer-point entity)
+                                   (update-lazer-tails entity)
                                    (sample-to-delete entity)))
          (make-physic-circle :r 0 :on-collision #'process-lazer-collision)
          (init-entity-params :duration num-pnts
