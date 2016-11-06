@@ -73,7 +73,7 @@
                            :y #.#y25
                            :width #.play-area-width
                            :height #.play-area-height)
-               :player (:speed #.#y4
+               :player (:speed #.#y8.33
                         :depth 100
                         :color #x000000
                         :ring-r #.#y70
