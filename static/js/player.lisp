@@ -22,7 +22,8 @@
     (vector-angle (decf-vector (clone-vector target-pnt) lazer-pnt))))
 
 (defun.ps+ turn-lazer-to-target (lazer)
-  (unless (get-entity-param lazer :stop-homing-p)
+  (unless (or (get-entity-param lazer :stop-homing-p)
+              (null (get-entity-param lazer :target)))
     (with-ecs-components (speed-2d) lazer
       (let* ((target (get-entity-param lazer :target))
              (now-angle (vector-angle speed-2d))
@@ -65,17 +66,20 @@
              (set-entity-param entity :duration (1- duration))))))
 
 (defun.ps process-lazer-collision (mine target)
-  (when (and (not (get-entity-param mine :stop-homing-p))
-             (= (ecs-entity-id target)
-                (ecs-entity-id (get-entity-param mine :target))))
-    (with-ecs-components (speed-2d) mine
-      (setf speed-2d.x 0
-            speed-2d.y 0)
-      (set-entity-param mine :hitp t))))
+  (let ((true-target (get-entity-param mine :target)))
+    (when (and true-target
+               (not (get-entity-param mine :stop-homing-p))
+               (= (ecs-entity-id target)
+                  (ecs-entity-id true-target)))
+      (with-ecs-components (speed-2d) mine
+        (setf speed-2d.x 0
+              speed-2d.y 0)
+        (set-entity-param mine :hitp t)))))
 
 (defun.ps make-lazer (player target)
   (check-entity-tags player "player")
-  (check-entity-tags target "shigi-part")
+  (when target
+    (check-entity-tags target "shigi-part"))
   (let ((lazer (make-ecs-entity))
         (num-pnts (get-param :lazer :tail-length))
         (pnt-list '()))
@@ -91,8 +95,10 @@
                         :depth (get-param :lazer :depth))
          (make-speed-2d :x (get-param :lazer :max-speed))
          (make-script-2d :func #'(lambda (entity)
-                                   (unless (shigi-part-valid-p (get-entity-param entity :target))
-                                     (set-entity-param entity :stop-homing-p t))
+                                   (let ((target (get-entity-param entity :target)))
+                                     (unless (and target
+                                                  (shigi-part-valid-p target))
+                                       (set-entity-param entity :stop-homing-p t)))
                                    (turn-lazer-to-target entity)
                                    (update-lazer-tails entity)
                                    (sample-to-delete entity)))
