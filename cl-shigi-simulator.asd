@@ -53,8 +53,8 @@
                  (:file "basic-ecs" :depends-on ("tools"))
                  (:file "tools")
                  (:file "input" :depends-on ("tools"))
-                 (:file "player" :depends-on ("basic-ecs" "2d-geometry" "tools"))
                  (:file "shigi" :depends-on ("basic-ecs" "2d-geometry" "tools"))
+                 (:file "player" :depends-on ("basic-ecs" "2d-geometry" "tools" "shigi"))
                  (:file "color-chip" :depends-on ("basic-ecs" "2d-geometry" "tools" "shigi"))
                  (:file "shigi-simulator"
                         :depends-on ("utils" "basic-ecs" "tools" "input" "2d-geometry")))

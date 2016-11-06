@@ -78,7 +78,10 @@
                         :color #x000000
                         :ring-r #.#y70
                         :body-r #.#y7)
-               :lazer (:depth 70)
+               :lazer (:depth 70
+                       :tail-length 20
+                       :max-speed #.#y45
+                       :max-rot-speed #.(* PI 28/180))
                :shigi (:depth 50
                        :color #x112222
                        :marker-size #.#y10

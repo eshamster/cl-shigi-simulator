@@ -6,6 +6,7 @@
         :cl-ps-ecs
         :parenscript
         :cl-web-2d-game
+        :cl-shigi-simulator.static.js.shigi
         :cl-shigi-simulator.static.js.tools)
   (:import-from :ps-experiment.common-macros
                 :with-slots-pair))
@@ -14,6 +15,20 @@
 (enable-ps-experiment-syntax)
 
 ;; --- lazer (kaihou) --- ;;
+
+(defun.ps+ angle-to-target (lazer target)
+  (let ((lazer-pnt (calc-global-point lazer))
+        (target-pnt (calc-global-point target)))
+    (vector-angle (decf-vector (clone-vector target-pnt) lazer-pnt))))
+
+(defun.ps+ turn-lazer-to-target (lazer)
+  (with-ecs-components (speed-2d) lazer
+    (let* ((target (get-entity-param lazer :target))
+           (now-angle (vector-angle speed-2d))
+           (target-angle (angle-to-target lazer target)))
+      (setf-vector-angle speed-2d
+                         (adjust-to-target now-angle target-angle
+                                           (get-param :lazer :max-rot-speed))))))
 
 (defun.ps update-lazer-point (lazer)
   ;; Note that a model space is relative to the point of the entity. (Ex. (0, 0) in the model space is the same to the point of the entity in the absolute coordinate.)
@@ -39,7 +54,6 @@
   (check-entity-tags "lazer")
   (cond ((not (get-entity-param entity :hitp))
          (with-ecs-components (speed-2d) entity
-           (incf speed-2d.y #y0.1)
            (let ((max-duration (get-entity-param entity :max-duration)))
              (when (= max-duration 0)
                (set-entity-param entity :hitp t))
@@ -50,18 +64,18 @@
              (set-entity-param entity :duration (1- duration))))))
 
 (defun.ps process-lazer-collision (mine target)
-  (when (has-entity-tag target "shigi-part")
+  (when (= (ecs-entity-id target)
+           (ecs-entity-id (get-entity-param mine :target)))
     (with-ecs-components (speed-2d) mine
       (setf speed-2d.x 0
             speed-2d.y 0)
       (set-entity-param mine :hitp t))))
 
-(defun.ps make-lazer (player)
+(defun.ps make-lazer (player target)
   (check-entity-tags player "player")
   (let ((lazer (make-ecs-entity))
-        (num-pnts 30)
+        (num-pnts (get-param :lazer :tail-length))
         (pnt-list '()))
-    ;;--- TODO: (Now, only sample to test dynamical generating or deleting eneity.)
     (add-entity-tag lazer "lazer")
     (with-ecs-components (point-2d) player
       (with-slots (x y) point-2d
@@ -72,15 +86,17 @@
          (make-point-2d :x x :y y)
          (make-model-2d :model (make-lines :pnt-list pnt-list :color 0xff0000)
                         :depth (get-param :lazer :depth))
-         (make-speed-2d :x #y1 :y #y3) ; dummy to move lazer
+         (make-speed-2d :x (get-param :lazer :max-speed))
          (make-script-2d :func #'(lambda (entity)
+                                   (turn-lazer-to-target entity)
                                    (update-lazer-point entity)
                                    (sample-to-delete entity)))
          (make-physic-circle :r 0 :on-collision #'process-lazer-collision)
          (init-entity-params :duration num-pnts
                              :hitp nil
                              :max-duration 600
-                             :pre-point (make-vector-2d :x x :y y)))))
+                             :pre-point (make-vector-2d :x x :y y)
+                             :target target))))
     lazer))
 
 ;; --- body --- ;;
@@ -109,7 +125,9 @@
 
 (defun.ps shot-lazer (player)
   (when (is-key-down-now :x)
-    (let ((lazer (make-lazer player)))
+    (let* ((pnt (calc-global-point player))
+           (target (get-nearest-shigi-part pnt))
+           (lazer (make-lazer player target)))
       (add-ecs-entity-to-buffer lazer))))
 
 (defun.ps move-player (player)
