@@ -138,12 +138,20 @@
      body
      (make-model-2d :model (make-solid-regular-polygon :r r :n 100
                                                        :color (get-param :player :color))
-                 :depth (get-param :player :depth))
+                    :depth (get-param :player :depth))
      (make-point-2d :x (* r -1) :y (* r -1)))
     body))
 
+(defvar.ps+ *player* nil)
+
+(defun.ps+ trigger-player-lazer ()
+  (when *player*
+    (set-entity-param *player* :lazer-triggered-p t)))
+
 (defun.ps shot-lazer (player)
-  (when (is-key-down-now :x)
+  (check-entity-tags player "player")
+  (when (get-entity-param *player* :lazer-triggered-p)
+    (set-entity-param *player* :lazer-triggered-p nil)
     (let* ((pnt (calc-global-point player))
            (target (get-nearest-shigi-part pnt))
            (min-angle (get-param :all-lazer :min-angle))
@@ -180,6 +188,11 @@
         (fix-position < point-2d.y r)
         (fix-position > point-2d.y (- (get-param :play-area :height) r))))))
 
+(defun.ps control-player (player)
+  (declare (ignore player))
+  (when (is-key-down-now :x)
+    (trigger-player-lazer)))
+
 (defun.ps make-player-center ()
   (let ((body (make-ecs-entity)))
     (add-entity-tag body "player")
@@ -187,8 +200,10 @@
      body
      (make-point-2d :x (/ (get-param :play-area :width) 2) :y #y100)
      (make-script-2d :func #'(lambda (player)
+                               (control-player player)
                                (move-player player)
-                               (shot-lazer player))))
+                               (shot-lazer player)))
+     (init-entity-params :lazer-triggered-p nil))
     body))
 
 (defun.ps make-player ()
@@ -197,4 +212,5 @@
         (ring (make-player-ring)))
     (add-ecs-entity center)
     (add-ecs-entity body center)
-    (add-ecs-entity ring center)))
+    (add-ecs-entity ring center)
+    (setf *player* center)))
