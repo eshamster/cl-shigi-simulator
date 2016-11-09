@@ -15,10 +15,10 @@
 (enable-ps-experiment-syntax)
 
 (defun.ps get-chip-num-x ()
-  (floor (1+ (/ screen-width (get-param :color-chip :size)))))
+  (floor (1+ (/ (get-param :play-area :width) (get-param :color-chip :size)))))
 
 (Defun.ps get-chip-num-y ()
-  (floor (1+ (/ screen-height (get-param :color-chip :size)))))
+  (floor (1+ (/ (get-param :play-area :height) (get-param :color-chip :size)))))
 
 (defun.ps set-chip-color (grid-geometry x-index y-index color)
   "Note: A chip consists of 2 triangles. Caller should set true to geometry.colorsNeedUpdate."
@@ -59,7 +59,8 @@
         (setf (point-2d-y buffer-pnt) (* (+ 0.5 y) size))
         (dotimes (x (get-chip-num-x))
           (setf (point-2d-x buffer-pnt) (* (+ 0.5 x) size))
-          (let* ((nearest-part (get-nearest-shigi-part pair-list buffer-pnt)))
+          (let* ((nearest-part (and (get-entity-param grid :enable-chips)
+                                    (get-nearest-shigi-part buffer-pnt pair-list))))
             (set-chip-color geometry x y
                             (if nearest-part
                                 (get-entity-param nearest-part :color)
@@ -71,28 +72,10 @@
      grid
      (make-point-2d)
      (make-model-2d :model (make-color-grid-mesh))
-     (make-script-2d :func process-color-grid))
+     (make-script-2d :func process-color-grid)
+     (init-entity-params :enable-chips t))
+    (add-panel-bool 'color-grid t
+                    :on-change (lambda (value)
+                                 (set-entity-param grid :enable-chips value)))
     (add-ecs-entity grid)))
-
-;; -----------------
-;; TODO: Move these to a more proper package because the player also uses this.
-(defun.ps+ make-shigi-part-point-pairs ()
-  (let ((result '()))
-    (do-tagged-ecs-entities (entity "shigi-part")
-      (when (shigi-part-valid-p entity)
-        (push (list entity (calc-global-point entity))
-              result)))
-    result))
-
-(defun.ps+ get-nearest-shigi-part (shigi-parts-points pnt)
-  (let ((min-len -1)
-        (nearest-part nil))
-    (dolist (part-pnt-pair shigi-parts-points)
-      (let ((dist (calc-dist-p2 pnt (cadr part-pnt-pair))))
-        (when (or (< min-len 0)
-                  (< dist min-len))
-          (setf min-len dist)
-          (setf nearest-part (car part-pnt-pair)))))
-    nearest-part))
-;; -----------------
 
