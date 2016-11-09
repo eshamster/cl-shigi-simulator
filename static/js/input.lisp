@@ -113,13 +113,18 @@ device-state = boolean-value"
   (let ((point (aref e.touches 0)))
     (set-mouse-point point.client-x point.client-y)))
 
+(defvar.ps+ *moved-by-touch-p* nil)
+
 (defun.ps on-touch-start (e)
   (set-point-by-touch e)
   (setf *mouse-left-buffer* t))
 
 (defun.ps on-touch-end (e)
   (when (= e.touches.length 0)
-    (setf *mouse-left-buffer* nil)))
+    (setf *mouse-left-buffer* nil)
+    (when *moved-by-touch-p*
+      (setf *moved-by-touch-p* nil)
+      (trigger-player-lazer))))
 
 (defun.ps on-touch-move-event (e)
   (set-point-by-touch e)
@@ -127,5 +132,6 @@ device-state = boolean-value"
     ;; test
     (let* ((player (find-a-entity-by-tag "player"))
            (center (get-ecs-component 'point-2d player)))
+      (setf *moved-by-touch-p* t)
       (setf center.x *mouse-x-buffer*)
       (setf center.y *mouse-y-buffer*))))
