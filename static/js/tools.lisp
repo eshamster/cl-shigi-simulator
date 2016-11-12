@@ -216,3 +216,18 @@
   (when *debug-area*
     (incf #j.*debug-area*.innerHTML# (+ text "<br>"))))
 
+(defvar.ps+ *log-area* nil)
+(defvar.ps+ *log-text-list* '())
+(defvar.ps+ *max-log-count* 5)
+
+(defun.ps push-log-text (text)
+  (unless *log-area*
+    (setf *log-area* (document.query-selector "#log")))
+  (push text *log-text-list*)
+  (when (> (length *log-text-list*) *max-log-count*)
+    (setf *log-text-list* (subseq *log-text-list* 0 *max-log-count*)))
+  (let ((log ""))
+    ;; A newer log comes to upper.
+    (dolist (one-line *log-text-list*)
+      (setf log (+ log one-line "<br>")))
+    (setf #j.*log-area*.innerHTML# log)))
