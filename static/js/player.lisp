@@ -193,6 +193,22 @@
   (when (is-key-down-now :x)
     (trigger-player-lazer)))
 
+(defstruct.ps+ nearest-part-register (part-id -1) (frame-count -1))
+
+(defun.ps register-nearest-part (player)
+  (check-entity-tags player "player")
+  (let* ((register (get-entity-param player :nearest-part-register))
+         (nearest (get-nearest-shigi-part (calc-global-point player)))
+         (nearest-id (ecs-entity-id nearest)))
+    (with-slots (part-id frame-count) register
+      (if (= part-id nearest-id)
+          (incf frame-count)
+          (progn (when (>= part-id 0)
+                   ;;--- TODO: Make the text more understandable.
+                   (push-log-text (+ part-id ": " frame-count)))
+                 (setf part-id nearest-id
+                       frame-count 0))))))
+
 (defun.ps make-player-center ()
   (let ((body (make-ecs-entity)))
     (add-entity-tag body "player")
@@ -202,8 +218,10 @@
      (make-script-2d :func #'(lambda (player)
                                (control-player player)
                                (move-player player)
+                               (register-nearest-part player)
                                (shot-lazer player)))
-     (init-entity-params :lazer-triggered-p nil))
+     (init-entity-params :lazer-triggered-p nil
+                         :nearest-part-register (make-nearest-part-register)))
     body))
 
 (defun.ps make-player ()
