@@ -51,7 +51,7 @@
 
 ;; --- constant value manager --- ;;
 
-(defun.ps to-json (list)
+(defun.ps+ to-json (list)
   (labels ((rec (list table)
              (when (> (length list) 0)
                (let ((key (car list))
@@ -59,7 +59,7 @@
                      (value (cadr list))
                      (rest (cddr list)))
                  (setf (gethash key table)
-                       (if (instanceof value -array)
+                       (if (listp value)
                            (rec value (make-hash-table))
                            value))
                  (rec rest table)))
