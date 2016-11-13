@@ -209,7 +209,7 @@
   (check-entity-tags player "player")
   (let* ((register (get-entity-param player :nearest-part-register))
          (nearest (get-nearest-shigi-part (calc-global-point player)))
-         (nearest-id (ecs-entity-id nearest)))
+         (nearest-id (if nearest (ecs-entity-id nearest) -1)))
     (with-slots (part-id frame-count) register
       (if (= part-id nearest-id)
           (incf frame-count)
