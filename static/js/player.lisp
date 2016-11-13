@@ -195,6 +195,16 @@
 
 (defstruct.ps+ nearest-part-register (part-id -1) (frame-count -1))
 
+(defun.ps display-nearest-part (part-id frame-count)
+  (let ((part (find-a-entity #'(lambda (entity)
+                                 (= (ecs-entity-id entity) part-id)))))
+    (labels ((pad (str len)
+               ;; easy impremetation
+               ((@ (+ "      " str) slice) (* len -1))))
+      (push-log-text (+ (pad (get-entity-param part :display-name) 6) ":"
+                        (pad (floor (* frame-count 1000/60)) 4) "ms ("
+                        (pad frame-count 3) "F)")))))
+
 (defun.ps register-nearest-part (player)
   (check-entity-tags player "player")
   (let* ((register (get-entity-param player :nearest-part-register))
@@ -204,8 +214,7 @@
       (if (= part-id nearest-id)
           (incf frame-count)
           (progn (when (>= part-id 0)
-                   ;;--- TODO: Make the text more understandable.
-                   (push-log-text (+ part-id ": " frame-count)))
+                   (display-nearest-part part-id frame-count))
                  (setf part-id nearest-id
                        frame-count 0))))))
 

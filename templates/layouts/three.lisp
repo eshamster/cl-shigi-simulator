@@ -31,7 +31,7 @@
              (:div :id "stats-output")
              (:div :id "renderer" nil)
              (:div :id "debug" "(for Debug)")
-             (:div :id "log" "(for Log)")
+             (:div (:pre :id "log" "(for Log)"))
              (:br)
              (:div "Entityのリスト"
                    (:dl :id "entity-tree"))
