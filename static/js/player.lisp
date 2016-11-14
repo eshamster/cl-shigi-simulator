@@ -50,6 +50,7 @@
                     y1 (- y0 (- new-y pre-y))))))
         (setf pre-x new-x
               pre-y new-y))
+      (geometry.compute-bounding-sphere)
       (setf geometry.vertices-need-update t))))
 
 ;; only prototype to delete an entity.
