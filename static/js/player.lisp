@@ -67,6 +67,29 @@
                (delete-ecs-entity entity))
              (set-entity-param entity :duration (1- duration))))))
 
+(defun.ps+ adjust-collision-point (lazer target)
+  (check-entity-tags lazer "lazer")
+  (with-ecs-components ((lazer-pnt point-2d)) lazer
+    (labels ((calc-mid-pnt-f (dst pnt1 pnt2)
+               (setf (vector-2d-x dst) (/ (+ (vector-2d-x pnt1) (vector-2d-x pnt2)) 2))
+               (setf (vector-2d-y dst) (/ (+ (vector-2d-y pnt1) (vector-2d-y pnt2)) 2))
+               dst))
+      (let ((dummy (make-ecs-entity))
+            (head (clone-point-2d lazer-pnt))
+            (next (clone-vector (get-entity-param lazer :pre-point)))
+            (mid (make-point-2d)))
+        (calc-mid-pnt-f mid head next)
+        (add-ecs-component-list
+         dummy
+         mid
+         (make-physic-circle :r 0))
+        (dotimes (i 6)
+          (if (collide-entities-p dummy target)
+              (copy-vector-2d-to head mid)
+              (copy-vector-2d-to next mid))
+          (calc-mid-pnt-f mid head next))
+        (copy-vector-2d-to lazer-pnt head)))))
+
 (defun.ps process-lazer-collision (mine target)
   (let ((true-target (get-entity-param mine :target)))
     (when (and true-target
@@ -76,6 +99,7 @@
       (with-ecs-components (speed-2d) mine
         (setf speed-2d.x 0
               speed-2d.y 0)
+        (adjust-collision-point mine target)
         (set-entity-param mine :hitp t)))))
 
 ;; The base angle of first-angle is the angle of (0, -1)
