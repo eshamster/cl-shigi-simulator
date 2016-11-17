@@ -134,7 +134,8 @@
                                      (turn-lazer-to-target entity)
                                      (update-lazer-tails entity)
                                      (sample-to-delete entity)))
-           (make-physic-circle :r 0 :on-collision #'process-lazer-collision)
+           (make-physic-circle :r 0 :on-collision #'process-lazer-collision
+                               :target-tags '("shigi-part"))
            (init-entity-params :duration num-pnts
                                :hitp nil
                                :stop-homing-p nil

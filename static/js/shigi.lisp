@@ -16,6 +16,8 @@
 
 (enable-ps-experiment-syntax)
 
+(defvar.ps+ *shigi-collision-targets* '("lazer"))
+
 (defun.ps+ check-shigi-part (entity)
   (check-entity-tags entity "shigi-part"))
 
@@ -92,7 +94,8 @@
                         :depth (get-param :shigi :depth)
                         :offset model-offset)
          (make-physic-circle :r r
-                             :on-collision #'toggle-shigi-part-by-mouse)
+                             :on-collision #'toggle-shigi-part-by-mouse
+                             :target-tags *shigi-collision-targets*)
          point
          (make-rotate-2d :speed rot-speed
                          :angle angle
@@ -169,7 +172,8 @@
                                                           :y (cadr pnt-by-list)))
                                         modified-pnt-list)
                                 :offset model-offset
-                                :on-collision #'toggle-shigi-part-by-mouse)
+                                :on-collision #'toggle-shigi-part-by-mouse
+                                :target-tags *shigi-collision-targets*)
            (make-point-2d :x (car center) :y (cadr center))
            rotate
            (make-script-2d :func #'rotate-shigi-body)
