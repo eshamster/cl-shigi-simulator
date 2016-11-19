@@ -52,8 +52,7 @@
       (geometry.compute-bounding-sphere)
       (setf geometry.vertices-need-update t))))
 
-;; only prototype to delete an entity.
-(defun.ps sample-to-delete (entity)
+(defun.ps process-lazer-duration (entity)
   (check-entity-tags "lazer")
   (cond ((not (get-entity-param entity :hitp))
          (let ((max-duration (get-entity-param entity :max-duration)))
@@ -130,7 +129,7 @@
                                          (set-entity-param entity :stop-homing-p t)))
                                      (turn-lazer-to-target entity)
                                      (update-lazer-points entity)
-                                     (sample-to-delete entity)))
+                                     (process-lazer-duration entity)))
            (make-physic-circle :r 0 :on-collision #'process-lazer-collision
                                :target-tags '("shigi-part"))
            (init-entity-params :duration num-pnts
