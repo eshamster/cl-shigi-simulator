@@ -31,7 +31,8 @@
                              (with-ecs-components (point-2d) entity
                                (setf point-2d.x (get-mouse-x))
                                (setf point-2d.y (get-mouse-y)))))
-     (make-physic-circle :r r))
+     (make-physic-circle :r r
+                         :target-tags '("shigi-part")))
     (add-ecs-entity pointer)))
 
 (defun.ps make-sample-entities ()
