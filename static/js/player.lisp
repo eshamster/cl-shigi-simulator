@@ -21,35 +21,34 @@
         (target-pnt (calc-global-point target)))
     (vector-angle (decf-vector (clone-vector target-pnt) lazer-pnt))))
 
-(defun.ps+ turn-lazer-to-target (lazer)
+(defun.ps turn-lazer-to-target (lazer)
   (unless (or (get-entity-param lazer :stop-homing-p)
               (null (get-entity-param lazer :target)))
-    (with-ecs-components (speed-2d) lazer
-      (let* ((target (get-entity-param lazer :target))
-             (now-angle (vector-angle speed-2d))
-             (target-angle (angle-to-target lazer target)))
-        (setf-vector-angle speed-2d
-                           (adjust-to-target now-angle target-angle
-                                             (get-param :lazer :max-rot-speed)))))))
+    (let* ((speed-2d (get-entity-param lazer :speed))
+           (target (get-entity-param lazer :target))
+           (now-angle (vector-angle speed-2d))
+           (target-angle (angle-to-target lazer target)))
+      (setf-vector-angle speed-2d
+                         (adjust-to-target now-angle target-angle
+                                           (get-param :lazer :max-rot-speed))))))
 
-(defun.ps update-lazer-tails (lazer)
+(defun.ps update-lazer-points (lazer)
   ;; Note that a model space is relative to the point of the entity. (Ex. (0, 0) in the model space is the same to the point of the entity in the absolute coordinate.)
   (check-entity-tags "lazer")
   (with-ecs-components ((new-point point-2d) model-2d) lazer
-    (let* ((geometry model-2d.model.geometry)
+    (let* ((speed (get-entity-param lazer :speed))
+           (geometry model-2d.model.geometry)
            (pnt-list geometry.vertices)
            (pre-point (get-entity-param lazer :pre-point))
            (len (length pnt-list)))
-      (with-slots-pair (((pre-x x) (pre-y y)) pre-point
-                        ((new-x x) (new-y y)) new-point)
-        (dotimes (i (1- len))
-          (let ((index (- len (1+ i))))
-            (with-slots-pair (((x1 x) (y1 y)) (aref pnt-list index)
-                              ((x0 x) (y0 y)) (aref pnt-list (1- index)))
-              (setf x1 (- x0 (- new-x pre-x))
-                    y1 (- y0 (- new-y pre-y))))))
-        (setf pre-x new-x
-              pre-y new-y))
+      (dotimes (i (1- len))
+        (let ((index (- len (1+ i))))
+          (with-slots-pair (((x1 x) (y1 y)) (aref pnt-list index)
+                            ((x0 x) (y0 y)) (aref pnt-list (1- index)))
+            (setf x1 (- x0 (vector-2d-x speed))
+                  y1 (- y0 (vector-2d-y speed))))))
+      (copy-point-2d pre-point new-point)
+      (incf-vector new-point speed)
       (geometry.compute-bounding-sphere)
       (setf geometry.vertices-need-update t))))
 
@@ -57,11 +56,10 @@
 (defun.ps sample-to-delete (entity)
   (check-entity-tags "lazer")
   (cond ((not (get-entity-param entity :hitp))
-         (with-ecs-components (speed-2d) entity
-           (let ((max-duration (get-entity-param entity :max-duration)))
-             (when (= max-duration 0)
-               (set-entity-param entity :hitp t))
-             (set-entity-param entity :max-duration (1- max-duration)))))
+         (let ((max-duration (get-entity-param entity :max-duration)))
+           (when (= max-duration 0)
+             (set-entity-param entity :hitp t))
+           (set-entity-param entity :max-duration (1- max-duration))))
         (t (let ((duration (get-entity-param entity :duration)))
              (when (< duration 0)
                (delete-ecs-entity entity))
@@ -96,11 +94,11 @@
                (not (get-entity-param mine :stop-homing-p))
                (= (ecs-entity-id target)
                   (ecs-entity-id true-target)))
-      (with-ecs-components (speed-2d) mine
+      (let ((speed-2d (get-entity-param mine :speed)))
         (setf speed-2d.x 0
-              speed-2d.y 0)
-        (adjust-collision-point mine target)
-        (set-entity-param mine :hitp t)))))
+              speed-2d.y 0))
+      (adjust-collision-point mine target)
+      (set-entity-param mine :hitp t))))
 
 ;; The base angle of first-angle is the angle of (0, -1)
 (defun.ps make-lazer (&key player target first-angle first-offset)
@@ -125,14 +123,13 @@
            (make-point-2d :x first-x :y first-y)
            (make-model-2d :model (make-lines :pnt-list pnt-list :color 0xff0000)
                           :depth (get-param :lazer :depth))
-           first-speed
            (make-script-2d :func #'(lambda (entity)
                                      (let ((target (get-entity-param entity :target)))
                                        (unless (and target
                                                     (shigi-part-valid-p target))
                                          (set-entity-param entity :stop-homing-p t)))
                                      (turn-lazer-to-target entity)
-                                     (update-lazer-tails entity)
+                                     (update-lazer-points entity)
                                      (sample-to-delete entity)))
            (make-physic-circle :r 0 :on-collision #'process-lazer-collision
                                :target-tags '("shigi-part"))
@@ -141,6 +138,7 @@
                                :stop-homing-p nil
                                :max-duration 600
                                :pre-point (make-vector-2d :x first-x :y first-y)
+                               :speed first-speed
                                :target target)))))
     lazer))
 
