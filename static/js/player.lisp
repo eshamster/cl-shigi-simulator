@@ -32,12 +32,27 @@
                          (adjust-to-target now-angle target-angle
                                            (get-param :lazer :max-rot-speed))))))
 
+(defun.ps get-lazer-geometry (lazer)
+  (with-ecs-components (model-2d) lazer
+    model-2d.model.geometry))
+
+(defun.ps decf-offset-from-lazer-tails (geometry offset-x offset-y)
+  (let* ((pnt-list geometry.vertices)
+         (len (length pnt-list)))
+    (dotimes (i (1- len))
+      (let ((index (- len (1+ i))))
+        (with-slots-pair ((x y) (aref pnt-list index))
+          (decf x offset-x)
+          (decf y offset-y))))
+    (geometry.compute-bounding-sphere)
+    (setf geometry.vertices-need-update t)))
+
 (defun.ps update-lazer-points (lazer)
   ;; Note that a model space is relative to the point of the entity. (Ex. (0, 0) in the model space is the same to the point of the entity in the absolute coordinate.)
   (check-entity-tags "lazer")
-  (with-ecs-components ((new-point point-2d) model-2d) lazer
+  (with-ecs-components ((new-point point-2d)) lazer
     (let* ((speed (get-entity-param lazer :speed))
-           (geometry model-2d.model.geometry)
+           (geometry (get-lazer-geometry lazer))
            (pnt-list geometry.vertices)
            (pre-point (get-entity-param lazer :pre-point))
            (len (length pnt-list)))
@@ -45,8 +60,8 @@
         (let ((index (- len (1+ i))))
           (with-slots-pair (((x1 x) (y1 y)) (aref pnt-list index)
                             ((x0 x) (y0 y)) (aref pnt-list (1- index)))
-            (setf x1 (- x0 (vector-2d-x speed))
-                  y1 (- y0 (vector-2d-y speed))))))
+            (setf x1 x0 y1 y0))))
+      (decf-offset-from-lazer-tails geometry (vector-2d-x speed) (vector-2d-y speed))
       (copy-point-2d pre-point new-point)
       (incf-vector new-point speed)
       (geometry.compute-bounding-sphere)
@@ -64,7 +79,7 @@
                (delete-ecs-entity entity))
              (set-entity-param entity :duration (1- duration))))))
 
-(defun.ps+ adjust-collision-point (lazer target)
+(defun.ps adjust-collision-point (lazer target)
   (check-entity-tags lazer "lazer")
   (with-ecs-components ((lazer-pnt point-2d)) lazer
     (labels ((calc-mid-pnt-f (dst pnt1 pnt2)
@@ -85,6 +100,9 @@
               (copy-vector-2d-to head mid)
               (copy-vector-2d-to next mid))
           (calc-mid-pnt-f mid head next))
+        (decf-offset-from-lazer-tails (get-lazer-geometry lazer)
+                                      (- (vector-2d-x head) (vector-2d-x lazer-pnt))
+                                      (- (vector-2d-y head) (vector-2d-y lazer-pnt)))
         (copy-vector-2d-to lazer-pnt head)))))
 
 (defun.ps process-lazer-collision (mine target)
