@@ -16,17 +16,32 @@
 
 (enable-ps-experiment-syntax)
 
+(defvar.ps+ *shigi-collision-targets* '("lazer"))
+
 (defun.ps+ check-shigi-part (entity)
   (check-entity-tags entity "shigi-part"))
+
+(defun.ps set-shigi-part-enable (shigi-part enable)
+  (if enable
+      (progn (set-entity-param shigi-part :enable t)
+             (enable-model-2d shigi-part))
+      (progn (set-entity-param shigi-part :enable nil)
+             (disable-model-2d shigi-part))))
+
+(defun.ps toggle-all-shigi-parts ()
+  (let ((enable t))
+    (when (find-a-entity #'(lambda (entity)
+                             (and (has-entity-tag entity "shigi-part")
+                                  (get-entity-param entity :enable))))
+      (setf enable nil))
+    (do-tagged-ecs-entities (part "shigi-part")
+      (set-shigi-part-enable part enable))
+    enable))
 
 (defun.ps toggle-shigi-part (shigi-part)
   (check-shigi-part shigi-part)
   (let ((enable (get-entity-param shigi-part :enable)))
-    (if enable
-        (progn (set-entity-param shigi-part :enable nil)
-               (disable-model-2d shigi-part))
-        (progn (set-entity-param shigi-part :enable t)
-               (enable-model-2d shigi-part)))))
+    (set-shigi-part-enable shigi-part (not enable))))
 
 (defun.ps toggle-shigi-part-by-mouse (shigi-part target)
   (when (and (= (get-left-mouse-state) :down-now)
@@ -79,12 +94,14 @@
                         :depth (get-param :shigi :depth)
                         :offset model-offset)
          (make-physic-circle :r r
-                             :on-collision #'toggle-shigi-part-by-mouse)
+                             :on-collision #'toggle-shigi-part-by-mouse
+                             :target-tags *shigi-collision-targets*)
          point
          (make-rotate-2d :speed rot-speed
                          :angle angle
                          :radious dist)
          (init-entity-params :color (nth i (get-param :color-chip :colors))
+                             :display-name (+ "Bit" (1+ i))
                              :enable t)))
       (push bit result))
     result))
@@ -155,12 +172,14 @@
                                                           :y (cadr pnt-by-list)))
                                         modified-pnt-list)
                                 :offset model-offset
-                                :on-collision #'toggle-shigi-part-by-mouse)
+                                :on-collision #'toggle-shigi-part-by-mouse
+                                :target-tags *shigi-collision-targets*)
            (make-point-2d :x (car center) :y (cadr center))
            rotate
            (make-script-2d :func #'rotate-shigi-body)
            ;; TODO: parameterize 4 (which is the number of the bit)
            (init-entity-params :color (nth (+ i 4) (get-param :color-chip :colors))
+                               :display-name (if (= i 0) "R" "L")
                                :enable t))
           (push body result))))
     result))
@@ -183,6 +202,9 @@
     (add-panel-bool 'body-rotate t
                     :on-change (lambda (value)
                                  (set-entity-param center :body-rotate-p value)))
+    (add-panel-button 'toggle-all-shigi-parts
+                      :on-change (lambda (value)
+                                   (toggle-all-shigi-parts)))
     center))
 
 (defun.ps make-shigi ()

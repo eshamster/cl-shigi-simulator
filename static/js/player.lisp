@@ -21,50 +21,89 @@
         (target-pnt (calc-global-point target)))
     (vector-angle (decf-vector (clone-vector target-pnt) lazer-pnt))))
 
-(defun.ps+ turn-lazer-to-target (lazer)
+(defun.ps turn-lazer-to-target (lazer)
   (unless (or (get-entity-param lazer :stop-homing-p)
               (null (get-entity-param lazer :target)))
-    (with-ecs-components (speed-2d) lazer
-      (let* ((target (get-entity-param lazer :target))
-             (now-angle (vector-angle speed-2d))
-             (target-angle (angle-to-target lazer target)))
-        (setf-vector-angle speed-2d
-                           (adjust-to-target now-angle target-angle
-                                             (get-param :lazer :max-rot-speed)))))))
+    (let* ((speed-2d (get-entity-param lazer :speed))
+           (target (get-entity-param lazer :target))
+           (now-angle (vector-angle speed-2d))
+           (target-angle (angle-to-target lazer target)))
+      (setf-vector-angle speed-2d
+                         (adjust-to-target now-angle target-angle
+                                           (get-param :lazer :max-rot-speed))))))
 
-(defun.ps update-lazer-tails (lazer)
+(defun.ps get-lazer-geometry (lazer)
+  (with-ecs-components (model-2d) lazer
+    model-2d.model.geometry))
+
+(defun.ps decf-offset-from-lazer-tails (geometry offset-x offset-y)
+  (let* ((pnt-list geometry.vertices)
+         (len (length pnt-list)))
+    (dotimes (i (1- len))
+      (let ((index (- len (1+ i))))
+        (with-slots-pair ((x y) (aref pnt-list index))
+          (decf x offset-x)
+          (decf y offset-y))))
+    (geometry.compute-bounding-sphere)
+    (setf geometry.vertices-need-update t)))
+
+(defun.ps update-lazer-points (lazer)
   ;; Note that a model space is relative to the point of the entity. (Ex. (0, 0) in the model space is the same to the point of the entity in the absolute coordinate.)
   (check-entity-tags "lazer")
-  (with-ecs-components ((new-point point-2d) model-2d) lazer
-    (let* ((geometry model-2d.model.geometry)
+  (with-ecs-components ((new-point point-2d)) lazer
+    (let* ((speed (get-entity-param lazer :speed))
+           (geometry (get-lazer-geometry lazer))
            (pnt-list geometry.vertices)
            (pre-point (get-entity-param lazer :pre-point))
            (len (length pnt-list)))
-      (with-slots-pair (((pre-x x) (pre-y y)) pre-point
-                        ((new-x x) (new-y y)) new-point)
-        (dotimes (i (1- len))
-          (let ((index (- len (1+ i))))
-            (with-slots-pair (((x1 x) (y1 y)) (aref pnt-list index)
-                              ((x0 x) (y0 y)) (aref pnt-list (1- index)))
-              (setf x1 (- x0 (- new-x pre-x))
-                    y1 (- y0 (- new-y pre-y))))))
-        (setf pre-x new-x
-              pre-y new-y))
+      (dotimes (i (1- len))
+        (let ((index (- len (1+ i))))
+          (with-slots-pair (((x1 x) (y1 y)) (aref pnt-list index)
+                            ((x0 x) (y0 y)) (aref pnt-list (1- index)))
+            (setf x1 x0 y1 y0))))
+      (decf-offset-from-lazer-tails geometry (vector-2d-x speed) (vector-2d-y speed))
+      (copy-point-2d pre-point new-point)
+      (incf-vector new-point speed)
+      (geometry.compute-bounding-sphere)
       (setf geometry.vertices-need-update t))))
 
-;; only prototype to delete an entity.
-(defun.ps sample-to-delete (entity)
+(defun.ps process-lazer-duration (entity)
   (check-entity-tags "lazer")
   (cond ((not (get-entity-param entity :hitp))
-         (with-ecs-components (speed-2d) entity
-           (let ((max-duration (get-entity-param entity :max-duration)))
-             (when (= max-duration 0)
-               (set-entity-param entity :hitp t))
-             (set-entity-param entity :max-duration (1- max-duration)))))
+         (let ((max-duration (get-entity-param entity :max-duration)))
+           (when (= max-duration 0)
+             (set-entity-param entity :hitp t))
+           (set-entity-param entity :max-duration (1- max-duration))))
         (t (let ((duration (get-entity-param entity :duration)))
              (when (< duration 0)
                (delete-ecs-entity entity))
              (set-entity-param entity :duration (1- duration))))))
+
+(defun.ps adjust-collision-point (lazer target)
+  (check-entity-tags lazer "lazer")
+  (with-ecs-components ((lazer-pnt point-2d)) lazer
+    (labels ((calc-mid-pnt-f (dst pnt1 pnt2)
+               (setf (vector-2d-x dst) (/ (+ (vector-2d-x pnt1) (vector-2d-x pnt2)) 2))
+               (setf (vector-2d-y dst) (/ (+ (vector-2d-y pnt1) (vector-2d-y pnt2)) 2))
+               dst))
+      (let ((dummy (make-ecs-entity))
+            (head (clone-point-2d lazer-pnt))
+            (next (clone-vector (get-entity-param lazer :pre-point)))
+            (mid (make-point-2d)))
+        (calc-mid-pnt-f mid head next)
+        (add-ecs-component-list
+         dummy
+         mid
+         (make-physic-circle :r 0))
+        (dotimes (i 6)
+          (if (collide-entities-p dummy target)
+              (copy-vector-2d-to head mid)
+              (copy-vector-2d-to next mid))
+          (calc-mid-pnt-f mid head next))
+        (decf-offset-from-lazer-tails (get-lazer-geometry lazer)
+                                      (- (vector-2d-x head) (vector-2d-x lazer-pnt))
+                                      (- (vector-2d-y head) (vector-2d-y lazer-pnt)))
+        (copy-vector-2d-to lazer-pnt head)))))
 
 (defun.ps process-lazer-collision (mine target)
   (let ((true-target (get-entity-param mine :target)))
@@ -72,10 +111,11 @@
                (not (get-entity-param mine :stop-homing-p))
                (= (ecs-entity-id target)
                   (ecs-entity-id true-target)))
-      (with-ecs-components (speed-2d) mine
+      (let ((speed-2d (get-entity-param mine :speed)))
         (setf speed-2d.x 0
-              speed-2d.y 0)
-        (set-entity-param mine :hitp t)))))
+              speed-2d.y 0))
+      (adjust-collision-point mine target)
+      (set-entity-param mine :hitp t))))
 
 ;; The base angle of first-angle is the angle of (0, -1)
 (defun.ps make-lazer (&key player target first-angle first-offset)
@@ -100,21 +140,22 @@
            (make-point-2d :x first-x :y first-y)
            (make-model-2d :model (make-lines :pnt-list pnt-list :color 0xff0000)
                           :depth (get-param :lazer :depth))
-           first-speed
            (make-script-2d :func #'(lambda (entity)
                                      (let ((target (get-entity-param entity :target)))
                                        (unless (and target
                                                     (shigi-part-valid-p target))
                                          (set-entity-param entity :stop-homing-p t)))
                                      (turn-lazer-to-target entity)
-                                     (update-lazer-tails entity)
-                                     (sample-to-delete entity)))
-           (make-physic-circle :r 0 :on-collision #'process-lazer-collision)
+                                     (update-lazer-points entity)
+                                     (process-lazer-duration entity)))
+           (make-physic-circle :r 0 :on-collision #'process-lazer-collision
+                               :target-tags '("shigi-part"))
            (init-entity-params :duration num-pnts
                                :hitp nil
                                :stop-homing-p nil
                                :max-duration 600
                                :pre-point (make-vector-2d :x first-x :y first-y)
+                               :speed first-speed
                                :target target)))))
     lazer))
 
@@ -193,6 +234,31 @@
   (when (is-key-down-now :x)
     (trigger-player-lazer)))
 
+(defstruct.ps+ nearest-part-register (part-id -1) (frame-count -1))
+
+(defun.ps display-nearest-part (part-id frame-count)
+  (let ((part (find-a-entity #'(lambda (entity)
+                                 (= (ecs-entity-id entity) part-id)))))
+    (labels ((pad (str len)
+               ;; easy impremetation
+               ((@ (+ "      " str) slice) (* len -1))))
+      (push-log-text (+ (pad (get-entity-param part :display-name) 6) ":"
+                        (pad (floor (* frame-count 1000/60)) 4) "ms ("
+                        (pad frame-count 3) "F)")))))
+
+(defun.ps register-nearest-part (player)
+  (check-entity-tags player "player")
+  (let* ((register (get-entity-param player :nearest-part-register))
+         (nearest (get-nearest-shigi-part (calc-global-point player)))
+         (nearest-id (if nearest (ecs-entity-id nearest) -1)))
+    (with-slots (part-id frame-count) register
+      (if (= part-id nearest-id)
+          (incf frame-count)
+          (progn (when (>= part-id 0)
+                   (display-nearest-part part-id frame-count))
+                 (setf part-id nearest-id
+                       frame-count 0))))))
+
 (defun.ps make-player-center ()
   (let ((body (make-ecs-entity)))
     (add-entity-tag body "player")
@@ -202,8 +268,10 @@
      (make-script-2d :func #'(lambda (player)
                                (control-player player)
                                (move-player player)
+                               (register-nearest-part player)
                                (shot-lazer player)))
-     (init-entity-params :lazer-triggered-p nil))
+     (init-entity-params :lazer-triggered-p nil
+                         :nearest-part-register (make-nearest-part-register)))
     body))
 
 (defun.ps make-player ()
