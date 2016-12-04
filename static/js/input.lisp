@@ -18,7 +18,9 @@
 
            :touch-event-touches
            :touch-event-element-x
-           :touch-event-element-y))
+           :touch-event-element-y
+
+           :initialize-input))
 (in-package :cl-shigi-simulator.static.js.input)
 
 (enable-ps-experiment-syntax)
@@ -195,3 +197,14 @@ device-state = boolean-value"
       (setf center.x *mouse-x-buffer*)
       (setf center.y *mouse-y-buffer*)))
   (call-touch-move-callbacks (init-touch-event e)))
+
+;; register
+
+(defun.ps initialize-input ()
+  (window.add-event-listener "mousemove" on-mouse-move-event)
+  (window.add-event-listener "mousedown" on-mouse-down-event)
+  (window.add-event-listener "mouseup" on-mouse-up-event)
+  (window.add-event-listener "touchstart" on-touch-start)
+  (window.add-event-listener "touchend" on-touch-end)
+  (window.add-event-listener "touchmove" on-touch-move-event)
+  (window.add-event-listener "keydown" (lambda (e) (e.prevent-default))))
