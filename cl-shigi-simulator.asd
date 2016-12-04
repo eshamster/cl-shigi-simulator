@@ -54,7 +54,7 @@
                  (:file "tools")
                  (:file "input" :depends-on ("tools"))
                  (:file "shigi" :depends-on ("basic-ecs" "tools"))
-                 (:file "player" :depends-on ("basic-ecs" "tools" "shigi"))
+                 (:file "player" :depends-on ("basic-ecs" "tools" "shigi" "input"))
                  (:file "color-chip" :depends-on ("basic-ecs" "tools" "shigi"))
                  (:file "shigi-simulator"
                         :depends-on ("utils" "basic-ecs" "tools" "input")))

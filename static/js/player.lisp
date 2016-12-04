@@ -7,6 +7,7 @@
         :parenscript
         :cl-web-2d-game
         :cl-shigi-simulator.static.js.shigi
+        :cl-shigi-simulator.static.js.input
         :cl-shigi-simulator.static.js.tools)
   (:import-from :ps-experiment.common-macros
                 :with-slots-pair))
@@ -274,6 +275,28 @@
                          :nearest-part-register (make-nearest-part-register)))
     body))
 
+;; --- controller --- ;;
+
+(defvar.ps+ *moved-by-touch-p* nil)
+
+(defun.ps+ initialize-player-controller (player)
+  (add-touch-move-callback
+   (lambda (e)
+     (let ((point (aref (touch-event-touches e) 0))
+           (center (get-ecs-component 'point-2d player)))
+       (setf *moved-by-touch-p* t)
+       (with-slots (x y) point
+         (setf (vector-2d-x center) x)
+         (setf (vector-2d-y center) y)))))
+  (add-touch-end-callback
+   (lambda (e)
+     (when (= (length (touch-event-touches e)) 0)
+       (when *moved-by-touch-p*
+         (setf *moved-by-touch-p* nil)
+         (trigger-player-lazer))))))
+
+;; --- make --- ;;
+
 (defun.ps make-player ()
   (let ((center (make-player-center))
         (body (make-player-body))
@@ -281,4 +304,5 @@
     (add-ecs-entity center)
     (add-ecs-entity body center)
     (add-ecs-entity ring center)
+    (initialize-player-controller center)
     (setf *player* center)))

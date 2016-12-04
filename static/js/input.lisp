@@ -120,8 +120,8 @@ device-state = boolean-value"
             (defun.ps+ ,(intern (format nil "ADD-~A-CALLBACK" name)) (callback)
               (push callback ,list-sym))
             (defun.ps+ ,(intern (format nil "CALL-~A-CALLBACKS" name)) (e)
-              (dolist (callback ,list-sym)
-                (funcall callback e))))))
+              (dotimes (i (length ,list-sym))
+                (funcall (aref ,list-sym i) e))))))
 
 (def-input-callback mouse-down)
 (def-input-callback mouse-up)
@@ -160,19 +160,17 @@ device-state = boolean-value"
 (defstruct.ps+ touch-event touches)
 
 (defun.ps init-touch-event (e)
-  (let* ((result (make-touch-event :touches (make-array (e.touches.length))))
+  (let* ((result (make-touch-event :touches (make-array e.touches.length)))
          (touches (touch-event-touches result)))
     (dotimes (i e.touches.length)
       (let ((point (aref e.touches i)))
         (setf (aref touches i)
-              (make-touch-event-element :x point.client-x :y point.client-y))))
+              (make-touch-event-element :x *mouse-x-buffer* :y *mouse-y-buffer*))))
     result))
 
 (defun.ps set-point-by-touch (e)
   (let ((point (aref e.touches 0)))
     (set-mouse-point point.client-x point.client-y)))
-
-(defvar.ps+ *moved-by-touch-p* nil)
 
 (defun.ps on-touch-start (e)
   (set-point-by-touch e)
@@ -181,21 +179,11 @@ device-state = boolean-value"
 
 (defun.ps on-touch-end (e)
   (when (= e.touches.length 0)
-    (setf *mouse-left-buffer* nil)
-    (when *moved-by-touch-p*
-      (setf *moved-by-touch-p* nil)
-      (trigger-player-lazer)))
+    (setf *mouse-left-buffer* nil))
   (call-touch-end-callbacks (init-touch-event e)))
 
 (defun.ps on-touch-move-event (e)
   (set-point-by-touch e)
-  (let ((point (aref e.touches 0))) 
-    ;; test
-    (let* ((player (find-a-entity-by-tag "player"))
-           (center (get-ecs-component 'point-2d player)))
-      (setf *moved-by-touch-p* t)
-      (setf center.x *mouse-x-buffer*)
-      (setf center.y *mouse-y-buffer*)))
   (call-touch-move-callbacks (init-touch-event e)))
 
 ;; register
