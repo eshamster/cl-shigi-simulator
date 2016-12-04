@@ -159,8 +159,7 @@
   (start-game screen-width screen-height init update))
 
 (defun js-main ()
-  (with-use-ps-pack (:cl-shigi-simulator.static.js.2d-geometry
-                     :cl-shigi-simulator.static.js.tools
+  (with-use-ps-pack (:cl-shigi-simulator.static.js.tools
                      :cl-shigi-simulator.static.js.input
                      :cl-shigi-simulator.static.js.basic-ecs
                      :this)
