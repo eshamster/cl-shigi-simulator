@@ -148,7 +148,9 @@
 
 ;; - others -
 
-(defun.ps start-game (screen-width screen-height init-function update-function)
+(defun.ps start-game (&key screen-width screen-height
+                           (init-function (lambda (scene) nil))
+                           (update-function (lambda () nil)))
   (init-stats)
   (init-gui)
   (let* ((scene (new (#j.THREE.Scene#)))
