@@ -56,7 +56,9 @@
   (ecs-main))
 
 (defun.ps main ()
-  (start-game :screen-width screen-width
+  (start-game :camera-offset-x (get-param :play-area :x)
+              :camera-offset-y (get-param :play-area :y)
+              :screen-width screen-width
               :screen-height screen-height
               :init-function init
               :update-function update))

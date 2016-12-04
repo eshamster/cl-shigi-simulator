@@ -106,10 +106,10 @@ device-state = boolean-value"
   (let* ((renderer (document.query-selector "#renderer"))
          (canvas (renderer.query-selector "canvas")))
     (setf *mouse-x-buffer* (- x renderer.offset-left
-                              (get-param :play-area :x)))
+                              (get-camera-offset-x)))
     (setf *mouse-y-buffer* (- canvas.height
                               (- y renderer.offset-top)
-                              (get-param :play-area :y)))))
+                              (get-camera-offset-y)))))
 
 ;; --- self callbacks --- ;;
 

@@ -6,6 +6,8 @@
         :cl-ps-ecs
         :parenscript)
   (:export :create-html-element
+           :get-camera-offset-x
+           :get-camera-offset-y
            :get-param
            :with-trace))
 (in-package :cl-shigi-simulator.static.js.tools)
@@ -135,26 +137,38 @@
 
 ;; - camera -
 
-(defun.ps init-camera (width height)
-  (let* ((x (get-param :play-area :x))
-         (y (get-param :play-area :y))
+(defvar.ps+ *camera-offset-x* 0)
+(defvar.ps+ *camera-offset-y* 0)
+
+(defun.ps+ get-camera-offset-x ()
+  *camera-offset-x*)
+(defun.ps+ get-camera-offset-y ()
+  *camera-offset-y*)
+
+(defun.ps init-camera (offset-x offset-y width height)
+  (let* ((x offset-x)
+         (y offset-y)
          (z 1000)
          (camera (new (#j.THREE.OrthographicCamera#
                        (* x -1) (- width x)
                        (- height y) (* y -1)
                        0 (* z 2)))))
+    (setf *camera-offset-x* offset-x)
+    (setf *camera-offset-y* offset-y)
     (camera.position.set 0 0 z)
     camera))
 
 ;; - others -
 
 (defun.ps start-game (&key screen-width screen-height
+                           (camera-offset-x 0) (camera-offset-y 0)
                            (init-function (lambda (scene) nil))
                            (update-function (lambda () nil)))
   (init-stats)
   (init-gui)
   (let* ((scene (new (#j.THREE.Scene#)))
-         (camera (init-camera screen-width screen-height))
+         (camera (init-camera camera-offset-x camera-offset-y
+                              screen-width screen-height))
          (renderer (new #j.THREE.WebGLRenderer#)))
     (register-default-systems scene)
     (renderer.set-size screen-width screen-height)
