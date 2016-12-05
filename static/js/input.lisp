@@ -76,20 +76,20 @@ device-state = boolean-value"
 
 ;; variables
 
-(defvar.ps _mouse-x -100)
-(defvar.ps _mouse-y -100)
-(defvar.ps _mouse-left :up)
+(defvar.ps+ _mouse-x -100)
+(defvar.ps+ _mouse-y -100)
+(defvar.ps+ _mouse-left :up)
 
-(defvar.ps *mouse-x-buffer* -100)
-(defvar.ps *mouse-y-buffer* -100)
-(defvar.ps *mouse-left-buffer* nil)
+(defvar.ps+ *mouse-x-buffer* -100)
+(defvar.ps+ *mouse-y-buffer* -100)
+(defvar.ps+ *mouse-left-buffer* nil)
 
-(defvar.ps +mouse-left-button-id+ 1)
-(defvar.ps +mouse-right-button-id+ 3)
+(defvar.ps+ +mouse-left-button-id+ 1)
+(defvar.ps+ +mouse-right-button-id+ 3)
 
 ;; main
 
-(defun.ps process-mouse-input ()
+(defun.ps+ process-mouse-input ()
   (setf _mouse-x *mouse-x-buffer*)
   (setf _mouse-y *mouse-y-buffer*)
   (setf _mouse-left
@@ -98,9 +98,9 @@ device-state = boolean-value"
 
 ;; interfaces
 
-(defun.ps get-mouse-x () _mouse-x)
-(defun.ps get-mouse-y () _mouse-y)
-(defun.ps get-left-mouse-state () _mouse-left)
+(defun.ps+ get-mouse-x () _mouse-x)
+(defun.ps+ get-mouse-y () _mouse-y)
+(defun.ps+ get-left-mouse-state () _mouse-left)
 
 ;; (private)
 (defun.ps set-mouse-point (x y)
