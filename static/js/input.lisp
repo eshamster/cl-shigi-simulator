@@ -4,6 +4,7 @@
         :cl-ppcre
         :ps-experiment
         :cl-ps-ecs
+        :cl-web-2d-game
         :parenscript
         :cl-shigi-simulator.static.js.tools)
   (:export :add-mouse-down-callback

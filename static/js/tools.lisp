@@ -6,8 +6,6 @@
         :cl-ps-ecs
         :parenscript)
   (:export :create-html-element
-           :get-camera-offset-x
-           :get-camera-offset-y
            :get-param
            :with-trace))
 (in-package :cl-shigi-simulator.static.js.tools)
@@ -134,29 +132,6 @@
 
 (defun.ps update-stats ()
   (*stats*.update))
-
-;; - camera -
-
-(defvar.ps+ *camera-offset-x* 0)
-(defvar.ps+ *camera-offset-y* 0)
-
-(defun.ps+ get-camera-offset-x ()
-  *camera-offset-x*)
-(defun.ps+ get-camera-offset-y ()
-  *camera-offset-y*)
-
-(defun.ps init-camera (offset-x offset-y width height)
-  (let* ((x offset-x)
-         (y offset-y)
-         (z 1000)
-         (camera (new (#j.THREE.OrthographicCamera#
-                       (* x -1) (- width x)
-                       (- height y) (* y -1)
-                       0 (* z 2)))))
-    (setf *camera-offset-x* offset-x)
-    (setf *camera-offset-y* offset-y)
-    (camera.position.set 0 0 z)
-    camera))
 
 ;; - others -
 

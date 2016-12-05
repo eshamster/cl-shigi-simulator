@@ -42,6 +42,7 @@
                 :components
                 ((:file "basic-components")
                  (:file "calc")
+                 (:file "camera")
                  (:file "collision")
                  (:file "2d-geometry")
                  (:file "draw-model-system")
