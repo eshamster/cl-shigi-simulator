@@ -7,7 +7,6 @@
         :parenscript
         :cl-web-2d-game
         :cl-shigi-simulator.static.js.shigi
-        :cl-shigi-simulator.static.js.input
         :cl-shigi-simulator.static.js.tools)
   (:import-from :ps-experiment.common-macros
                 :with-slots-pair))

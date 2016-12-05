@@ -1,12 +1,11 @@
 (in-package :cl-user)
-(defpackage cl-shigi-simulator.static.js.input
+(defpackage cl-web-2d-game.input
   (:use :cl
         :cl-ppcre
         :ps-experiment
         :cl-ps-ecs
-        :cl-web-2d-game
-        :parenscript
-        :cl-shigi-simulator.static.js.tools)
+        :cl-web-2d-game.camera
+        :parenscript)
   (:export :add-mouse-down-callback
            :add-mouse-up-callback
            :add-mouse-move-callback
@@ -22,7 +21,7 @@
            :touch-event-element-y
 
            :initialize-input))
-(in-package :cl-shigi-simulator.static.js.input)
+(in-package :cl-web-2d-game.input)
 
 (enable-ps-experiment-syntax)
 

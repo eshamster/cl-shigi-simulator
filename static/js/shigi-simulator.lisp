@@ -65,7 +65,6 @@
 
 (defun js-main ()
   (with-use-ps-pack (:cl-shigi-simulator.static.js.tools
-                     :cl-shigi-simulator.static.js.input
                      :cl-shigi-simulator.static.js.shigi
                      :cl-shigi-simulator.static.js.player
                      :cl-shigi-simulator.static.js.color-chip
