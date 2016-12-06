@@ -51,67 +51,83 @@
 
 ;; --- constant value manager --- ;;
 
-(defun.ps+ to-json (list)
-  (labels ((rec (list table)
-             (when (> (length list) 0)
-               (let ((key (car list))
-                     ;; TODO: check value != null
-                     (value (cadr list))
-                     (rest (cddr list)))
-                 (setf (gethash key table)
-                       (if (listp value)
-                           (rec value (make-hash-table))
-                           value))
-                 (rec rest table)))
-             table))
-    (let ((table (make-hash-table)))
-      (rec list table)
-      table)))
+(eval-when (:compile-toplevel :load-toplevel :execute)
+  (defun map-pair (function list)
+    "Ex. (map-pair (lambda (a b) (+ a b)) '(1 2 3 4)) => '(3 7)"
+    (labels ((rec (rest result)
+               (if rest
+                   (rec (cddr rest)
+                        (cons (funcall function (car rest) (cadr rest)) result))
+                   result)))
+      (nreverse (rec list nil)))))
+
+(defmacro.ps+ to-json (list)
+  (labels ((is-pair (element)
+             (and (listp element)
+                  (string= (package-name (symbol-package (car element)))
+                           "KEYWORD")))
+           (convert-value (value)
+             (if (listp value)
+                 `(lambda () ,value)
+                 value))
+           (make-hash-insertion (rest)
+             `(let ((result (make-hash-table)))
+                ,@(map-pair (lambda (key value)
+                              `(setf (gethash ,key result)
+                                     ,(if (is-pair value)
+                                          (make-hash-insertion value)
+                                          (convert-value value))))
+                            rest)
+                result)))
+    (make-hash-insertion list)))
 
 (defvar.ps *all-params*
-    (to-json '(:play-area (:x #.#y326.7544
-                           :y #.#y25
-                           :width #.play-area-width
-                           :height #.play-area-height)
-               :player (:speed #.#y8.33
-                        :depth 100
-                        :color #x000000
-                        :ring-r #.#y70
-                        :body-r #.#y7)
-               :lazer (:depth 70
-                       :tail-length 16
-                       :max-speed #.#y45
-                       :max-rot-speed #.(* PI 28/180))
-               :all-lazer (:min-angle #.(* PI 10/180)
-                           :max-angle #.(* PI 50/180)
-                           :half-num 6
-                           :first-offset (:x #.#y35 :y 0))
-               :shigi (:depth 50
-                       :color #x112222
-                       :marker-size #.#y10
-                       :body (:max-rot-speed 0.0175
-                              :max-rot-accell 8.72e-4
-                              :rot-gravity 0.002)
-                       :bit (:r #.#y30
-                             :dist #.#y173
-                             :rot-speed -0.0272))
-               :cursor (:color #x771111)
-               :color-chip (:colors (0 #x7777bd
-                                     1 #xee579b
-                                     2 #xbd7777
-                                     3 #x9bee57
-                                     4 #x77bd77
-                                     5 #x579bee)
-                            :depth -50
-                            :size #.#y40))))
+    (to-json (:play-area (:x #y326.7544
+                          :y #y25
+                          :width #.play-area-width
+                          :height #.play-area-height)
+              :player (:speed #y8.33
+                       :depth 100
+                       :color #x000000
+                       :ring-r #y70
+                       :body-r #y7)
+              :lazer (:depth 70
+                      :tail-length 16
+                      :max-speed #y45
+                      :max-rot-speed (* PI 28/180))
+              :all-lazer (:min-angle (* PI 10/180)
+                          :max-angle (* PI 50/180)
+                          :half-num 6
+                          :first-offset (:x #y35 :y 0))
+              :shigi (:depth 50
+                      :color #x112222
+                      :marker-size #y10
+                      :body (:max-rot-speed 0.0175
+                             :max-rot-accell 8.72e-4
+                             :rot-gravity 0.002)
+                      :bit (:r #y30
+                            :dist #y173
+                            :rot-speed -0.0272))
+              :cursor (:color #x771111)
+              :color-chip (:colors (list #x7777bd
+                                         #xee579b
+                                         #xbd7777
+                                         #x9bee57
+                                         #x77bd77
+                                         #x579bee)
+                           :depth -50
+                           :size #y40))))
 
-(defmacro.ps get-param (&rest keys)
+(defmacro.ps+ get-param (&rest keys)
   (labels ((rec (rest-keys result)
              (if rest-keys
                  (rec (cdr rest-keys)
-                      (list '@ result (car rest-keys)))
+                      `(gethash ,(car rest-keys) ,result))
                  result)))
-    (rec keys '*all-params*)))
+    `(let ((value ,(rec keys '*all-params*)))
+       (if (functionp value)
+           (funcall value)
+           value))))
 
 ;; --- for initialize --- ;;
 
