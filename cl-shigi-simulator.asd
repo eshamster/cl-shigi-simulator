@@ -41,6 +41,7 @@
                 :serial t
                 :components
                 ((:file "basic-components")
+                 (:file "utils")
                  (:file "calc")
                  (:file "camera")
                  (:file "collision")
