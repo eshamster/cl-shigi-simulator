@@ -21,7 +21,7 @@
         (target-pnt (calc-global-point target)))
     (vector-angle (decf-vector (clone-vector target-pnt) lazer-pnt))))
 
-(defun.ps turn-lazer-to-target (lazer)
+(defun.ps+ turn-lazer-to-target (lazer)
   (unless (or (get-entity-param lazer :stop-homing-p)
               (null (get-entity-param lazer :target)))
     (let* ((speed-2d (get-entity-param lazer :speed))

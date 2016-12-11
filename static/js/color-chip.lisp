@@ -14,10 +14,10 @@
 
 (enable-ps-experiment-syntax)
 
-(defun.ps get-chip-num-x ()
+(defun.ps+ get-chip-num-x ()
   (floor (1+ (/ (get-param :play-area :width) (get-param :color-chip :size)))))
 
-(Defun.ps get-chip-num-y ()
+(defun.ps+ get-chip-num-y ()
   (floor (1+ (/ (get-param :play-area :height) (get-param :color-chip :size)))))
 
 (defun.ps set-chip-color (grid-geometry x-index y-index color)

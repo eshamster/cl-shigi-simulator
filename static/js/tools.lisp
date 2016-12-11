@@ -52,7 +52,7 @@
 
 ;; --- global parameters --- ;;
 
-(defvar.ps *global-params*
+(defvar.ps+ *global-params*
     (convert-to-layered-hash
      (:play-area (:x #y326.7544
                   :y #y25
