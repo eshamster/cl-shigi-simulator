@@ -13,19 +13,6 @@
 
 (enable-ps-experiment-syntax)
 
-;; --- for profiling --- ;;
-
-;; Note: this is depend on Web Tracing Framework (wtf-trace.js)
-
-(defmacro.ps with-trace (title &body body)
-  `(let ((scope (#j.WTF.trace.enterScope# ,title)))
-     ,@body
-     (#j.WTF.trace.leaveScope# scope ,title)))
-(defmacro with-trace (title &body body)
-  "(dummy)"
-  (declare (ignore title))
-  `(progn ,@body))
-
 ;; --- about screensize --- ;;
 
 (eval-when (:execute :compile-toplevel :load-toplevel)
@@ -122,27 +109,13 @@
                            (update-function (lambda () nil)))
   (init-stats)
   (init-gui)
-  (let* ((scene (new (#j.THREE.Scene#)))
-         (camera (init-camera camera-offset-x camera-offset-y
-                              screen-width screen-height))
-         (renderer (new #j.THREE.WebGLRenderer#)))
-    (register-default-systems scene)
-    (renderer.set-size screen-width screen-height)
-    (chain (document.query-selector "#renderer")
-           (append-child renderer.dom-element))
-    (let ((light (new (#j.THREE.DirectionalLight# 0xffffff))))
-      (light.position.set 0 0.7 0.7)
-      (scene.add light))
-
-    (funcall init-function scene)
-    (labels ((render-loop ()
-               (request-animation-frame render-loop)
-               (with-trace "render"
-                 (renderer.render scene camera))
-               (update-stats)
-               (with-trace "update"
-                 (funcall update-function))))
-      (render-loop))))
+  (start-2d-game :screen-width screen-width
+                 :screen-height screen-height
+                 :camera (init-camera camera-offset-x camera-offset-y
+                                      screen-width screen-height)
+                 :rendered-dom (document.query-selector "#renderer")
+                 :init-function init-function
+                 :update-function update-function))
 
 ;; --- html --- ;;
 
