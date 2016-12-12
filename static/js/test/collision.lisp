@@ -163,7 +163,6 @@
 
 (defun js-main ()
   (with-use-ps-pack (:cl-shigi-simulator.static.js.tools
-                     :cl-shigi-simulator.static.js.input
                      :cl-shigi-simulator.static.js.basic-ecs
                      :this)
     (window.add-event-listener "mousemove" on-mouse-move-event)
