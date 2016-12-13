@@ -52,12 +52,13 @@
   (ecs-main))
 
 (defun.ps main ()
-  (start-game screen-width screen-height init update))
+  (start-game :screen-width screen-width
+              :screen-height screen-height
+              :init-function init
+              :update-function update))
 
 (defun js-main ()
-  (with-use-ps-pack (:cl-shigi-simulator.static.js.2d-geometry
-                     :cl-shigi-simulator.static.js.tools
-                     :cl-shigi-simulator.static.js.input
+  (with-use-ps-pack (:cl-shigi-simulator.static.js.tools
                      :cl-shigi-simulator.static.js.basic-ecs
                      :this)
     (window.add-event-listener "mousemove" on-mouse-move-event)

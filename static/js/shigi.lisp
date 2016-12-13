@@ -64,13 +64,13 @@
      (make-point-2d))
     marker))
 
-(defun.ps change-shigi-bit-speed (bit scale)
+(defun.ps+ change-shigi-bit-speed (bit scale)
   (check-entity-tags bit "shigi-bit")
   (with-ecs-components (rotate-2d) bit
     (setf (rotate-2d-speed rotate-2d)
           (* (get-param :shigi :bit :rot-speed) scale))))
 
-(defun.ps change-all-shigi-bits-speed (scale)
+(defun.ps+ change-all-shigi-bits-speed (scale)
   (do-tagged-ecs-entities (bit "shigi-bit")
     (change-shigi-bit-speed bit scale)))
 

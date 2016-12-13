@@ -41,23 +41,25 @@
                 :serial t
                 :components
                 ((:file "basic-components")
+                 (:file "utils")
                  (:file "calc")
+                 (:file "camera")
                  (:file "collision")
+                 (:file "input")
+                 (:file "2d-geometry")
                  (:file "draw-model-system")
                  (:file "gui")
                  (:file "cl-web-2d-game")))
                (:module "static/js"
                 :components
                 ((:file "utils")
-                 (:file "2d-geometry")
                  (:file "basic-ecs" :depends-on ("tools"))
                  (:file "tools")
-                 (:file "input" :depends-on ("tools"))
-                 (:file "shigi" :depends-on ("basic-ecs" "2d-geometry" "tools"))
-                 (:file "player" :depends-on ("basic-ecs" "2d-geometry" "tools" "shigi"))
-                 (:file "color-chip" :depends-on ("basic-ecs" "2d-geometry" "tools" "shigi"))
+                 (:file "shigi" :depends-on ("basic-ecs" "tools"))
+                 (:file "player" :depends-on ("basic-ecs" "tools" "shigi"))
+                 (:file "color-chip" :depends-on ("basic-ecs" "tools" "shigi"))
                  (:file "shigi-simulator"
-                        :depends-on ("utils" "basic-ecs" "tools" "input" "2d-geometry")))
+                        :depends-on ("utils" "basic-ecs" "tools")))
                 :depends-on ("js-lib"))
                (:module "static/js/test" 
                 :components

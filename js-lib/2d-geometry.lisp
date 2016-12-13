@@ -1,13 +1,22 @@
 (in-package :cl-user)
-(defpackage cl-shigi-simulator.static.js.2d-geometry
+(defpackage cl-web-2d-game.2d-geometry
   (:use :cl
         :cl-ppcre
         :parenscript)
   (:import-from :ps-experiment
                 :defmacro.ps+
                 :defun.ps
-                :enable-ps-experiment-syntax))
-(in-package :cl-shigi-simulator.static.js.2d-geometry)
+                :enable-ps-experiment-syntax)
+  (:export :make-line
+           :make-lines
+           :make-solid-rect
+           :make-wired-rect
+           :make-solid-regular-polygon
+           :make-wired-regular-polygon
+           :make-wired-polygon
+           :make-solid-polygon
+           :change-model-color))
+(in-package :cl-web-2d-game.2d-geometry)
 
 (enable-ps-experiment-syntax)
 

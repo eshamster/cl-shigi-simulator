@@ -4,6 +4,7 @@
         :cl-ppcre
         :ps-experiment
         :cl-ps-ecs
+        :cl-web-2d-game
         :parenscript)
   (:export :create-html-element
            :get-param
@@ -11,19 +12,6 @@
 (in-package :cl-shigi-simulator.static.js.tools)
 
 (enable-ps-experiment-syntax)
-
-;; --- for profiling --- ;;
-
-;; Note: this is depend on Web Tracing Framework (wtf-trace.js)
-
-(defmacro.ps with-trace (title &body body)
-  `(let ((scope (#j.WTF.trace.enterScope# ,title)))
-     ,@body
-     (#j.WTF.trace.leaveScope# scope ,title)))
-(defmacro with-trace (title &body body)
-  "(dummy)"
-  (declare (ignore title))
-  `(progn ,@body))
 
 ;; --- about screensize --- ;;
 
@@ -49,69 +37,48 @@
             `(calc-absolute-length ,(read stream) screen-height))
          (t `(calc-absolute-length ,(read stream) play-area-height))))))
 
-;; --- constant value manager --- ;;
+;; --- global parameters --- ;;
 
-(defun.ps+ to-json (list)
-  (labels ((rec (list table)
-             (when (> (length list) 0)
-               (let ((key (car list))
-                     ;; TODO: check value != null
-                     (value (cadr list))
-                     (rest (cddr list)))
-                 (setf (gethash key table)
-                       (if (listp value)
-                           (rec value (make-hash-table))
-                           value))
-                 (rec rest table)))
-             table))
-    (let ((table (make-hash-table)))
-      (rec list table)
-      table)))
+(defvar.ps+ *global-params*
+    (convert-to-layered-hash
+     (:play-area (:x #y326.7544
+                  :y #y25
+                  :width #.play-area-width
+                  :height #.play-area-height)
+      :player (:speed #y8.33
+               :depth 100
+               :color #x000000
+               :ring-r #y70
+               :body-r #y7)
+      :lazer (:depth 70
+              :tail-length 16
+              :max-speed #y45
+              :max-rot-speed (* PI 28/180))
+      :all-lazer (:min-angle (* PI 10/180)
+                  :max-angle (* PI 50/180)
+                  :half-num 6
+                  :first-offset (:x #y35 :y 0))
+      :shigi (:depth 50
+              :color #x112222
+              :marker-size #y10
+              :body (:max-rot-speed 0.0175
+                     :max-rot-accell 8.72e-4
+                     :rot-gravity 0.002)
+              :bit (:r #y30
+                    :dist #y173
+                    :rot-speed -0.0272))
+      :cursor (:color #x771111)
+      :color-chip (:colors (list #x7777bd
+                                 #xee579b
+                                 #xbd7777
+                                 #x9bee57
+                                 #x77bd77
+                                 #x579bee)
+                   :depth -50
+                   :size #y40))))
 
-(defvar.ps *all-params*
-    (to-json '(:play-area (:x #.#y326.7544
-                           :y #.#y25
-                           :width #.play-area-width
-                           :height #.play-area-height)
-               :player (:speed #.#y8.33
-                        :depth 100
-                        :color #x000000
-                        :ring-r #.#y70
-                        :body-r #.#y7)
-               :lazer (:depth 70
-                       :tail-length 16
-                       :max-speed #.#y45
-                       :max-rot-speed #.(* PI 28/180))
-               :all-lazer (:min-angle #.(* PI 10/180)
-                           :max-angle #.(* PI 50/180)
-                           :half-num 6
-                           :first-offset (:x #.#y35 :y 0))
-               :shigi (:depth 50
-                       :color #x112222
-                       :marker-size #.#y10
-                       :body (:max-rot-speed 0.0175
-                              :max-rot-accell 8.72e-4
-                              :rot-gravity 0.002)
-                       :bit (:r #.#y30
-                             :dist #.#y173
-                             :rot-speed -0.0272))
-               :cursor (:color #x771111)
-               :color-chip (:colors (0 #x7777bd
-                                     1 #xee579b
-                                     2 #xbd7777
-                                     3 #x9bee57
-                                     4 #x77bd77
-                                     5 #x579bee)
-                            :depth -50
-                            :size #.#y40))))
-
-(defmacro.ps get-param (&rest keys)
-  (labels ((rec (rest-keys result)
-             (if rest-keys
-                 (rec (cdr rest-keys)
-                      (list '@ result (car rest-keys)))
-                 result)))
-    (rec keys '*all-params*)))
+(defmacro.ps+ get-param (&rest keys)
+  `(get-layered-hash *global-params* ,@keys))
 
 ;; --- for initialize --- ;;
 
@@ -127,49 +94,28 @@
       (setf position "absolute")
       (setf left "0px")
       (setf top "0px"))
-    ((@ (document.get-element-by-id "stats-output") append-child) stats.dom-element)
+    (chain (document.get-element-by-id "stats-output")
+           (append-child stats.dom-element))
     stats))
 
 (defun.ps update-stats ()
   (*stats*.update))
 
-;; - camera -
-
-(defun.ps init-camera (width height)
-  (let* ((x (get-param :play-area :x))
-         (y (get-param :play-area :y))
-         (z 1000)
-         (camera (new (#j.THREE.OrthographicCamera#
-                       (* x -1) (- width x)
-                       (- height y) (* y -1)
-                       0 (* z 2)))))
-    (camera.position.set 0 0 z)
-    camera))
-
 ;; - others -
 
-(defun.ps start-game (screen-width screen-height init-function update-function)
+(defun.ps start-game (&key screen-width screen-height
+                           (camera-offset-x 0) (camera-offset-y 0)
+                           (init-function (lambda (scene) nil))
+                           (update-function (lambda () nil)))
   (init-stats)
   (init-gui)
-  (let* ((scene (new (#j.THREE.Scene#)))
-         (camera (init-camera screen-width screen-height))
-         (renderer (new #j.THREE.WebGLRenderer#)))
-    (register-default-systems scene)
-    (renderer.set-size screen-width screen-height)
-    ((@ ((@ document.query-selector) "#renderer") append-child) renderer.dom-element)
-    (let ((light (new (#j.THREE.DirectionalLight# 0xffffff))))
-      (light.position.set 0 0.7 0.7)
-      (scene.add light))
-
-    (funcall init-function scene)
-    (labels ((render-loop ()
-               (request-animation-frame render-loop)
-               (with-trace "render"
-                 (renderer.render scene camera))
-               (update-stats)
-               (with-trace "update"
-                 (funcall update-function))))
-      (render-loop))))
+  (start-2d-game :screen-width screen-width
+                 :screen-height screen-height
+                 :camera (init-camera camera-offset-x camera-offset-y
+                                      screen-width screen-height)
+                 :rendered-dom (document.query-selector "#renderer")
+                 :init-function init-function
+                 :update-function update-function))
 
 ;; --- html --- ;;
 
