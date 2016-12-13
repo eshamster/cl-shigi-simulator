@@ -40,13 +40,38 @@
   (make-shigi)
   (make-mouse-pointer))
 
-(defun.ps init (scene)
+(defun.ps add-axis-to-scene (scene)
   (let ((width (get-param :play-area :width))
         (height (get-param :play-area :height)))
     (scene.add (make-line :pos-a (list width (/ height 2)) :pos-b (list 0 (/ height 2))
                           :color 0x00ff00 :z 1))
     (scene.add (make-line :pos-a (list (/ width 2) 0) :pos-b (list (/ width 2) height)
-                          :color 0x00ff00 :z 1)))
+                          :color 0x00ff00 :z 1))))
+
+(defun.ps add-frame-to-scene (scene)
+  (let ((area-width (get-param :play-area :width))
+        (area-height (get-param :play-area :height))
+        (offset-x (get-param :play-area :x))
+        (offset-y (get-param :play-area :y)))
+    (labels ((add-rect (x y width height)
+               (let ((frame (make-ecs-entity)))
+                 (add-ecs-component-list
+                  frame
+                  (make-model-2d :model (make-solid-rect :width width :height height
+                                                         :color 0x000000)
+                                 :depth 999)
+                  (make-point-2d :x (- x offset-x) :y (- y offset-y)))
+                 (add-ecs-entity frame))))
+      (add-rect 0 0 screen-width offset-y)
+      (add-rect 0 0 offset-x screen-height)
+      (let ((offset (+ offset-y area-height)))
+        (add-rect 0 offset screen-width (- screen-height offset)))
+      (let ((offset (+ offset-x area-width)))
+        (add-rect offset 0 (- screen-width offset) screen-height)))))
+
+(defun.ps init (scene)
+  (add-axis-to-scene scene)
+  (add-frame-to-scene scene)
   (make-sample-entities)
   (generate-color-grid))
 
