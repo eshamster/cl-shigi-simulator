@@ -68,7 +68,7 @@
 (defun load-js (js-name &key (base-path nil))
   (check-type js-name keyword)
   (let ((name (string-downcase (symbol-name js-name))))
-    (if (or *force-reload-js*
-            (is-js-older name))
-        (write-to-js-file name))
+    (when (or *force-reload-js*
+              (is-js-older name))
+      (write-to-js-file name))
     (make-js-load-path name base-path)))
