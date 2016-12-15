@@ -277,16 +277,26 @@
 ;; --- controller --- ;;
 
 (defvar.ps+ *moved-by-touch-p* nil)
+(defvar.ps+ *pre-touch-point* (make-vector-2d))
+
+(defun.ps+ update-vector-by-touch (target touch-event)
+  (let ((point (aref (touch-event-touches touch-event) 0)))
+    (with-slots (x y) point
+      (setf (vector-2d-x target) x)
+      (setf (vector-2d-y target) y))))
 
 (defun.ps+ initialize-player-controller (player)
+  (add-touch-start-callback
+   (lambda (e)
+     (update-vector-by-touch *pre-touch-point* e)))
   (add-touch-move-callback
    (lambda (e)
-     (let ((point (aref (touch-event-touches e) 0))
-           (center (get-ecs-component 'point-2d player)))
+     (let ((center (get-ecs-component 'point-2d player))
+           (diff-point (clone-vector *pre-touch-point*)))
        (setf *moved-by-touch-p* t)
-       (with-slots (x y) point
-         (setf (vector-2d-x center) x)
-         (setf (vector-2d-y center) y)))))
+       (update-vector-by-touch *pre-touch-point* e)
+       (decf-vector diff-point *pre-touch-point*)
+       (decf-vector center diff-point))))
   (add-touch-end-callback
    (lambda (e)
      (when (= (length (touch-event-touches e)) 0)
