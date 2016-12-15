@@ -60,6 +60,7 @@
                   :first-offset (:x #y35 :y 0))
       :shigi (:depth 50
               :color #x112222
+              :marker-color #x666666
               :marker-size #y10
               :body (:max-rot-speed 0.0175
                      :max-rot-accell 8.72e-4

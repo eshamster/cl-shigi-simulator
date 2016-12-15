@@ -58,7 +58,8 @@
          (offset (* -1 (/ len 2))))
     (add-ecs-component-list
      marker
-     (make-model-2d :model (make-wired-rect :width len :height len)
+     (make-model-2d :model (make-wired-rect :width len :height len
+                                            :color (get-param :shigi :marker-color))
                     :depth (get-param :shigi :depth)
                     :offset (make-point-2d :x offset :y offset))
      (make-point-2d))
