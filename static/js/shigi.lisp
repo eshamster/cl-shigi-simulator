@@ -103,6 +103,7 @@
                          :radious dist)
          (init-entity-params :color (nth i (get-param :color-chip :colors))
                              :display-name (+ "Bit" (1+ i))
+                             :bit-id i
                              :enable t)))
       (push bit result))
     result))
@@ -218,7 +219,9 @@
       (add-ecs-entity (make-center-point-marker) body))
     (dolist (bit bit-list)
       (add-ecs-entity bit center)
-      (add-ecs-entity (make-center-point-marker) bit))))
+      (add-ecs-entity (make-center-point-marker) bit)
+      (when (oddp (get-entity-param bit :bit-id))
+        (toggle-shigi-part bit)))))
 
 ;; --- tools --- ;;
 
