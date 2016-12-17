@@ -180,7 +180,7 @@
            (make-script-2d :func #'rotate-shigi-body)
            ;; TODO: parameterize 4 (which is the number of the bit)
            (init-entity-params :color (nth (+ i 4) (get-param :color-chip :colors))
-                               :display-name (if (= i 0) "R" "L")
+                               :display-name (+ "Body_" (if (= i 0) "R" "L"))
                                :enable t))
           (push body result))))
     result))
