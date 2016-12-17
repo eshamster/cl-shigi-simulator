@@ -174,7 +174,7 @@
                                 :on-collision #'toggle-shigi-part-by-mouse
                                 :target-tags *shigi-collision-targets*)
            (make-point-2d :x (car center) :y (cadr center))
-           (make-rotate-2d :speed 0
+           (make-rotate-2d :speed (get-param :shigi :body :max-rot-speed)
                            :radious (vector-abs center-vec)
                            :angle (vector-angle center-vec))
            (make-script-2d :func #'rotate-shigi-body)
