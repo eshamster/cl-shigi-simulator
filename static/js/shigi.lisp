@@ -156,10 +156,7 @@
                (center-vec (make-vector-2d :x (car center) :y (cadr center)))
                (model-offset (make-point-2d :x (* -1 (car center))
                                             :y (* -1 (cadr center))
-                                            :angle 0))
-               (rotate (make-rotate-2d :speed 0
-                                       :radious (vector-abs center-vec)
-                                       :angle (vector-angle center-vec))))
+                                            :angle 0)))
           (add-entity-tag body "shigi-part" "shigi-body")
           (add-ecs-component-list
            body
@@ -177,7 +174,9 @@
                                 :on-collision #'toggle-shigi-part-by-mouse
                                 :target-tags *shigi-collision-targets*)
            (make-point-2d :x (car center) :y (cadr center))
-           rotate
+           (make-rotate-2d :speed 0
+                           :radious (vector-abs center-vec)
+                           :angle (vector-angle center-vec))
            (make-script-2d :func #'rotate-shigi-body)
            ;; TODO: parameterize 4 (which is the number of the bit)
            (init-entity-params :color (nth (+ i 4) (get-param :color-chip :colors))
