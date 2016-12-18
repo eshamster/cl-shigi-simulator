@@ -12,7 +12,7 @@
 ;; base-path requires a slash at last
 ;; Ex. NG: ".."
 ;;     OK: "../"
-(defmacro with-three-layout ((&key title js-name (base-path "")) &body body)
+(defmacro with-three-layout ((&key title js-name (base-path "") (description nil)) &body body)
   `(with-markup-to-string
      (html5 (:head
              (:title ,title)
@@ -27,6 +27,8 @@
                     :href ,(merge-pathnames "css/shigi.css" base-path)))
             (:body
              (:div (:a :href "/" "Top"))
+             (:div :id "description"
+                   ,@description)
              (:br)
              (:div :id "stats-output")
              (:div :id "renderer" nil)

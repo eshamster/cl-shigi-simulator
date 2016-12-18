@@ -21,6 +21,13 @@ a:hover {
   text-align: center;
 }
 
+#description {
+  margin-left: 100px;
+  margin-right: auto;
+  border: solid 1px #000000;
+  font-size: small;
+}
+
 #log {
   border: solid 1px #000000;
 }
