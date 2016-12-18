@@ -69,12 +69,12 @@
                     :dist #y173
                     :rot-speed -0.0272))
       :cursor (:color #x771111)
-      :color-chip (:colors (list #x7777bd
-                                 #xee579b
-                                 #xbd7777
+      :color-chip (:colors (list #xeeaaee
+                                 #x999aff
+                                 #xfcb879
                                  #x9bee57
                                  #x77bd77
-                                 #x579bee)
+                                 #xaaf7ff)
                    :depth -50
                    :size #y40))))
 
