@@ -70,10 +70,14 @@
 (defun.ps process-lazer-duration (entity)
   (check-entity-tags "lazer")
   (cond ((not (get-entity-param entity :hitp))
-         (let ((max-duration (get-entity-param entity :max-duration)))
-           (when (= max-duration 0)
-             (set-entity-param entity :hitp t))
-           (set-entity-param entity :max-duration (1- max-duration))))
+         (labels ((process-duration (kind)
+                    (let ((max-duration (get-entity-param entity kind)))
+                      (when (= max-duration 0)
+                        (set-entity-param entity :hitp t))
+                      (set-entity-param entity kind (1- max-duration)))))
+           (process-duration :max-duration)
+           (when (get-entity-param entity :stop-homing-p)
+             (process-duration :duration-after-stop))))
         (t (let ((duration (get-entity-param entity :duration)))
              (when (< duration 0)
                (delete-ecs-entity entity))
@@ -153,6 +157,7 @@
            (init-entity-params :duration num-pnts
                                :hitp nil
                                :stop-homing-p nil
+                               :duration-after-stop 30
                                :max-duration 600
                                :pre-point (make-vector-2d :x first-x :y first-y)
                                :speed first-speed
