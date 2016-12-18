@@ -231,7 +231,7 @@
 
 (defun.ps control-player (player)
   (declare (ignore player))
-  (when (is-key-down-now :x)
+  (when (is-key-down-now :c)
     (trigger-player-lazer)))
 
 (defstruct.ps+ nearest-part-register (part-id -1) (frame-count -1))
