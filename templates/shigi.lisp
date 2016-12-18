@@ -12,4 +12,4 @@
   (with-three-layout (:title "Shigi Simulator" :js-name :shigi-simulator
                       :description ((:div "操作説明:")
                                     (:div "・マウス&キーボード → 方向キー： 移動, C： 解放, パーツクリック: パーツのON/OFF")
-                                    (:div "・タッチ → フリック：移動（終点で解放）, パーツタップ：パーツのON/OFF")))))
+                                    (:div "・タッチスクリーン → フリック：移動（終点で解放）, パーツタップ：パーツのON/OFF")))))
