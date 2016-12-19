@@ -6,7 +6,7 @@
 (defsystem cl-shigi-simulator
   :version "0.1"
   :author "eshamster"
-  :license ""
+  :license "LLGPL"
   :depends-on (:clack
                :lack
                :caveman2
