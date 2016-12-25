@@ -5,14 +5,14 @@
 ("ps-experiment" .
  (:class qlot.source.github:source-github
   :initargs (:project-name "ps-experiment" :repos "eshamster/ps-experiment" :ref nil :branch nil :tag nil)
-  :version "github-d933aeb645b3062308d4c8077792a39b12e37aeb"
+  :version "github-f9ffd3cbbff12570826aa9907fdd8789682477a9"
   :repos "eshamster/ps-experiment"
-  :url "https://github.com/eshamster/ps-experiment/archive/d933aeb645b3062308d4c8077792a39b12e37aeb.tar.gz"
-  :ref "d933aeb645b3062308d4c8077792a39b12e37aeb"))
+  :url "https://github.com/eshamster/ps-experiment/archive/f9ffd3cbbff12570826aa9907fdd8789682477a9.tar.gz"
+  :ref "f9ffd3cbbff12570826aa9907fdd8789682477a9"))
 ("cl-ps-ecs" .
  (:class qlot.source.github:source-github
   :initargs (:project-name "cl-ps-ecs" :repos "eshamster/cl-ps-ecs" :ref nil :branch nil :tag nil)
-  :version "github-d16b9bc4a18b6c6e5ca3de76959ebbf2dbe03b9c"
+  :version "github-859a059ac90faeb73f700eb0ce1924d9c93c7e02"
   :repos "eshamster/cl-ps-ecs"
-  :url "https://github.com/eshamster/cl-ps-ecs/archive/d16b9bc4a18b6c6e5ca3de76959ebbf2dbe03b9c.tar.gz"
-  :ref "d16b9bc4a18b6c6e5ca3de76959ebbf2dbe03b9c"))
+  :url "https://github.com/eshamster/cl-ps-ecs/archive/859a059ac90faeb73f700eb0ce1924d9c93c7e02.tar.gz"
+  :ref "859a059ac90faeb73f700eb0ce1924d9c93c7e02"))
