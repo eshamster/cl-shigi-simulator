@@ -36,8 +36,6 @@
                                   (incf rot-angle speed))))))))))
 
 (defun.ps register-default-systems (scene)
-  (register-ecs-system "script2d" (make-script-system))
   (register-ecs-system "move2d" (make-move-system))
   (register-ecs-system "rotate2d" (make-rotate-system))
-  (register-ecs-system "collision" (make-collision-system))
-  (register-ecs-system "draw2d" (init-draw-model-system scene)))
+  (init-default-systems :scene scene))
