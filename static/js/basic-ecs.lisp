@@ -26,14 +26,14 @@
                (target-component-types '(point-2d rotate-2d))
                (process (lambda (entity)
                           (with-ecs-components (point-2d) entity
-                            (do-ecs-components-of-entity (rotate-2d entity)
-                              (when (rotate-2d-p rotate-2d)
-                                (with-slots (speed (rot-angle angle) radious) rotate-2d
-                                  (incf-rotate-diff point-2d radious
-                                                    rot-angle speed)
-                                  (with-slots (angle) point-2d
-                                    (incf angle speed))
-                                  (incf rot-angle speed))))))))))
+                            (do-ecs-components-of-entity (rotate entity
+                                                                 :component-type 'rotate-2d)
+                              (with-slots (speed (rot-angle angle) radious) rotate
+                                (incf-rotate-diff point-2d radious
+                                                  rot-angle speed)
+                                (with-slots (angle) point-2d
+                                  (incf angle speed))
+                                (incf rot-angle speed)))))))))
 
 (defun.ps register-default-systems (scene)
   (register-ecs-system "move2d" (make-move-system))
