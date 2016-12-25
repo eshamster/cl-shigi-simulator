@@ -10,8 +10,6 @@
 
 (enable-ps-experiment-syntax)
 
-(defstruct.ps+ (script-2d (:include ecs-component)) (func (lambda (entity) entity)))
-
 ;; --- systems --- ;;
 
 (defstruct.ps+
@@ -36,15 +34,6 @@
                                   (with-slots (angle) point-2d
                                     (incf angle speed))
                                   (incf rot-angle speed))))))))))
-
-(defstruct.ps+
-    (script-system
-     (:include ecs-system
-               (target-component-types '(script-2d))
-               (process (lambda (entity)
-                          (cl-shigi-simulator.static.js.tools:with-trace "script_system"
-                            (with-ecs-components (script-2d) entity
-                              (funcall (script-2d-func script-2d) entity))))))))
 
 (defun.ps register-default-systems (scene)
   (register-ecs-system "script2d" (make-script-system))
