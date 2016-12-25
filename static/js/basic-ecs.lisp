@@ -28,12 +28,7 @@
                           (with-ecs-components (point-2d) entity
                             (do-ecs-components-of-entity (rotate entity
                                                                  :component-type 'rotate-2d)
-                              (with-slots (speed (rot-angle angle) radious) rotate
-                                (incf-rotate-diff point-2d radious
-                                                  rot-angle speed)
-                                (with-slots (angle) point-2d
-                                  (incf angle speed))
-                                (incf rot-angle speed)))))))))
+                              (rotatef-point-by point-2d rotate))))))))
 
 (defun.ps register-default-systems (scene)
   (register-ecs-system "move2d" (make-move-system))
