@@ -10,8 +10,6 @@
 
 (enable-ps-experiment-syntax)
 
-(defstruct.ps+ (script-2d (:include ecs-component)) (func (lambda (entity) entity)))
-
 ;; --- systems --- ;;
 
 (defstruct.ps+
@@ -28,27 +26,11 @@
                (target-component-types '(point-2d rotate-2d))
                (process (lambda (entity)
                           (with-ecs-components (point-2d) entity
-                            (do-ecs-components-of-entity (rotate-2d entity)
-                              (when (rotate-2d-p rotate-2d)
-                                (with-slots (speed (rot-angle angle) radious) rotate-2d
-                                  (incf-rotate-diff point-2d radious
-                                                    rot-angle speed)
-                                  (with-slots (angle) point-2d
-                                    (incf angle speed))
-                                  (incf rot-angle speed))))))))))
-
-(defstruct.ps+
-    (script-system
-     (:include ecs-system
-               (target-component-types '(script-2d))
-               (process (lambda (entity)
-                          (cl-shigi-simulator.static.js.tools:with-trace "script_system"
-                            (with-ecs-components (script-2d) entity
-                              (funcall (script-2d-func script-2d) entity))))))))
+                            (do-ecs-components-of-entity (rotate entity
+                                                                 :component-type 'rotate-2d)
+                              (rotatef-point-by point-2d rotate))))))))
 
 (defun.ps register-default-systems (scene)
-  (register-ecs-system "script2d" (make-script-system))
   (register-ecs-system "move2d" (make-move-system))
   (register-ecs-system "rotate2d" (make-rotate-system))
-  (register-ecs-system "collision" (make-collision-system))
-  (register-ecs-system "draw2d" (init-draw-model-system scene)))
+  (init-default-systems :scene scene))

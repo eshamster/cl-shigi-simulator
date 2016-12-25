@@ -49,6 +49,7 @@
                  (:file "2d-geometry")
                  (:file "draw-model-system")
                  (:file "gui")
+                 (:file "initializer")
                  (:file "cl-web-2d-game")))
                (:module "static/js"
                 :components
