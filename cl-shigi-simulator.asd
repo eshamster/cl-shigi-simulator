@@ -27,7 +27,8 @@
 
                ;; for JavaScript
                :ps-experiment
-               :cl-ps-ecs)
+               :cl-ps-ecs
+               :cl-web-2d-game)
   :components ((:module "src"
                 :components
                 ((:file "main" :depends-on ("config" "view" "db"))
@@ -36,21 +37,6 @@
                  (:file "db" :depends-on ("config"))
                  (:file "config"))
                 :depends-on ("templates"))
-               ;; This js-lib will be separated to an independent project
-               (:module "js-lib"
-                :serial t
-                :components
-                ((:file "basic-components")
-                 (:file "utils")
-                 (:file "calc")
-                 (:file "camera")
-                 (:file "collision")
-                 (:file "input")
-                 (:file "2d-geometry")
-                 (:file "draw-model-system")
-                 (:file "gui")
-                 (:file "initializer")
-                 (:file "cl-web-2d-game")))
                (:module "static/js"
                 :components
                 ((:file "utils")
@@ -60,8 +46,7 @@
                  (:file "player" :depends-on ("basic-ecs" "tools" "shigi"))
                  (:file "color-chip" :depends-on ("basic-ecs" "tools" "shigi"))
                  (:file "shigi-simulator"
-                        :depends-on ("utils" "basic-ecs" "tools")))
-                :depends-on ("js-lib"))
+                        :depends-on ("utils" "basic-ecs" "tools"))))
                (:module "static/js/test" 
                 :components
                 ((:file "collision")
