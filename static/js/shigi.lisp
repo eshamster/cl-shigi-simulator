@@ -86,7 +86,7 @@
              (angle (* 2 PI i (/ 1 num-bit)))
              (model-offset (make-vector-2d :x (* -1 r) :y (* -1 r) :angle 0))
              (point (make-point-2d)))
-        (adjustf-point-by-rotate point dist angle)
+        (movef-vector-to-circle point dist angle)
         (add-entity-tag bit "shigi-part" "shigi-bit")
         (add-ecs-component-list
          bit
@@ -117,7 +117,7 @@
         (if (get-entity-param center :body-rotate-p)
             (let* ((player (find-a-entity-by-tag "player"))
                    (angle-to-player (vector-angle
-                                     (decf-vector (clone-vector (get-ecs-component 'point-2d player))
+                                     (decf-vector (clone-vector-2d (get-ecs-component 'point-2d player))
                                                   (get-ecs-component 'point-2d center)))))
               (labels ((round-by-abs (value max-value)
                          (max (* -1 max-value)

@@ -19,7 +19,15 @@
 (defun.ps+ angle-to-target (lazer target)
   (let ((lazer-pnt (calc-global-point lazer))
         (target-pnt (calc-global-point target)))
-    (vector-angle (decf-vector (clone-vector target-pnt) lazer-pnt))))
+    (vector-angle (decf-vector (clone-vector-2d target-pnt) lazer-pnt))))
+
+(defun.ps+ adjust-to-target-angle (now target speed)
+  (let ((diff (- target now)))
+    (when (> diff PI)
+      (decf target (* 2 PI)))
+    (when (< diff (* -1 PI))
+      (incf target (* 2 PI))))
+  (adjust-to-target now target speed))
 
 (defun.ps+ turn-lazer-to-target (lazer)
   (unless (or (get-entity-param lazer :stop-homing-p)
@@ -29,8 +37,9 @@
            (now-angle (vector-angle speed-2d))
            (target-angle (angle-to-target lazer target)))
       (setf-vector-angle speed-2d
-                         (adjust-to-target now-angle target-angle
-                                           (get-param :lazer :max-rot-speed))))))
+                         (adjust-to-target-angle
+                          now-angle target-angle
+                          (get-param :lazer :max-rot-speed))))))
 
 (defun.ps get-lazer-geometry (lazer)
   (with-ecs-components (model-2d) lazer
@@ -62,7 +71,7 @@
                             ((x0 x) (y0 y)) (aref pnt-list (1- index)))
             (setf x1 x0 y1 y0))))
       (decf-offset-from-lazer-tails geometry (vector-2d-x speed) (vector-2d-y speed))
-      (copy-point-2d pre-point new-point)
+      (copy-point-2d-to pre-point new-point)
       (incf-vector new-point speed)
       (geometry.compute-bounding-sphere)
       (setf geometry.vertices-need-update t))))
@@ -92,7 +101,7 @@
                dst))
       (let ((dummy (make-ecs-entity))
             (head (clone-point-2d lazer-pnt))
-            (next (clone-vector (get-entity-param lazer :pre-point)))
+            (next (clone-vector-2d (get-entity-param lazer :pre-point)))
             (mid (make-point-2d)))
         (calc-mid-pnt-f mid head next)
         (add-ecs-component-list
@@ -297,7 +306,7 @@
   (add-touch-move-callback
    (lambda (e)
      (let ((center (get-ecs-component 'point-2d player))
-           (diff-point (clone-vector *pre-touch-point*)))
+           (diff-point (clone-vector-2d *pre-touch-point*)))
        (setf *moved-by-touch-p* t)
        (update-vector-by-touch *pre-touch-point* e)
        (decf-vector diff-point *pre-touch-point*)
