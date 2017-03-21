@@ -83,27 +83,6 @@
 
 ;; --- for initialize --- ;;
 
-;; - stats -
-
-(defvar.ps *stats* nil)
-
-(defun.ps init-stats ()
-  (setf *stats* (new (-stats)))
-  (let ((stats *stats*))
-    (stats.set-mode 0)
-    (with-slots (position left top) stats.dom-element.style
-      (setf position "absolute")
-      (setf left "0px")
-      (setf top "0px"))
-    (chain (document.get-element-by-id "stats-output")
-           (append-child stats.dom-element))
-    stats))
-
-(defun.ps update-stats ()
-  (*stats*.update))
-
-;; - others -
-
 (defun.ps start-game (&key screen-width screen-height
                            (camera-offset-x 0) (camera-offset-y 0)
                            (init-function (lambda (scene) nil))
@@ -115,7 +94,10 @@
                  :camera (init-camera camera-offset-x camera-offset-y
                                       screen-width screen-height)
                  :rendered-dom (document.query-selector "#renderer")
-                 :init-function init-function
+                 :stats-dom (document.query-selector "#renderer")
+                 :init-function (lambda (scene)
+                                  (register-default-systems scene)
+                                  (funcall init-function scene))
                  :update-function update-function))
 
 ;; --- html --- ;;
