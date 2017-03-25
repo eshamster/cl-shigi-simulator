@@ -256,9 +256,9 @@
     (labels ((pad (str len)
                ;; easy impremetation
                ((@ (+ "      " str) slice) (* len -1))))
-      (push-log-text (+ (pad (get-entity-param part :display-name) 6) ":"
-                        (pad (floor (* frame-count 1000/60)) 4) "ms ("
-                        (pad frame-count 3) "F)")))))
+      (add-to-event-log (+ (pad (get-entity-param part :display-name) 6) ":"
+                           (pad (floor (* frame-count 1000/60)) 4) "ms ("
+                           (pad frame-count 3) "F)")))))
 
 (defun.ps register-nearest-part (player)
   (check-entity-tags player "player")
