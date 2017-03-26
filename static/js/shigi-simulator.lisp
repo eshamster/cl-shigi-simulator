@@ -75,18 +75,12 @@
   (make-sample-entities)
   (generate-color-grid))
 
-(defun.ps update ()
-  (clear-debug-area)
-  (process-input)
-  (ecs-main))
-
 (defun.ps main ()
   (start-game :camera-offset-x (get-param :play-area :x)
               :camera-offset-y (get-param :play-area :y)
               :screen-width screen-width
               :screen-height screen-height
-              :init-function init
-              :update-function update))
+              :init-function init))
 
 (defun js-main ()
   (with-use-ps-pack (:cl-shigi-simulator.static.js.tools

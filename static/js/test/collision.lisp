@@ -89,11 +89,11 @@
     (labels ((calc-dist (pnt1 pnt2)
                (let ((dist (calc-dist-to-line mouse-pnt pnt1 pnt2)))
                  (dist.to-fixed 2))))
-      (append-debug-text (+ "to blue-line="
-                            (calc-dist (car *test-line-pnts*)
-                                       (cadr *test-line-pnts*))))
-      (append-debug-text (+ "to x-axis=" (calc-dist hor-pnt-1 hor-pnt-2)))
-      (append-debug-text (+ "to y-axis=" (calc-dist ver-pnt-1 ver-pnt-2))))))
+      (add-to-monitoring-log (+ "to blue-line="
+                                (calc-dist (car *test-line-pnts*)
+                                           (cadr *test-line-pnts*))))
+      (add-to-monitoring-log (+ "to x-axis=" (calc-dist hor-pnt-1 hor-pnt-2)))
+      (add-to-monitoring-log (+ "to y-axis=" (calc-dist ver-pnt-1 ver-pnt-2))))))
 
 ;; --- test dist-to-line-seg --- ;;
 (defvar.ps+ *test-line-seg-pnts* (list (make-vector-2d :x #y800 :y #y500)
@@ -111,9 +111,9 @@
     (labels ((calc-dist (pnt1 pnt2)
                (let ((dist (calc-dist-to-line-seg mouse-pnt pnt1 pnt2)))
                  (dist.to-fixed 2))))
-      (append-debug-text (+ "to cyan-line-seg"
-                            (calc-dist (car *test-line-seg-pnts*)
-                                       (cadr *test-line-seg-pnts*)))))))
+      (add-to-monitoring-log (+ "to cyan-line-seg"
+                                (calc-dist (car *test-line-seg-pnts*)
+                                           (cadr *test-line-seg-pnts*)))))))
 
 (defun.ps make-mouse-pointer ()
   (let ((pointer (make-ecs-entity))
@@ -133,7 +133,8 @@
      (make-physic-circle :r r
                          :on-collision (lambda (mine target)
                                          (with-slots (tags) target
-                                           (append-debug-text (+ "Collies to " (car tags)))))))
+                                           (add-to-monitoring-log
+                                            (+ "Collies to " (car tags)))))))
     (add-ecs-entity pointer)))
 
 (defun.ps init (scene)
@@ -150,16 +151,10 @@
   
   (refresh-entity-display))
 
-(defun.ps update ()
-  (clear-debug-area)
-  (process-input)
-  (ecs-main))
-
 (defun.ps main ()
   (start-game :screen-width screen-width
               :screen-height screen-height
-              :init-function init
-              :update-function update))
+              :init-function init))
 
 (defun js-main ()
   (with-use-ps-pack (:cl-shigi-simulator.static.js.tools

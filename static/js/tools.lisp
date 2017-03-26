@@ -95,6 +95,8 @@
                                       screen-width screen-height)
                  :rendered-dom (document.query-selector "#renderer")
                  :stats-dom (document.query-selector "#renderer")
+                 :monitoring-log-dom (document.query-selector "#debug")
+                 :event-log-dom (document.query-selector "#log")
                  :init-function (lambda (scene)
                                   (register-default-systems scene)
                                   (funcall init-function scene))
@@ -132,31 +134,3 @@
                                 :html component.constructor.name
                                 :class '("component" "tree"))))
             (tree.append-child component-div)))))))
-
-;; --- debug write --- ;;
-
-(defvar.ps *debug-area* nil)
-
-(defun.ps clear-debug-area ()
-  (setf *debug-area* (document.query-selector "#debug"))
-  (setf #j.*debug-area*.innerHTML# "Debug: "))
-
-(defun.ps append-debug-text (text)
-  (when *debug-area*
-    (incf #j.*debug-area*.innerHTML# (+ text "<br>"))))
-
-(defvar.ps+ *log-area* nil)
-(defvar.ps+ *log-text-list* '())
-(defvar.ps+ *max-log-count* 5)
-
-(defun.ps push-log-text (text)
-  (unless *log-area*
-    (setf *log-area* (document.query-selector "#log")))
-  (push text *log-text-list*)
-  (when (> (length *log-text-list*) *max-log-count*)
-    (setf *log-text-list* (subseq *log-text-list* 0 *max-log-count*)))
-  (let ((log ""))
-    ;; A newer log comes to upper.
-    (dolist (one-line *log-text-list*)
-      (setf log (+ log one-line "<br>")))
-    (setf #j.*log-area*.innerHTML# log)))
