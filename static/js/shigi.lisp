@@ -49,6 +49,8 @@
     (toggle-shigi-part shigi-part)))
 
 (defun.ps+ shigi-part-valid-p (shigi-part)
+  (unless shigi-part
+    (return-from shigi-part-valid-p nil))
   (check-shigi-part shigi-part)
   (get-entity-param shigi-part :enable))
 

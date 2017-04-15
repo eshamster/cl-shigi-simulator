@@ -43,7 +43,8 @@
                  (:file "basic-ecs" :depends-on ("tools"))
                  (:file "tools")
                  (:file "shigi" :depends-on ("basic-ecs" "tools"))
-                 (:file "player" :depends-on ("basic-ecs" "tools" "shigi"))
+                 (:file "lazer" :depends-on ("basic-ecs" "tools" "shigi"))
+                 (:file "player" :depends-on ("basic-ecs" "tools" "shigi" "lazer"))
                  (:file "color-chip" :depends-on ("basic-ecs" "tools" "shigi"))
                  (:file "shigi-simulator"
                         :depends-on ("utils" "basic-ecs" "tools"))))
