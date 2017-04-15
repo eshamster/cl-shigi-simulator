@@ -23,7 +23,8 @@
 
 (defun.ps+ change-lazer-state (lazer next-state
                                      &optional (state (get-entity-param lazer :lazer-state)))
-  (funcall (lazer-state-end-process state) lazer)
+  (when state
+    (funcall (lazer-state-end-process state) lazer))
   (funcall (lazer-state-start-process next-state) lazer)
   (set-entity-param lazer :lazer-state next-state))
 
@@ -70,7 +71,14 @@
   (make-lazer-state
    :start-process
    (lambda (lazer)
-     (delete-ecs-component-type 'physic-2d lazer))))
+     (delete-ecs-component-type 'physic-2d lazer))
+   :process
+   (lambda (lazer)
+     (let ((duration (get-entity-param lazer :duration-after-stop)))
+       (when (<= duration 0)
+         (set-entity-param lazer :hitp t))
+       (set-entity-param lazer :duration-after-stop (1- duration)))
+     nil)))
 
 ;; --- --- ;;
 
@@ -91,8 +99,7 @@
   (adjust-to-target now target speed))
 
 (defun.ps+ turn-lazer-to-target (lazer)
-  (unless (or (get-entity-param lazer :stop-homing-p)
-              (null (get-entity-param lazer :target)))
+  (unless (null (get-entity-param lazer :target))
     (let* ((speed-2d (get-lazer-speed lazer))
            (target (get-entity-param lazer :target))
            (now-angle (vector-angle speed-2d))
@@ -146,9 +153,7 @@
                       (when (= max-duration 0)
                         (set-entity-param entity :hitp t))
                       (set-entity-param entity kind (1- max-duration)))))
-           (process-duration :max-duration)
-           (when (get-entity-param entity :stop-homing-p)
-             (process-duration :duration-after-stop))))
+           (process-duration :max-duration)))
         (t (let ((duration (get-entity-param entity :duration)))
              (when (< duration 0)
                (delete-ecs-entity entity))
@@ -183,7 +188,6 @@
 (defun.ps process-lazer-collision (mine target)
   (let ((true-target (get-entity-param mine :target)))
     (when (and true-target
-               (not (get-entity-param mine :stop-homing-p))
                (= (ecs-entity-id target)
                   (ecs-entity-id true-target)))
       (let ((speed-2d (get-lazer-speed mine)))
@@ -216,9 +220,6 @@
            (make-model-2d :model (make-lines :pnt-list pnt-list :color 0xff0000)
                           :depth (get-param :lazer :depth))
            (make-script-2d :func #'(lambda (entity)
-                                     (let ((target (get-entity-param entity :target)))
-                                       (unless (shigi-part-valid-p target)
-                                         (set-entity-param entity :stop-homing-p t)))
                                      (process-lazer-state lazer)
                                      (update-lazer-points entity)
                                      (process-lazer-duration entity)))
@@ -226,7 +227,6 @@
                                :target-tags '("shigi-part"))
            (init-entity-params :duration num-pnts
                                :hitp nil
-                               :stop-homing-p nil
                                :duration-after-stop 30
                                :max-duration 600
                                :pre-point (make-vector-2d :x first-x :y first-y)
