@@ -23,6 +23,7 @@
 
 (defun.ps+ change-lazer-state (lazer next-state
                                      &optional (state (get-entity-param lazer :lazer-state)))
+  (check-type next-state lazer-state)
   (when state
     (funcall (lazer-state-end-process state) lazer))
   (funcall (lazer-state-start-process next-state) lazer)
@@ -32,7 +33,6 @@
   (let* ((state (get-entity-param lazer :lazer-state))
          (next-state (funcall (lazer-state-process state) lazer)))
     (when next-state
-      (check-type next-state lazer-state)
       (change-lazer-state lazer next-state state))))
 
 (defun.ps+ make-lazer-start-state (&key left-p first-speed rot-speed min-time)
@@ -75,10 +75,26 @@
    :process
    (lambda (lazer)
      (let ((duration (get-entity-param lazer :duration-after-stop)))
+       (set-entity-param lazer :duration-after-stop (1- duration))
        (when (<= duration 0)
-         (set-entity-param lazer :hitp t))
-       (set-entity-param lazer :duration-after-stop (1- duration)))
-     nil)))
+         (make-lazer-stop-state))))))
+
+(defun.ps+ make-lazer-stop-state ()
+  (make-lazer-state
+   :start-process
+   (lambda (lazer)
+     (register-next-frame-func
+      (lambda () (delete-ecs-component-type 'physic-2d lazer)))
+     (let ((speed-2d (get-lazer-speed lazer)))
+       (setf (vector-2d-x speed-2d) 0
+             (vector-2d-y speed-2d) 0)))
+   :process
+   (lambda (lazer)
+     (let ((duration (get-entity-param lazer :duration)))
+       (when (< duration 0)
+         (delete-ecs-entity lazer))
+       (set-entity-param lazer :duration (1- duration))
+       nil))))
 
 ;; --- --- ;;
 
@@ -145,19 +161,12 @@
       (geometry.compute-bounding-sphere)
       (setf geometry.vertices-need-update t))))
 
-(defun.ps process-lazer-duration (entity)
+(defun.ps+ process-lazer-duration (entity)
   (check-entity-tags "lazer")
-  (cond ((not (get-entity-param entity :hitp))
-         (labels ((process-duration (kind)
-                    (let ((max-duration (get-entity-param entity kind)))
-                      (when (= max-duration 0)
-                        (set-entity-param entity :hitp t))
-                      (set-entity-param entity kind (1- max-duration)))))
-           (process-duration :max-duration)))
-        (t (let ((duration (get-entity-param entity :duration)))
-             (when (< duration 0)
-               (delete-ecs-entity entity))
-             (set-entity-param entity :duration (1- duration))))))
+  (let ((max-duration (get-entity-param entity :max-duration)))
+    (when (= max-duration 0)
+      (change-lazer-state entity (make-lazer-stop-state)))
+    (set-entity-param entity :max-duration (1- max-duration))))
 
 (defun.ps adjust-collision-point (lazer target)
   (check-entity-tags lazer "lazer")
@@ -190,11 +199,8 @@
     (when (and true-target
                (= (ecs-entity-id target)
                   (ecs-entity-id true-target)))
-      (let ((speed-2d (get-lazer-speed mine)))
-        (setf speed-2d.x 0
-              speed-2d.y 0))
-      (adjust-collision-point mine target)
-      (set-entity-param mine :hitp t))))
+     (adjust-collision-point mine target)
+     (change-lazer-state mine (make-lazer-stop-state)))))
 
 ;; The base angle of first-angle is the angle of (0, -1)
 (defun.ps make-lazer (&key left-p player target first-angle first-offset)
@@ -226,7 +232,6 @@
            (make-physic-circle :r 0 :on-collision #'process-lazer-collision
                                :target-tags '("shigi-part"))
            (init-entity-params :duration num-pnts
-                               :hitp nil
                                :duration-after-stop 30
                                :max-duration 600
                                :pre-point (make-vector-2d :x first-x :y first-y)
