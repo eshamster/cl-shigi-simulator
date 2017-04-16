@@ -45,29 +45,6 @@
   (when *player*
     (set-entity-param *player* :lazer-triggered-p t)))
 
-(defun.ps shot-lazer (player)
-  (check-entity-tags player "player")
-  (when (get-entity-param *player* :lazer-triggered-p)
-    (set-entity-param *player* :lazer-triggered-p nil)
-    (let* ((pnt (calc-global-point player))
-           (target (get-nearest-shigi-part pnt))
-           (min-angle (get-param :all-lazer :min-angle))
-           (max-angle (get-param :all-lazer :max-angle))
-           (half-num (get-param :all-lazer :half-num))
-           (offset-x (get-param :all-lazer :first-offset :x))
-           (offset-y (get-param :all-lazer :first-offset :y)))
-      (dotimes (i (get-param :all-lazer :half-num))
-        (let ((angle (lerp-scalar min-angle max-angle
-                                  (/ i (1- half-num)))))
-          (dolist (leftp '(t nil))
-            (add-ecs-entity-to-buffer
-             (make-lazer :player player
-                         :target target
-                         :left-p leftp
-                         :first-angle (* angle (if leftp -1 1))
-                         :first-offset (make-vector-2d :x (* offset-x (if leftp -1 1))
-                                                       :y offset-y)))))))))
-
 (defun.ps move-player (player)
   (let ((speed (get-param :player :speed))
         (r (get-param :player :body-r)))
@@ -126,7 +103,8 @@
                                (control-player player)
                                (move-player player)
                                (register-nearest-part player)
-                               (shot-lazer player)))
+                               (when (get-entity-param *player* :lazer-triggered-p)
+                                 (shot-lazers player))))
      (init-entity-params :lazer-triggered-p nil
                          :nearest-part-register (make-nearest-part-register)))
     body))
