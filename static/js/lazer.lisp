@@ -103,7 +103,7 @@
 (defun.ps+ get-lazer-speed (lazer)
   (get-entity-param lazer :speed))
 
-(defun.ps+ angle-to-target (lazer target)
+(defun.ps+ calc-angle-to-target (lazer target)
   (let ((lazer-pnt (calc-global-point lazer))
         (target-pnt (calc-global-point target)))
     (vector-angle (decf-vector (clone-vector-2d target-pnt) lazer-pnt))))
@@ -137,7 +137,7 @@
     (let* ((speed-2d (get-lazer-speed lazer))
            (target (get-entity-param lazer :target))
            (now-angle (vector-angle speed-2d))
-           (target-angle (angle-to-target lazer target)))
+           (target-angle (calc-angle-to-target lazer target)))
       (adjust-lazer-speed speed-2d (- target-angle now-angle))
       (setf-vector-angle speed-2d
                          (adjust-to-target-angle
