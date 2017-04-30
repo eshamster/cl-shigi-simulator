@@ -5,8 +5,8 @@ RUN apk add --no-cache --virtual=for-prepare git && \
     git clone https://github.com/eshamster/cl-shigi-simulator.git && \
     cd cl-shigi-simulator && \
     ros run -e '(ql:update-all-dists :prompt nil)' -q && \
-    ros install qlot && \
-    qlot install && \
+    ros install qlot
+RUN qlot install && \
     apk del for-prepare
 
 RUN ros run -e '(ql:register-local-projects)' -e '(ql:quickload :cl-shigi-simulator)' -q
