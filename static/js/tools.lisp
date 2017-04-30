@@ -54,7 +54,7 @@
               :tail-length 16
               :rot-speed (* PI 12/180))
       :lazer-state (:start (:time 8))
-      :all-lazer (:min-speed #y25
+      :lazer-maker (:min-speed #y25
                   :max-speed #y32
                   :min-angle (* PI -5/180)
                   :max-angle (* PI 85/180)
