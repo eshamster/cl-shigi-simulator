@@ -52,7 +52,10 @@
                :body-r #y7)
       :lazer (:depth 70
               :tail-length 16
-              :rot-speed (* PI 12/180))
+              :rot-speed (* PI 12/180)
+              :min-speed #y10
+              :max-speed #y45
+              :accell #y3)
       :lazer-state (:start (:time 8))
       :lazer-maker (:min-speed #y25
                   :max-speed #y32

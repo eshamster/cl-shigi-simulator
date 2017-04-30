@@ -108,13 +108,29 @@
         (target-pnt (calc-global-point target)))
     (vector-angle (decf-vector (clone-vector-2d target-pnt) lazer-pnt))))
 
-(defun.ps+ adjust-to-target-angle (now target speed)
+(defun.ps+ adjust-angle-in-range (angle)
+  (cond ((> angle PI)
+         (adjust-angle-in-range (- angle (* 2 PI))))
+        ((< angle (* -1 PI))
+         (adjust-angle-in-range (+ angle (* 2 PI))))
+        (t angle)))
+
+(defun.ps+ adjust-lazer-speed (speed-2d diff-angle)
+  (let ((abs-speed (vector-abs speed-2d))
+        (accell (get-param :lazer :accell)))
+    (setf-vector-abs
+     speed-2d
+     (if (< (abs (adjust-angle-in-range diff-angle)) (get-param :lazer :rot-speed))
+         (min (+ abs-speed accell) (get-param :lazer :max-speed))
+         (max (- abs-speed accell) (get-param :lazer :min-speed))))))
+
+(defun.ps+ adjust-to-target-angle (now target rot-speed)
   (let ((diff (- target now)))
     (when (> diff PI)
       (decf target (* 2 PI)))
     (when (< diff (* -1 PI))
       (incf target (* 2 PI))))
-  (adjust-to-target now target speed))
+  (adjust-to-target now target rot-speed))
 
 (defun.ps+ turn-lazer-to-target (lazer)
   (unless (null (get-entity-param lazer :target))
@@ -122,6 +138,7 @@
            (target (get-entity-param lazer :target))
            (now-angle (vector-angle speed-2d))
            (target-angle (angle-to-target lazer target)))
+      (adjust-lazer-speed speed-2d (- target-angle now-angle))
       (setf-vector-angle speed-2d
                          (adjust-to-target-angle
                           now-angle target-angle
