@@ -1,4 +1,4 @@
-FROM eshamster/cl-base:2.2
+FROM eshamster/cl-base:2.2B
 
 RUN apk add --no-cache --virtual=for-prepare git && \
     cd ${HOME}/.roswell/local-projects && \
