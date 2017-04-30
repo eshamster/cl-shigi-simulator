@@ -57,7 +57,18 @@
            (make-lazer-first-homing-state left-p)
            (make-lazer-to-dummy-state))))))
 
-(defun.ps+ make-lazer-first-homing-state (left-p)
+(defun.ps+ make-lazer-first-homing-state (leftp)
+  "This only can rotate to one direction (right or left)."
+  (make-lazer-state
+   :process
+   (lambda (lazer)
+     (if (shigi-part-valid-p (get-entity-param lazer :target))
+         (when (turn-lazer-to-target-first lazer leftp)
+           (make-lazer-homing-state))
+         (make-lazer-lost-state)))))
+
+(defun.ps+ make-lazer-homing-state ()
+  "This can rotate to any direction (right or left)."
   (make-lazer-state
    :process
    (lambda (lazer)
@@ -131,6 +142,31 @@
     (when (< diff (* -1 PI))
       (incf target (* 2 PI))))
   (adjust-to-target now target rot-speed))
+
+(defun.ps+ adjust-to-target-angle-first (now target rot-speed leftp)
+  (labels ((adjust-target-angle (angle)
+             (if leftp
+                 (if (< now angle)
+                     (adjust-target-angle (- angle (* 2 PI)))
+                     angle)
+                 (if (> now angle)
+                     (adjust-target-angle (+ angle (* 2 PI)))
+                     angle))))
+    (adjust-to-target now (adjust-target-angle target) rot-speed)))
+
+(defun.ps+ turn-lazer-to-target-first (lazer leftp)
+  "Note: return t if the angle become same to the target angle"
+  (unless (null (get-entity-param lazer :target))
+    (let* ((speed-2d (get-lazer-speed lazer))
+           (target (get-entity-param lazer :target))
+           (now-angle (vector-angle speed-2d))
+           (target-angle (calc-angle-to-target lazer target))
+           (new-angle (adjust-to-target-angle-first
+                          now-angle target-angle
+                          (get-param :lazer :rot-speed) leftp)))
+      (adjust-lazer-speed speed-2d (- target-angle now-angle))
+      (setf-vector-angle speed-2d new-angle)
+      (= target-angle new-angle))))
 
 (defun.ps+ turn-lazer-to-target (lazer)
   (unless (null (get-entity-param lazer :target))
