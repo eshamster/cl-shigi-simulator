@@ -35,14 +35,16 @@
     (when next-state
       (change-lazer-state lazer next-state state))))
 
-(defun.ps+ make-lazer-start-state (&key left-p first-speed rot-speed min-time)
+(defun.ps+ make-lazer-start-state (&key left-p first-speed first-angle rot-speed min-time)
   (make-lazer-state
    :start-process
    (lambda (lazer)
      (let ((speed (get-lazer-speed lazer)))
        (setf (vector-2d-x speed) first-speed)
        (setf (vector-2d-y speed) 0)
-       (setf-vector-angle speed (* -1 PI))))
+       (setf-vector-angle speed (+ (* -1/2 PI)
+                                   (* (if left-p -1 1)
+                                      first-angle)))))
    :process
    (lambda (lazer)
      (let ((speed (get-lazer-speed lazer)))
@@ -123,7 +125,7 @@
       (setf-vector-angle speed-2d
                          (adjust-to-target-angle
                           now-angle target-angle
-                          (get-param :lazer :max-rot-speed)))))
+                          (get-param :lazer :rot-speed)))))
   nil)
 
 (defun.ps get-lazer-geometry (lazer)
@@ -203,17 +205,15 @@
      (change-lazer-state mine (make-lazer-stop-state)))))
 
 ;; The base angle of first-angle is the angle of (0, -1)
-(defun.ps make-a-lazer (&key left-p player target first-angle first-offset)
+(defun.ps make-a-lazer (&key left-p player target first-angle first-speed first-offset)
   (check-entity-tags player "player")
   (check-type first-offset vector-2d)
   (when target
     (check-entity-tags target "shigi-part"))
   (let ((lazer (make-ecs-entity))
         (num-pnts (get-param :lazer :tail-length))
-        (first-speed (make-speed-2d :x (get-param :lazer :max-speed)))
         (pnt-list '()))
     (add-entity-tag lazer "lazer")
-    (setf-vector-angle first-speed (- first-angle (/ PI 2)))
     (with-ecs-components (point-2d) player
       (with-slots (x y) point-2d
         (dotimes (i num-pnts)
@@ -233,15 +233,17 @@
                                :target-tags '("shigi-part"))
            (init-entity-params :duration num-pnts
                                :duration-after-stop 30
-                               :max-duration 600
+                               :max-duration 300
                                :pre-point (make-vector-2d :x first-x :y first-y)
-                               :speed first-speed
                                :target target
-                               :lazer-state (make-lazer-start-state
-                                             :left-p left-p
-                                             :first-speed (vector-abs first-speed)
-                                             :rot-speed (/ PI 32)
-                                             :min-time 8))))))
+                               :speed (make-speed-2d)
+                               :lazer-state nil))
+          (change-lazer-state lazer (make-lazer-start-state
+                                     :left-p left-p
+                                     :first-speed first-speed
+                                     :first-angle first-angle
+                                     :rot-speed (get-param :lazer :rot-speed)
+                                     :min-time (get-param :lazer-state :start :time))))))
     lazer))
 
 (defun.ps shot-lazers (player)
@@ -249,19 +251,24 @@
   (set-entity-param player :lazer-triggered-p nil)
   (let* ((pnt (calc-global-point player))
          (target (get-nearest-shigi-part pnt))
+         (min-speed (get-param :all-lazer :min-speed))
+         (max-speed (get-param :all-lazer :max-speed))
          (min-angle (get-param :all-lazer :min-angle))
          (max-angle (get-param :all-lazer :max-angle))
          (half-num (get-param :all-lazer :half-num))
          (offset-x (get-param :all-lazer :first-offset :x))
          (offset-y (get-param :all-lazer :first-offset :y)))
     (dotimes (i (get-param :all-lazer :half-num))
-      (let ((angle (lerp-scalar min-angle max-angle
+      (let ((speed (lerp-scalar min-speed max-speed
+                                (/ i (1- half-num))))
+            (angle (lerp-scalar min-angle max-angle
                                 (/ i (1- half-num)))))
         (dolist (leftp '(t nil))
           (add-ecs-entity-to-buffer
            (make-a-lazer :player player
                          :target target
                          :left-p leftp
-                         :first-angle (* angle (if leftp -1 1))
+                         :first-speed speed
+                         :first-angle angle
                          :first-offset (make-vector-2d :x (* offset-x (if leftp -1 1))
                                                        :y offset-y))))))))

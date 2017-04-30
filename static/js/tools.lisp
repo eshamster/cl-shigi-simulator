@@ -52,12 +52,15 @@
                :body-r #y7)
       :lazer (:depth 70
               :tail-length 16
-              :max-speed #y45
-              :max-rot-speed (* PI 28/180))
-      :all-lazer (:min-angle (* PI 10/180)
-                  :max-angle (* PI 50/180)
-                  :half-num 6
-                  :first-offset (:x #y35 :y 0))
+              :rot-speed (* PI 12/180))
+      :lazer-state (:start (:time 8))
+      :all-lazer (:min-speed #y25
+                  :max-speed #y32
+                  :min-angle (* PI -5/180)
+                  :max-angle (* PI 85/180)
+                  :half-num 5
+                  :first-offset (:x #y35 :y 0)
+                  :dummy-target1 (:x #y70 :y #y70))
       :shigi (:depth 50
               :color #x112222
               :marker-color #x666666
