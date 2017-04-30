@@ -10,7 +10,8 @@
                 :defvar.ps
                 :with-use-ps-pack) 
   (:import-from :cl-ps-ecs
-                :with-ecs-components)
+                :with-ecs-components
+                :do-ecs-entities)
   (:import-from :cl-shigi-simulator.static.js.tools
                 :get-param))
 (in-package :cl-shigi-simulator.static.js.shigi-simulator)
@@ -75,12 +76,20 @@
   (make-sample-entities)
   (generate-color-grid))
 
+(defun.ps update ()
+  (add-to-monitoring-log (+ "Entity count: "
+                            (let ((sum 0))
+                              (do-ecs-entities entity
+                                (incf sum))
+                              sum))))
+
 (defun.ps main ()
   (start-game :camera-offset-x (get-param :play-area :x)
               :camera-offset-y (get-param :play-area :y)
               :screen-width screen-width
               :screen-height screen-height
-              :init-function init))
+              :init-function init
+              :update-function update))
 
 (defun js-main ()
   (with-use-ps-pack (:cl-shigi-simulator.static.js.tools
