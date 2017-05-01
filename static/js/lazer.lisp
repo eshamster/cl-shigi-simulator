@@ -35,7 +35,7 @@
     (when next-state
       (change-lazer-state lazer next-state state))))
 
-(defun.ps+ make-lazer-start-state (&key left-p first-speed first-angle rot-speed min-time)
+(defun.ps+ make-lazer-start-state (&key left-p first-speed first-angle min-time)
   (make-lazer-state
    :start-process
    (lambda (lazer)
@@ -49,7 +49,7 @@
    (lambda (lazer)
      (when (get-entity-param lazer :dummy-target)
        (when (turn-lazer-to-target-first
-              lazer(get-entity-param lazer :dummy-target) left-p)
+              lazer (get-entity-param lazer :dummy-target) left-p)
          (set-entity-param lazer :dummy-target nil)))
      (decf min-time)
      (when (<= min-time 0)
@@ -303,7 +303,6 @@
                                      :left-p left-p
                                      :first-speed first-speed
                                      :first-angle first-angle
-                                     :rot-speed (get-param :lazer :rot-speed)
                                      :min-time (get-param :lazer-state :start :time))))))
     lazer))
 
