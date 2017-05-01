@@ -57,13 +57,13 @@
               :max-speed #y45
               :accell #y3)
       :lazer-state (:start (:time 8))
-      :lazer-maker (:min-speed #y25
+      :lazer-maker (:min-speed #y20
                   :max-speed #y32
                   :min-angle (* PI -5/180)
                   :max-angle (* PI 85/180)
                   :half-num 5
                   :first-offset (:x #y35 :y 0)
-                  :dummy-target1 (:x #y150 :y #y75))
+                  :dummy-target1 (:x #y225 :y #y112))
       :shigi (:depth 50
               :color #x112222
               :marker-color #x666666
