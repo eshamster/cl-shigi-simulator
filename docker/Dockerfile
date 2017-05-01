@@ -4,12 +4,11 @@ RUN apk add --no-cache --virtual=for-prepare git && \
     cd ${HOME}/.roswell/local-projects && \
     git clone https://github.com/eshamster/cl-shigi-simulator.git && \
     cd cl-shigi-simulator && \
-    ros run -e '(ql:update-all-dists :prompt nil)' -q && \
-    ros install qlot
+    ros install ccl-bin && \
+    ros use ccl-bin
 RUN cd ${HOME}/.roswell/local-projects/cl-shigi-simulator && \
-    qlot install && \
+    ros run -e '(ql:update-all-dists :prompt nil)' -e '(ql:quickload :qlot)' -e '(qlot:install)' -q && \
     apk del for-prepare
-    
 
 RUN ros run -e '(ql:register-local-projects)' -e '(ql:quickload :cl-shigi-simulator)' -q
 
