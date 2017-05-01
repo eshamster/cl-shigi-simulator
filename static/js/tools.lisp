@@ -63,7 +63,7 @@
                   :max-angle (* PI 85/180)
                   :half-num 5
                   :first-offset (:x #y35 :y 0)
-                  :dummy-target1 (:x #y70 :y #y70))
+                  :dummy-target1 (:x #y150 :y #y75))
       :shigi (:depth 50
               :color #x112222
               :marker-color #x666666
