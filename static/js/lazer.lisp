@@ -92,8 +92,8 @@
         speed-2d
         (min (+ (vector-abs speed-2d) (get-param :lazer :accell))
              (get-param :lazer :max-speed))))
-     (let ((duration (get-entity-param lazer :duration-after-stop)))
-       (set-entity-param lazer :duration-after-stop (1- duration))
+     (let ((duration (get-entity-param lazer :duration-after-lost)))
+       (set-entity-param lazer :duration-after-lost (1- duration))
        (when (<= duration 0)
          (make-lazer-stop-state))))))
 
@@ -108,10 +108,10 @@
              (vector-2d-y speed-2d) 0)))
    :process
    (lambda (lazer)
-     (let ((duration (get-entity-param lazer :duration)))
+     (let ((duration (get-entity-param lazer :duration-after-stop)))
        (when (< duration 0)
          (delete-ecs-entity lazer))
-       (set-entity-param lazer :duration (1- duration))
+       (set-entity-param lazer :duration-after-stop (1- duration))
        nil))))
 
 ;; --- --- ;;
@@ -289,8 +289,8 @@
                                      (process-lazer-duration entity)))
            (make-physic-circle :r 0 :on-collision #'process-lazer-collision
                                :target-tags '("shigi-part"))
-           (init-entity-params :duration num-pnts
-                               :duration-after-stop 30
+           (init-entity-params :duration-after-stop num-pnts
+                               :duration-after-lost 30
                                :max-duration 300
                                :pre-point (make-vector-2d :x first-x :y first-y)
                                :target target
