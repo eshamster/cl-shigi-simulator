@@ -83,11 +83,7 @@
      (delete-ecs-component-type 'physic-2d lazer))
    :process
    (lambda (lazer)
-     (let ((speed-2d (get-lazer-speed lazer)))
-       (setf-vector-abs
-        speed-2d
-        (min (+ (vector-abs speed-2d) (get-param :lazer :accell))
-             (get-param :lazer :max-speed))))
+     (accell-lazer-speed lazer (get-param :lazer :accell))
      (let ((duration (get-entity-param lazer :duration-after-lost)))
        (set-entity-param lazer :duration-after-lost (1- duration))
        (when (<= duration 0)
@@ -115,6 +111,14 @@
 (defun.ps+ get-lazer-speed (lazer)
   (get-entity-param lazer :speed))
 
+(defun.ps+ accell-lazer-speed (lazer accell)
+  (let ((speed-2d (get-lazer-speed lazer)))
+    (setf-vector-abs
+     speed-2d
+     (max (min (+ (vector-abs speed-2d) accell)
+               (get-param :lazer :max-speed))
+          (get-param :lazer :min-speed)))))
+
 (defun.ps+ calc-angle-to-target (lazer target)
   (let ((lazer-pnt (calc-global-point lazer))
         (target-pnt (calc-global-point target)))
@@ -127,14 +131,13 @@
          (adjust-angle-in-range (+ angle (* 2 PI))))
         (t angle)))
 
-(defun.ps+ adjust-lazer-speed (speed-2d diff-angle)
-  (let ((abs-speed (vector-abs speed-2d))
-        (accell (get-param :lazer :accell)))
-    (setf-vector-abs
-     speed-2d
-     (if (< (abs (adjust-angle-in-range diff-angle)) (get-param :lazer :rot-speed))
-         (min (+ abs-speed accell) (get-param :lazer :max-speed))
-         (max (- abs-speed accell) (get-param :lazer :min-speed))))))
+(defun.ps+ adjust-lazer-speed (lazer diff-angle)
+  (accell-lazer-speed
+   lazer
+   (* (get-param :lazer :accell)
+      (if (< (abs (adjust-angle-in-range diff-angle))
+             (get-param :lazer :rot-speed))
+          1 -1))))
 
 (defun.ps+ adjust-to-target-angle (now target rot-speed)
   (let ((diff (- target now)))
@@ -164,7 +167,7 @@
            (new-angle (adjust-to-target-angle-first
                           now-angle target-angle
                           (get-param :lazer :rot-speed) leftp)))
-      (adjust-lazer-speed speed-2d (- target-angle now-angle))
+      (adjust-lazer-speed lazer (- target-angle now-angle))
       (setf-vector-angle speed-2d new-angle)
       (= target-angle new-angle))))
 
@@ -174,7 +177,7 @@
            (target (get-entity-param lazer :target))
            (now-angle (vector-angle speed-2d))
            (target-angle (calc-angle-to-target lazer target)))
-      (adjust-lazer-speed speed-2d (- target-angle now-angle))
+      (adjust-lazer-speed lazer (- target-angle now-angle))
       (setf-vector-angle speed-2d
                          (adjust-to-target-angle
                           now-angle target-angle
