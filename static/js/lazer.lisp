@@ -87,6 +87,11 @@
      (delete-ecs-component-type 'physic-2d lazer))
    :process
    (lambda (lazer)
+     (let ((speed-2d (get-lazer-speed lazer)))
+       (setf-vector-abs
+        speed-2d
+        (min (+ (vector-abs speed-2d) (get-param :lazer :accell))
+             (get-param :lazer :max-speed))))
      (let ((duration (get-entity-param lazer :duration-after-stop)))
        (set-entity-param lazer :duration-after-stop (1- duration))
        (when (<= duration 0)
