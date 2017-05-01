@@ -47,10 +47,15 @@
                                       first-angle)))))
    :process
    (lambda (lazer)
-     (when (get-entity-param lazer :dummy-target)
-       (when (turn-lazer-to-target-first
-              lazer (get-entity-param lazer :dummy-target) left-p)
-         (set-entity-param lazer :dummy-target nil)))
+     (flet ((turn-lazer (target-name)
+              (turn-lazer-to-target-first
+               lazer (get-entity-param lazer target-name) left-p nil)))
+       (if (get-entity-param lazer :dummy-target)
+           (when (turn-lazer :dummy-target)
+             (set-entity-param lazer :dummy-target nil))
+           (when (shigi-part-valid-p (get-entity-param lazer :target))
+             (accell-lazer-speed lazer (get-param :lazer :accell))
+             (turn-lazer :target))))
      (decf min-time)
      (when (<= min-time 0)
        (if (shigi-part-valid-p (get-entity-param lazer :target))
@@ -158,7 +163,7 @@
                      angle))))
     (adjust-to-target now (adjust-target-angle target) rot-speed)))
 
-(defun.ps+ turn-lazer-to-target-first (lazer target leftp)
+(defun.ps+ turn-lazer-to-target-first (lazer target leftp &optional (change-speed-p t))
   "Note: return t if the angle become same to the target angle"
   (unless (null target)
     (let* ((speed-2d (get-lazer-speed lazer))
@@ -167,7 +172,8 @@
            (new-angle (adjust-to-target-angle-first
                           now-angle target-angle
                           (get-param :lazer :rot-speed) leftp)))
-      (adjust-lazer-speed lazer (- target-angle now-angle))
+      (when change-speed-p
+        (adjust-lazer-speed lazer (- target-angle now-angle)))
       (setf-vector-angle speed-2d new-angle)
       (= target-angle new-angle))))
 
