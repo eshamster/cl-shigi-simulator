@@ -2,7 +2,9 @@
 (defpackage cl-shigi-simulator.static.js.shigi-simulator
   (:use :cl
         :cl-ppcre
-        :parenscript)
+        :parenscript
+        :cl-ps-ecs
+        :ps-experiment)
   (:import-from :ps-experiment.common-macros
                 :setf-with)
   (:import-from :ps-experiment
