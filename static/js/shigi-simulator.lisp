@@ -93,6 +93,8 @@
               :init-function init
               :update-function update))
 
+(defvar.ps+ *max-event-log-count* 10)
+
 (defun js-main ()
   (with-use-ps-pack (:cl-shigi-simulator.static.js.tools
                      :cl-shigi-simulator.static.js.shigi
