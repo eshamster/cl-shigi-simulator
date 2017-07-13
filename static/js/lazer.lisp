@@ -14,6 +14,8 @@
 
 (enable-ps-experiment-syntax)
 
+(defvar.ps+ *enable-lazer-debug* nil)
+
 ;; --- lazer state --- ;;
 
 (defstruct.ps+ lazer-state
@@ -267,6 +269,65 @@
      (adjust-collision-point mine target)
      (change-lazer-state mine (make-lazer-stop-state)))))
 
+(defun.ps+ check-first-lazer-angle (first-angle
+                                    dummy-pnt
+                                    start-pnt
+                                    radious
+                                    formed-angle-of-tangential-line)
+  "Check if the calculated first lazer angle meets some conditions"
+  ;; In the following note, a circle that is a trajectory of a lazer started from "start-pnt" and
+  ;; whose radious is "radious" is imagined.
+  ;; The "pnt" is the intersection point of two tangential lines. (A tangential line touches to
+  ;; the circle at the "start-pnt", and another one should pass through the "dummy-pnt".) Then,
+  ;; check if the "pnt" nears to start-pnt than dummy-pnt or not. If so, the lazer can pass
+  ;; dummy-pnt by the angle "dummy-angle" (this is an argument of calc-first-lazer-angle).
+  ;; Otherwize, it can't because the line from "pnt" to "dummy-pnt" is not a tangential line.
+  (let* ((len-to-pnt (/ radious
+                        (tan (/ formed-angle-of-tangential-line 2))))
+         (pnt (make-vector-2d
+               :x (+ (vector-2d-x start-pnt)
+                     (* len-to-pnt (cos first-angle)))
+               :y (+ (vector-2d-y start-pnt)
+                     (* len-to-pnt (sin first-angle))))))
+    (when *enable-lazer-debug*
+      (let ((player (find-a-entity-by-tag "player")))
+        (draw-debug-point-by-time :point pnt
+                                  :parent player)
+        (draw-debug-line-by-time :point1 pnt
+                                 :point2 dummy-pnt
+                                 :parent player)
+        (draw-debug-line-by-time :point1 pnt
+                                 :point2 start-pnt
+                                 :parent player)))
+    (add-to-event-log (calc-dist-p2 pnt start-pnt))
+    (add-to-event-log (calc-dist-p2 pnt dummy-pnt))
+    (<= (calc-dist-p2 pnt start-pnt)
+        (calc-dist-p2 pnt dummy-pnt))))
+
+(defun.ps+ calc-first-lazer-angle (dummy-pnt dummy-angle start-pnt
+                                   speed rot-speed)
+  "Caluclate first angle of a lazer. When the lazer starts from 'start-pnt' by the angle with
+'speed' and 'rot-speed' (axial speed), it passes throught 'dummy-pnt' at angle 'dummy-angle'."
+  (let* ((pnt-on-line (make-vector-2d
+                       :x (+ (vector-2d-x dummy-pnt)
+                             (cos dummy-angle))
+                       :y (+ (vector-2d-y dummy-pnt)
+                             (sin dummy-angle))))
+         (dist-to-line (calc-dist-to-line start-pnt
+                                          dummy-pnt pnt-on-line))
+         (radious (/ speed rot-speed)))
+    (if (< (abs (- dist-to-line radious)) radious)
+        (let* ((temp (acos (/ (- dist-to-line radious) radious)))
+               (first-angle (* -1 (- PI temp dummy-angle))))
+          ;; The return value is an angle with reference to -PI/2
+          (if (check-first-lazer-angle
+               first-angle dummy-pnt start-pnt radious temp)
+              (- first-angle (* -1 (/ PI 2)))
+              PI ; error case
+              ))
+        PI ; error case
+        )))
+
 ;; The base angle of first-angle is the angle of (0, -1)
 (defun.ps make-a-lazer (&key left-p player target
                              first-angle first-speed first-offset
@@ -288,8 +349,8 @@
               (first-y (+ y (vector-2d-y first-offset))))
           (add-ecs-component-list
            dummy-target
-           (make-point-2d :x (+ first-x (vector-2d-x dummy-target-offset))
-                          :y (+ first-y (vector-2d-y dummy-target-offset))))
+           (make-point-2d :x (+ x (vector-2d-x dummy-target-offset))
+                          :y (+ y (vector-2d-y dummy-target-offset))))
           (add-ecs-component-list
            lazer
            (make-point-2d :x first-x :y first-y)
@@ -328,11 +389,17 @@
          (half-num (get-param :lazer-maker :half-num))
          (offset-x (get-param :lazer-maker :first-offset :x))
          (offset-y (get-param :lazer-maker :first-offset :y)))
-    (dotimes (i (get-param :lazer-maker :half-num))
-      (let ((speed (lerp-scalar min-speed max-speed
+    (dotimes (i half-num)
+      (let* ((speed (lerp-scalar min-speed max-speed
                                 (/ i (1- half-num))))
-            (angle (lerp-scalar min-angle max-angle
-                                (/ i (1- half-num)))))
+             (angle (calc-first-lazer-angle
+                     (make-vector-2d :x (get-param :lazer-maker :dummy-target1 :x)
+                                     :y (get-param :lazer-maker :dummy-target1 :y))
+                     (lerp-scalar max-angle min-angle
+                                  (/ i (1- half-num)))
+                     (make-vector-2d :x offset-x :y offset-y)
+                     speed
+                     (get-param :lazer :rot-speed))))
         (dolist (leftp '(t nil))
           (add-ecs-entity-to-buffer
            (make-a-lazer :player player
