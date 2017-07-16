@@ -37,7 +37,7 @@
     (when next-state
       (change-lazer-state lazer next-state state))))
 
-(defun.ps+ make-lazer-start-state (&key left-p first-speed first-angle min-time)
+(defun.ps+ make-lazer-start-state (&key rightp first-speed first-angle min-time)
   (make-lazer-state
    :start-process
    (lambda (lazer)
@@ -45,13 +45,13 @@
        (setf (vector-2d-x speed) first-speed)
        (setf (vector-2d-y speed) 0)
        (setf-vector-angle speed (+ (* -1/2 PI)
-                                   (* (if left-p -1 1)
+                                   (* (if rightp 1 -1)
                                       first-angle)))))
    :process
    (lambda (lazer)
      (flet ((turn-lazer (target-name)
               (turn-lazer-to-target-first
-               lazer (get-entity-param lazer target-name) left-p nil)))
+               lazer (get-entity-param lazer target-name) rightp nil)))
        (if (get-entity-param lazer :dummy-target)
            (when (turn-lazer :dummy-target)
              (set-entity-param lazer :dummy-target nil))
@@ -61,17 +61,17 @@
        (decf min-time)
        (when (<= min-time 0)
          (if (shigi-part-valid-p (get-entity-param lazer :target))
-             (make-lazer-first-homing-state left-p)
+             (make-lazer-first-homing-state rightp)
              (unless (get-entity-param lazer :dummy-target)
                (make-lazer-lost-state))))))))
 
-(defun.ps+ make-lazer-first-homing-state (leftp)
+(defun.ps+ make-lazer-first-homing-state (rightp)
   "This only can rotate to one direction (right or left)."
   (make-lazer-state
    :process
    (lambda (lazer)
      (if (shigi-part-valid-p (get-entity-param lazer :target))
-         (when (turn-lazer-to-target-first lazer (get-entity-param lazer :target) leftp)
+         (when (turn-lazer-to-target-first lazer (get-entity-param lazer :target) rightp)
            (make-lazer-homing-state))
          (make-lazer-lost-state)))))
 
@@ -155,18 +155,18 @@
       (incf target (* 2 PI))))
   (adjust-to-target now target rot-speed))
 
-(defun.ps+ adjust-to-target-angle-first (now target rot-speed leftp)
+(defun.ps+ adjust-to-target-angle-first (now target rot-speed rightp)
   (labels ((adjust-target-angle (angle)
-             (if leftp
-                 (if (< now angle)
-                     (adjust-target-angle (- angle (* 2 PI)))
-                     angle)
+             (if rightp
                  (if (> now angle)
                      (adjust-target-angle (+ angle (* 2 PI)))
+                     angle)
+                 (if (< now angle)
+                     (adjust-target-angle (- angle (* 2 PI)))
                      angle))))
     (adjust-to-target now (adjust-target-angle target) rot-speed)))
 
-(defun.ps+ turn-lazer-to-target-first (lazer target leftp &optional (change-speed-p t))
+(defun.ps+ turn-lazer-to-target-first (lazer target rightp &optional (change-speed-p t))
   "Note: return t if the angle become same to the target angle"
   (unless (null target)
     (let* ((speed-2d (get-lazer-speed lazer))
@@ -174,7 +174,7 @@
            (target-angle (calc-angle-to-target lazer target))
            (new-angle (adjust-to-target-angle-first
                           now-angle target-angle
-                          (get-param :lazer :rot-speed) leftp)))
+                          (get-param :lazer :rot-speed) rightp)))
       (when change-speed-p
         (adjust-lazer-speed lazer (- target-angle now-angle)))
       (setf-vector-angle speed-2d new-angle)
@@ -329,7 +329,7 @@
         )))
 
 ;; The base angle of first-angle is the angle of (0, -1)
-(defun.ps make-a-lazer (&key left-p player target
+(defun.ps make-a-lazer (&key rightp player target
                              first-angle first-speed first-offset
                              dummy-target-offset)
   (check-entity-tags player "player")
@@ -371,7 +371,7 @@
                                :speed (make-speed-2d)
                                :lazer-state nil))
           (change-lazer-state lazer (make-lazer-start-state
-                                     :left-p left-p
+                                     :rightp rightp
                                      :first-speed first-speed
                                      :first-angle first-angle
                                      :min-time (get-param :lazer-state :start :time))))))
@@ -400,15 +400,15 @@
                      (make-vector-2d :x offset-x :y offset-y)
                      speed
                      (get-param :lazer :rot-speed))))
-        (dolist (leftp '(t nil))
+        (dolist (rightp '(t nil))
           (add-ecs-entity-to-buffer
            (make-a-lazer :player player
                          :target target
-                         :left-p leftp
+                         :rightp rightp
                          :first-speed speed
                          :first-angle angle
-                         :first-offset (make-vector-2d :x (* offset-x (if leftp -1 1))
+                         :first-offset (make-vector-2d :x (* offset-x (if rightp 1 -1))
                                                        :y offset-y)
                          :dummy-target-offset (make-vector-2d
-                                               :x (* (get-param :lazer-maker :dummy-target1 :x) (if leftp -1 1))
+                                               :x (* (get-param :lazer-maker :dummy-target1 :x) (if rightp 1 -1))
                                                :y (get-param :lazer-maker :dummy-target1 :y)))))))))
