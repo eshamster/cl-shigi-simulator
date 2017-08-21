@@ -78,7 +78,7 @@
                                      (vector-2d-y (car *test-line-pnts*)))
                         :pos-b (list (vector-2d-x (cadr *test-line-pnts*))
                                      (vector-2d-y (cadr *test-line-pnts*)))
-                        :color 0x0000ff :z 1)))
+                        :color 0x0000ff)))
 
 (defun.ps test-dist-line (mouse-x mouse-y)
   (let ((hor-pnt-1 (make-vector-2d :x #y1333 :y #y500))
@@ -104,7 +104,7 @@
                                      (vector-2d-y (car *test-line-seg-pnts*)))
                         :pos-b (list (vector-2d-x (cadr *test-line-seg-pnts*))
                                      (vector-2d-y (cadr *test-line-seg-pnts*)))
-                        :color 0x00ffff :z 1)))
+                        :color 0x00ffff)))
 
 (defun.ps test-dist-line-seg (mouse-x mouse-y)
   (let ((mouse-pnt (make-vector-2d :x mouse-x :y mouse-y)))
@@ -138,8 +138,8 @@
     (add-ecs-entity pointer)))
 
 (defun.ps init (scene)
-  (scene.add (make-line :pos-a (list #y1333 #y500) :pos-b (list 0 #y500) :color 0x00ff00 :z 1))
-  (scene.add (make-line :pos-a (list #y666 #y0) :pos-b (list #y666 #y1000) :color 0x00ff00 :z 1))
+  (scene.add (make-line :pos-a (list #y1333 #y500) :pos-b (list 0 #y500) :color 0x00ff00))
+  (scene.add (make-line :pos-a (list #y666 #y0) :pos-b (list #y666 #y1000) :color 0x00ff00))
   ;; for test of calc-dist-to-line
   (make-test-line-for-calc-dist-to-line scene)
   (make-test-line-seg-for-calc-dist-to-line-seg scene)

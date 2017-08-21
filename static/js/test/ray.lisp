@@ -21,7 +21,7 @@
     (add-ecs-component-list
      pointer
      (make-point-2d :center (make-vector-2d :x r :y r))
-     (make-model-2d :model (make-lines :pnt-list init-pnt-list :color 0xff0000 :z 1)
+     (make-model-2d :model (make-lines :pnt-list init-pnt-list :color 0xff0000)
                     :depth 1)
      (make-script-2d :func (lambda (entity)
                              (with-ecs-components (model-2d) entity
@@ -40,8 +40,8 @@
     (add-ecs-entity pointer)))
 
 (defun.ps init (scene)
-  (scene.add (make-line :pos-a (list #y1333 #y500) :pos-b (list 0 #y500) :color 0x00ff00 :z 1))
-  (scene.add (make-line :pos-a (list #y666 #y0) :pos-b (list #y666 #y1000) :color 0x00ff00 :z 1))
+  (scene.add (make-line :pos-a (list #y1333 #y500) :pos-b (list 0 #y500) :color 0x00ff00))
+  (scene.add (make-line :pos-a (list #y666 #y0) :pos-b (list #y666 #y1000) :color 0x00ff00))
     
   (make-mouse-pointer)
   (refresh-entity-display))

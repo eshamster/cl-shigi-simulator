@@ -47,9 +47,9 @@
   (let ((width (get-param :play-area :width))
         (height (get-param :play-area :height)))
     (scene.add (make-line :pos-a (list width (/ height 2)) :pos-b (list 0 (/ height 2))
-                          :color 0x00ff00 :z 1))
+                          :color 0x00ff00))
     (scene.add (make-line :pos-a (list (/ width 2) 0) :pos-b (list (/ width 2) height)
-                          :color 0x00ff00 :z 1))))
+                          :color 0x00ff00))))
 
 (defun.ps add-frame-to-scene (scene)
   (let ((area-width (get-param :play-area :width))
