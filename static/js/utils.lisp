@@ -58,12 +58,12 @@
                        :if-exists :supersede
                        :if-does-not-exist :create)
     (format t "(re-)load js: ~A" name)
-    (format out
-            (funcall (intern "JS-MAIN"
-                             (string-upcase
-                              (concatenate 'string
-                                           "cl-shigi-simulator.static.js."
-                                           name)))))))
+    (princ (funcall (intern "JS-MAIN"
+                            (string-upcase
+                             (concatenate 'string
+                                          "cl-shigi-simulator.static.js."
+                                          name))))
+           out)))
 
 (defun load-js (js-name &key (base-path nil))
   (check-type js-name keyword)
