@@ -100,5 +100,5 @@
                      :cl-shigi-simulator.static.js.color-chip
                      :cl-shigi-simulator.static.js.basic-ecs
                      :this)
-    (initialize-input)
+    (init-input)
     (window.add-event-listener "DOMContentLoaded" main false))) 
