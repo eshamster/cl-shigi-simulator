@@ -19,7 +19,6 @@
      circle
      (make-point-2d :x #y300 :y #y600)
      (make-model-2d :model (make-wired-regular-polygon :n 60 :color 0xff0000 :r r)
-                    :offset (make-vector-2d :x (* -1 r) :y (* -1 r))
                     :depth 1)
      (make-physic-circle :r r))
     (add-ecs-entity circle)))
@@ -122,7 +121,6 @@
      pointer
      (make-point-2d)
      (make-model-2d :model (make-wired-regular-polygon :n 60 :color 0xff0000 :r r)
-                    :offset (make-vector-2d :x (* -1 r) :y (* -1 r))
                     :depth 1)
      (make-script-2d :func (lambda (entity)
                              (with-ecs-components (point-2d) entity

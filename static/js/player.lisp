@@ -25,7 +25,7 @@
      (make-model-2d :model (make-wired-regular-polygon :r r :n 100
                                                        :color (get-param :player :color))
                  :depth (get-param :player :depth))
-     (make-point-2d :x (* r -1) :y (* r -1)))
+     (make-point-2d :x 0 :y 0))
     ring))
 
 (defun.ps make-player-body ()
@@ -36,7 +36,7 @@
      (make-model-2d :model (make-solid-regular-polygon :r r :n 100
                                                        :color (get-param :player :color))
                     :depth (get-param :player :depth))
-     (make-point-2d :x (* r -1) :y (* r -1)))
+     (make-point-2d :x 0 :y 0))
     body))
 
 (defvar.ps+ *player* nil)

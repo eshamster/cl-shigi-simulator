@@ -86,7 +86,6 @@
     (dotimes (i num-bit)
       (let* ((bit (make-ecs-entity))
              (angle (* 2 PI i (/ 1 num-bit)))
-             (model-offset (make-vector-2d :x (* -1 r) :y (* -1 r) :angle 0))
              (point (make-point-2d)))
         (movef-vector-to-circle point dist angle)
         (add-entity-tag bit "shigi-part" "shigi-bit")
@@ -94,8 +93,7 @@
          bit
          (make-model-2d :model (make-wired-regular-polygon :r r :n 100
                                                            :color (get-param :shigi :color))
-                        :depth (get-param :shigi :depth)
-                        :offset model-offset)
+                        :depth (get-param :shigi :depth))
          (make-physic-circle :r r
                              :on-collision #'toggle-shigi-part-by-mouse
                              :target-tags *shigi-collision-targets*)
