@@ -7,7 +7,7 @@
         :cl-web-2d-game
         :cl-shigi-simulator.static.js.tools 
         :cl-ps-ecs)
-  (:import-from :ps-experiment.common-macros
+  (:import-from :ps-experiment/common-macros
                 :with-slots-pair))
 (in-package :cl-shigi-simulator.static.js.test.ray)
 

@@ -40,8 +40,8 @@
                (:module "static/js"
                 :components
                 ((:file "utils")
-                 (:file "basic-ecs" :depends-on ("tools"))
-                 (:file "tools")
+                 (:file "basic-ecs")
+                 (:file "tools" :depends-on ("basic-ecs"))
                  (:file "shigi" :depends-on ("basic-ecs" "tools"))
                  (:file "lazer" :depends-on ("basic-ecs" "tools" "shigi"))
                  (:file "player" :depends-on ("basic-ecs" "tools" "shigi" "lazer"))

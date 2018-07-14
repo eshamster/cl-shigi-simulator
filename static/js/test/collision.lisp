@@ -23,29 +23,6 @@
      (make-physic-circle :r r))
     (add-ecs-entity circle)))
 
-;; --- test col-ct --- ;;
-
-(defvar.ps+ *test-tri-pnts* (list (make-vector-2d :x #y-100 :y #y100)
-                                  (make-vector-2d :x #y200 :y #y-100)
-                                  (make-vector-2d :x #y100 :y #y300)))
-
-(defun.ps make-triangle ()
-  (let ((triangle (make-ecs-entity)))
-    (add-entity-tag triangle "triangle")
-    (add-ecs-component-list
-     triangle
-     (make-point-2d :x #y550 :y #y500)
-     (make-model-2d :model (make-wired-polygon
-                            :pnt-list (mapcar #'(lambda (vec) (with-slots (x y) vec (list x y)))
-                                              *test-tri-pnts*)
-                            :color 0xff4444)
-                    :depth 1)
-     (make-rotate-2d :speed (/ PI 240))
-     (make-physic-triangle :pnt1 (nth 0 *test-tri-pnts*)
-                           :pnt2 (nth 1 *test-tri-pnts*)
-                           :pnt3 (nth 2 *test-tri-pnts*)))
-    (add-ecs-entity triangle)))
-
 ;; --- test col-cp --- ;;
 
 (defvar.ps+ *test-polygon-pnts* (list (make-vector-2d :x #y-100 :y #y100)
@@ -144,7 +121,6 @@
     
   (make-mouse-pointer)
   (make-circle)
-  (make-triangle)
   (make-polygon)
   
   (refresh-entity-display))
