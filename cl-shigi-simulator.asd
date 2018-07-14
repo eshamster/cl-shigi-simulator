@@ -50,8 +50,7 @@
                         :depends-on ("utils" "basic-ecs" "tools"))))
                (:module "static/js/test" 
                 :components
-                ((:file "collision")
-                 (:file "ray"))
+                ((:file "ray"))
                 :depends-on ("static/js"))
                (:module "templates"
                 :components
