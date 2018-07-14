@@ -9,7 +9,8 @@
         :cl-shigi-simulator.static.js.lazer
         :cl-shigi-simulator.static.js.shigi
         :cl-shigi-simulator.static.js.tools)
-  (:import-from :ps-experiment.common-macros
+  (:export :make-player)
+  (:import-from :ps-experiment/common-macros
                 :with-slots-pair))
 (in-package :cl-shigi-simulator.static.js.player)
 

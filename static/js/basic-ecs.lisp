@@ -5,7 +5,8 @@
         :ps-experiment
         :cl-ps-ecs
         :cl-web-2d-game
-        :parenscript))
+        :parenscript)
+  (:export :register-default-systems))
 (in-package :cl-shigi-simulator.static.js.basic-ecs)
 
 (enable-ps-experiment-syntax)

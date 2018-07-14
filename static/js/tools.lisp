@@ -8,7 +8,12 @@
         :parenscript)
   (:export :create-html-element
            :get-param
-           :with-trace))
+           :with-trace
+           :start-game
+           :shigi-screen-width
+           :shigi-screen-height)
+  (:import-from :cl-shigi-simulator.static.js.basic-ecs
+                :register-default-systems))
 (in-package :cl-shigi-simulator.static.js.tools)
 
 (enable-ps-experiment-syntax)
@@ -16,8 +21,8 @@
 ;; --- about screensize --- ;;
 
 (eval-when (:execute :compile-toplevel :load-toplevel)
-  (defvar.ps+ screen-width 800)
-  (defvar.ps+ screen-height 600)
+  (defvar.ps+ shigi-screen-width 800)
+  (defvar.ps+ shigi-screen-height 600)
   ;; width : height = 3 : 4
   (defvar.ps+ play-area-height 570)
   (defvar.ps+ play-area-width (/ (* play-area-height 3) 4))
@@ -34,7 +39,7 @@
        (declare (ignore rest))
        (case (peek-char nil stream)
          (#\s (read-char stream)
-            `(calc-absolute-length ,(read stream) screen-height))
+            `(calc-absolute-length ,(read stream) shigi-screen-height))
          (t `(calc-absolute-length ,(read stream) play-area-height))))))
 
 ;; --- global parameters --- ;;
@@ -93,7 +98,6 @@
                            (camera-offset-x 0) (camera-offset-y 0)
                            (init-function (lambda (scene) nil))
                            (update-function (lambda () nil)))
-  (init-stats)
   (init-gui)
   (start-2d-game :screen-width screen-width
                  :screen-height screen-height

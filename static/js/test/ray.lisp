@@ -7,7 +7,7 @@
         :cl-web-2d-game
         :cl-shigi-simulator.static.js.tools 
         :cl-ps-ecs)
-  (:import-from :ps-experiment.common-macros
+  (:import-from :ps-experiment/common-macros
                 :with-slots-pair))
 (in-package :cl-shigi-simulator.static.js.test.ray)
 
@@ -42,19 +42,16 @@
 (defun.ps init (scene)
   (scene.add (make-line :pos-a (list #y1333 #y500) :pos-b (list 0 #y500) :color 0x00ff00))
   (scene.add (make-line :pos-a (list #y666 #y0) :pos-b (list #y666 #y1000) :color 0x00ff00))
-    
-  (make-mouse-pointer)
-  (refresh-entity-display))
+  (make-mouse-pointer))
 
 (defun.ps main ()
-  (start-game :screen-width screen-width
-              :screen-height screen-height
+  (start-game :screen-width shigi-screen-width
+              :screen-height shigi-screen-height
               :init-function init))
 
 (defun js-main ()
   (with-use-ps-pack (:cl-shigi-simulator.static.js.tools
                      :cl-shigi-simulator.static.js.basic-ecs
                      :this)
-    (window.add-event-listener "mousemove" on-mouse-move-event)
-    (window.add-event-listener "keydown" (lambda (e) (e.prevent-default)))
+    (init-input)
     (window.add-event-listener "DOMContentLoaded" main false))) 
