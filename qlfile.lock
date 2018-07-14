@@ -1,25 +1,25 @@
 ("quicklisp" .
  (:class qlot.source.ql:source-ql-all
   :initargs (:project-name "quicklisp" :%version :latest)
-  :version "2017-04-03"))
+  :version "2018-07-11"))
 ("ps-experiment" .
  (:class qlot.source.github:source-github
   :initargs (:project-name "ps-experiment" :repos "eshamster/ps-experiment" :ref nil :branch nil :tag nil)
-  :version "github-afee5bd6f03b688f7cef0bef323157261f4c4e19"
+  :version "github-72431c145b94df9703780a55e10b90ae78b03dc7"
   :repos "eshamster/ps-experiment"
-  :url "https://github.com/eshamster/ps-experiment/archive/afee5bd6f03b688f7cef0bef323157261f4c4e19.tar.gz"
-  :ref "afee5bd6f03b688f7cef0bef323157261f4c4e19"))
+  :url "https://github.com/eshamster/ps-experiment/archive/72431c145b94df9703780a55e10b90ae78b03dc7.tar.gz"
+  :ref "72431c145b94df9703780a55e10b90ae78b03dc7"))
 ("cl-ps-ecs" .
  (:class qlot.source.github:source-github
   :initargs (:project-name "cl-ps-ecs" :repos "eshamster/cl-ps-ecs" :ref nil :branch nil :tag nil)
-  :version "github-c0d2001fb19952aa9d7244b2f1fa237ac3f69ed2"
+  :version "github-162eb35372d55ada3a2b58d80e004d7130c5462e"
   :repos "eshamster/cl-ps-ecs"
-  :url "https://github.com/eshamster/cl-ps-ecs/archive/c0d2001fb19952aa9d7244b2f1fa237ac3f69ed2.tar.gz"
-  :ref "c0d2001fb19952aa9d7244b2f1fa237ac3f69ed2"))
+  :url "https://github.com/eshamster/cl-ps-ecs/archive/162eb35372d55ada3a2b58d80e004d7130c5462e.tar.gz"
+  :ref "162eb35372d55ada3a2b58d80e004d7130c5462e"))
 ("cl-web-2d-game" .
  (:class qlot.source.github:source-github
   :initargs (:project-name "cl-web-2d-game" :repos "eshamster/cl-web-2d-game" :ref nil :branch nil :tag nil)
-  :version "github-033bd70484f3c0a33194990163cd945085333fde"
+  :version "github-8830bbbc72d887433702f3796e89d789903716c1"
   :repos "eshamster/cl-web-2d-game"
-  :url "https://github.com/eshamster/cl-web-2d-game/archive/033bd70484f3c0a33194990163cd945085333fde.tar.gz"
-  :ref "033bd70484f3c0a33194990163cd945085333fde"))
+  :url "https://github.com/eshamster/cl-web-2d-game/archive/8830bbbc72d887433702f3796e89d789903716c1.tar.gz"
+  :ref "8830bbbc72d887433702f3796e89d789903716c1"))
