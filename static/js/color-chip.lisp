@@ -8,7 +8,8 @@
         :cl-web-2d-game
         :cl-shigi-simulator.static.js.shigi
         :cl-shigi-simulator.static.js.tools)
-  (:import-from :ps-experiment.common-macros
+  (:export :generate-color-grid)
+  (:import-from :ps-experiment/common-macros
                 :with-slots-pair))
 (in-package :cl-shigi-simulator.static.js.color-chip)
 

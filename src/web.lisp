@@ -29,9 +29,6 @@
 (defroute "/shigi" ()
   (render :shigi))
 
-(defroute "/test/collision" ()
-  (render :test-collision))
-
 (defroute "/test/ray" ()
   (render :test-ray))
 

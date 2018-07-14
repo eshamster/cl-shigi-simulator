@@ -7,11 +7,12 @@
         :parenscript
         :cl-web-2d-game
         :cl-shigi-simulator.static.js.tools)
-  (:import-from :ps-experiment.common-macros
+  (:import-from :ps-experiment/common-macros
                 :with-slots-pair)
   (:export :shigi-part-valid-p
            :make-shigi-part-point-pairs
-           :get-nearest-shigi-part))
+           :get-nearest-shigi-part
+           :make-shigi))
 (in-package :cl-shigi-simulator.static.js.shigi)
 
 (enable-ps-experiment-syntax)
@@ -86,7 +87,6 @@
     (dotimes (i num-bit)
       (let* ((bit (make-ecs-entity))
              (angle (* 2 PI i (/ 1 num-bit)))
-             (model-offset (make-vector-2d :x (* -1 r) :y (* -1 r) :angle 0))
              (point (make-point-2d)))
         (movef-vector-to-circle point dist angle)
         (add-entity-tag bit "shigi-part" "shigi-bit")
@@ -94,8 +94,7 @@
          bit
          (make-model-2d :model (make-wired-regular-polygon :r r :n 100
                                                            :color (get-param :shigi :color))
-                        :depth (get-param :shigi :depth)
-                        :offset model-offset)
+                        :depth (get-param :shigi :depth))
          (make-physic-circle :r r
                              :on-collision #'toggle-shigi-part-by-mouse
                              :target-tags *shigi-collision-targets*)
@@ -112,9 +111,9 @@
 
 (defun.ps rotate-shigi-body (body)
   "The rotation of the shigi body is like a swing of a pendulum. The center of the gravity is the point of the player (only the difference of the angle affects. the distance doesn't). Then, the max rotation speed and the max rotation acceleration is limitted by constant numbers."
-  (with-ecs-components (rotate-2d point-2d) body
+  (with-ecs-components (rotate-2d (body-point point-2d)) body
     (with-slots-pair ((speed) rotate-2d
-                      (angle) point-2d)
+                      (angle) body-point)
       (let ((center (find-a-entity-by-tag "shigi-center")))
         (if (get-entity-param center :body-rotate-p)
             (let* ((player (find-a-entity-by-tag "player"))

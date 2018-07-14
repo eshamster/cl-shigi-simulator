@@ -2,32 +2,48 @@
 (defpackage cl-shigi-simulator.static.js.shigi-simulator
   (:use :cl
         :cl-ppcre
-        :parenscript)
-  (:import-from :ps-experiment.common-macros
+        :parenscript
+        :cl-ps-ecs
+        :ps-experiment
+        :cl-web-2d-game/core/basic-components
+        :cl-web-2d-game/core/initializer
+        :cl-web-2d-game/graphics/2d-geometry
+        :cl-web-2d-game/graphics/draw-model-system
+        :cl-web-2d-game/inputs/input
+        :cl-web-2d-game/physics/collision
+        :cl-web-2d-game/utils/debug/logger)
+  (:import-from :ps-experiment/common-macros
                 :setf-with)
   (:import-from :ps-experiment
                 :defun.ps
                 :defvar.ps
-                :with-use-ps-pack) 
+                :with-use-ps-pack)
   (:import-from :cl-ps-ecs
                 :with-ecs-components
                 :do-ecs-entities)
+  (:import-from :cl-shigi-simulator.static.js.color-chip
+                :generate-color-grid)
+  (:import-from :cl-shigi-simulator.static.js.player
+                :make-player)
+  (:import-from :cl-shigi-simulator.static.js.shigi
+                :make-shigi)
   (:import-from :cl-shigi-simulator.static.js.tools
-                :get-param))
+                :get-param
+                :start-game
+                :shigi-screen-width
+                :shigi-screen-height))
 (in-package :cl-shigi-simulator.static.js.shigi-simulator)
 
 (defun.ps make-mouse-pointer ()
   (let* ((pointer (make-ecs-entity))
-         (r 5)
-         (model-offset (make-point-2d :x (* -1 r) :y (* -1 r))))
+         (r 5))
     (add-entity-tag pointer "mouse")
     (add-ecs-component-list
      pointer
      (make-point-2d)
      (make-model-2d :model (make-wired-regular-polygon :n 60 :r r
                                                        :color (get-param :cursor :color))
-                    :depth 1
-                    :offset model-offset)
+                    :depth 1)
      (make-script-2d :func (lambda (entity)
                              (with-ecs-components (point-2d) entity
                                (setf point-2d.x (get-mouse-x))
@@ -45,9 +61,9 @@
   (let ((width (get-param :play-area :width))
         (height (get-param :play-area :height)))
     (scene.add (make-line :pos-a (list width (/ height 2)) :pos-b (list 0 (/ height 2))
-                          :color 0x00ff00 :z 1))
+                          :color 0x00ff00))
     (scene.add (make-line :pos-a (list (/ width 2) 0) :pos-b (list (/ width 2) height)
-                          :color 0x00ff00 :z 1))))
+                          :color 0x00ff00))))
 
 (defun.ps add-frame-to-scene (scene)
   (let ((area-width (get-param :play-area :width))
@@ -63,12 +79,12 @@
                                  :depth 999)
                   (make-point-2d :x (- x offset-x) :y (- y offset-y)))
                  (add-ecs-entity frame))))
-      (add-rect 0 0 screen-width offset-y)
-      (add-rect 0 0 offset-x screen-height)
+      (add-rect 0 0 shigi-screen-width offset-y)
+      (add-rect 0 0 offset-x shigi-screen-height)
       (let ((offset (+ offset-y area-height)))
-        (add-rect 0 offset screen-width (- screen-height offset)))
+        (add-rect 0 offset shigi-screen-width (- shigi-screen-height offset)))
       (let ((offset (+ offset-x area-width)))
-        (add-rect offset 0 (- screen-width offset) screen-height)))))
+        (add-rect offset 0 (- shigi-screen-width offset) shigi-screen-height)))))
 
 (defun.ps init (scene)
   (add-axis-to-scene scene)
@@ -86,17 +102,14 @@
 (defun.ps main ()
   (start-game :camera-offset-x (get-param :play-area :x)
               :camera-offset-y (get-param :play-area :y)
-              :screen-width screen-width
-              :screen-height screen-height
+              :screen-width shigi-screen-width
+              :screen-height shigi-screen-height
               :init-function init
               :update-function update))
 
+(defvar.ps+ *max-event-log-count* 10)
+
 (defun js-main ()
-  (with-use-ps-pack (:cl-shigi-simulator.static.js.tools
-                     :cl-shigi-simulator.static.js.shigi
-                     :cl-shigi-simulator.static.js.player
-                     :cl-shigi-simulator.static.js.color-chip
-                     :cl-shigi-simulator.static.js.basic-ecs
-                     :this)
-    (initialize-input)
+  (with-use-ps-pack (:this)
+    (init-input)
     (window.add-event-listener "DOMContentLoaded" main false))) 
