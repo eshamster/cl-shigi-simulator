@@ -50,21 +50,19 @@
                                       first-angle)))))
    :process
    (lambda (lazer)
-     (flet ((turn-lazer (target-name)
-              (turn-lazer-to-target-first
-               lazer (get-entity-param lazer target-name) rightp nil)))
-       (if (get-entity-param lazer :dummy-target)
-           (when (turn-lazer :dummy-target)
-             (set-entity-param lazer :dummy-target nil))
-           (when (shigi-part-valid-p (get-entity-param lazer :target))
-             (accell-lazer-speed lazer (get-param :lazer :accell))
-             (turn-lazer :target)))
-       (decf min-time)
-       (when (<= min-time 0)
-         (if (shigi-part-valid-p (get-entity-param lazer :target))
-             (make-lazer-first-homing-state rightp)
-             (unless (get-entity-param lazer :dummy-target)
-               (make-lazer-lost-state))))))))
+     (flet ((turn-lazer (target)
+              (turn-lazer-to-target-first lazer target rightp nil)))
+       (let* ((target (get-entity-param lazer :target))
+              (target-valid-p (shigi-part-valid-p target))
+              (dummy-target (get-entity-param lazer :dummy-target)))
+         (when (and dummy-target (turn-lazer dummy-target))
+           (set-entity-param lazer :dummy-target nil))
+         (decf min-time)
+         (when (<= min-time 0)
+           (if target-valid-p
+               (make-lazer-first-homing-state rightp)
+               (unless dummy-target
+                 (make-lazer-lost-state)))))))))
 
 (defun.ps+ make-lazer-first-homing-state (rightp)
   "This only can rotate to one direction (right or left)."

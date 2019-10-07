@@ -61,7 +61,7 @@
               :min-speed #y10
               :max-speed #y45
               :accell #y3)
-      :lazer-state (:start (:time 8))
+      :lazer-state (:start (:time 4))
       :lazer-maker (:min-speed #y15
                   :max-speed #y30
                   :min-angle (* PI 60/180)
