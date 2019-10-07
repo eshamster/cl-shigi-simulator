@@ -34,20 +34,20 @@
                 :shigi-screen-height))
 (in-package :cl-shigi-simulator.static.js.shigi-simulator)
 
-(defun.ps make-mouse-pointer ()
+(defun.ps+ make-mouse-pointer ()
   (let* ((pointer (make-ecs-entity))
          (r 5))
     (add-entity-tag pointer "mouse")
     (add-ecs-component-list
      pointer
      (make-point-2d)
-     (make-model-2d :model (make-wired-regular-polygon :n 60 :r r
-                                                       :color (get-param :cursor :color))
+     (make-model-2d :model (make-wired-circle :r r
+                                              :color (get-param :cursor :color))
                     :depth 1)
      (make-script-2d :func (lambda (entity)
                              (with-ecs-components (point-2d) entity
-                               (setf point-2d.x (get-mouse-x))
-                               (setf point-2d.y (get-mouse-y)))))
+                               (setf (point-2d-x point-2d) (get-mouse-x))
+                               (setf (point-2d-y point-2d) (get-mouse-y)))))
      (make-physic-circle :r r
                          :target-tags '("shigi-part")))
     (add-ecs-entity pointer)))
