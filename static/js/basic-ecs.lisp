@@ -19,7 +19,7 @@
                (target-component-types '(point-2d speed-2d))
                (process (lambda (entity)
                           (with-ecs-components (point-2d speed-2d) entity
-                            (incf-vector point-2d speed-2d)))))))
+                            (incf-vector-2d point-2d speed-2d)))))))
 
 (defstruct.ps+
     (rotate-system

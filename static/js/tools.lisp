@@ -94,9 +94,13 @@
 
 ;; --- for initialize --- ;;
 
+(defun.ps+ default-init-function (scene)
+  (declare (ignore scene))
+  nil)
+
 (defun.ps start-game (&key screen-width screen-height
                            (camera-offset-x 0) (camera-offset-y 0)
-                           (init-function (lambda (scene) nil))
+                           (init-function #'default-init-function)
                            (update-function (lambda () nil)))
   (init-gui)
   (start-2d-game :screen-width screen-width
