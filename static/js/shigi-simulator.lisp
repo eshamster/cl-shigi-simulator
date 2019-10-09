@@ -11,6 +11,7 @@
         :cl-web-2d-game/graphics/draw-model-system
         :cl-web-2d-game/inputs/input
         :cl-web-2d-game/physics/collision
+        :cl-web-2d-game/physics/collision-system
         :cl-web-2d-game/utils/debug/logger)
   (:import-from :ps-experiment/common-macros
                 :setf-with)
@@ -86,7 +87,8 @@
       (let ((offset (+ offset-x area-width)))
         (add-rect offset 0 (- shigi-screen-width offset) shigi-screen-height)))))
 
-(defun.ps init (scene)
+(defun.ps+ init (scene)
+  (setf-collider-model-enable nil)
   (add-axis-to-scene scene)
   (add-frame-to-scene scene)
   (make-sample-entities)
@@ -99,13 +101,13 @@
                                 (incf sum))
                               sum))))
 
-(defun.ps main ()
+(defun.ps+ main ()
   (start-game :camera-offset-x (get-param :play-area :x)
               :camera-offset-y (get-param :play-area :y)
               :screen-width shigi-screen-width
               :screen-height shigi-screen-height
-              :init-function init
-              :update-function update))
+              :init-function #'init
+              :update-function #'update))
 
 (defvar.ps+ *max-event-log-count* 10)
 
