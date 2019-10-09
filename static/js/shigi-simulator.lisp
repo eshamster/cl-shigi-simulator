@@ -58,15 +58,22 @@
   (make-shigi)
   (make-mouse-pointer))
 
-(defun.ps add-axis-to-scene (scene)
+(defun.ps+ add-axis-to-scene ()
   (let ((width (get-param :play-area :width))
-        (height (get-param :play-area :height)))
-    (scene.add (make-line :pos-a (list width (/ height 2)) :pos-b (list 0 (/ height 2))
-                          :color 0x00ff00))
-    (scene.add (make-line :pos-a (list (/ width 2) 0) :pos-b (list (/ width 2) height)
-                          :color 0x00ff00))))
+        (height (get-param :play-area :height))
+        (entity (make-ecs-entity)))
+    (add-ecs-component-list
+     entity
+     (make-point-2d)
+     (make-model-2d :model (make-line :pos-a (list width (/ height 2))
+                                      :pos-b (list 0 (/ height 2))
+                                      :color #x00ff00))
+     (make-model-2d :model (make-line :pos-a (list (/ width 2) 0)
+                                      :pos-b (list (/ width 2) height)
+                                      :color #x00ff00)))
+    (add-ecs-entity entity)))
 
-(defun.ps add-frame-to-scene (scene)
+(defun.ps+ add-frame-to-scene ()
   (let ((area-width (get-param :play-area :width))
         (area-height (get-param :play-area :height))
         (offset-x (get-param :play-area :x))
@@ -76,7 +83,7 @@
                  (add-ecs-component-list
                   frame
                   (make-model-2d :model (make-solid-rect :width width :height height
-                                                         :color 0x000000)
+                                                         :color #x000000)
                                  :depth 999)
                   (make-point-2d :x (- x offset-x) :y (- y offset-y)))
                  (add-ecs-entity frame))))
@@ -88,9 +95,10 @@
         (add-rect offset 0 (- shigi-screen-width offset) shigi-screen-height)))))
 
 (defun.ps+ init (scene)
+  (declare (ignore scene))
   (setf-collider-model-enable nil)
-  (add-axis-to-scene scene)
-  (add-frame-to-scene scene)
+  (add-axis-to-scene)
+  (add-frame-to-scene)
   (make-sample-entities)
   (generate-color-grid))
 
@@ -108,8 +116,6 @@
               :screen-height shigi-screen-height
               :init-function #'init
               :update-function #'update))
-
-(defvar.ps+ *max-event-log-count* 10)
 
 (defun js-main ()
   (with-use-ps-pack (:this)
