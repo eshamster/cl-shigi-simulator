@@ -36,11 +36,17 @@
                (:div :id "description"
                      ,@description)
                (:br)
-               (:div :id "stats-output")
+               (:div :id "stats-output" nil)
                (:div :id "renderer" nil)
-               (:div :id "debug" "(for Debug)")
-               (:div (:pre :id "log" "(for Log)"))
-               (:br)
-               (:div "Entityのリスト"
-                     (:dl :id "entity-tree"))
+               (dolist (id '("debug" "log"))
+                 (markup
+                  (:div
+                   :class "log-box"
+                   (:label :class "open-close-label"
+                           :id (format nil "open-close-label-~A" id)
+                           :for (format nil "open-close-~A" id) nil)
+                   (:input :class "open-close"
+                           :id (format nil "open-close-~A" id)
+                           :type "checkbox")
+                   (:div :class "log-panel" :id id "(Log Area)"))))
                ,@body)))))
