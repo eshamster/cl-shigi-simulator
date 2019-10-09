@@ -223,7 +223,7 @@
             (setf x1 x0 y1 y0))))
       (decf-offset-from-lazer-tails geometry (vector-2d-x speed) (vector-2d-y speed))
       (copy-point-2d-to pre-point new-point)
-      (incf-vector new-point speed)
+      (incf-2d-vector new-point speed)
       (geometry.compute-bounding-sphere)
       (setf geometry.vertices-need-update t))))
 

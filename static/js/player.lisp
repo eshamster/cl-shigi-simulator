@@ -51,7 +51,7 @@
         (r (get-param :player :body-r)))
     (with-ecs-components (point-2d) player
       (macrolet ((move (direction move)
-                   `(when (is-key-down ,direction) ,move)))
+                   `(when (key-down-p ,direction) ,move)))
         (move :left  (decf point-2d.x speed))
         (move :right (incf point-2d.x speed))
         (move :down  (decf point-2d.y speed))
@@ -64,9 +64,9 @@
         (fix-position < point-2d.y r)
         (fix-position > point-2d.y (- (get-param :play-area :height) r))))))
 
-(defun.ps control-player (player)
+(defun.ps+ control-player (player)
   (declare (ignore player))
-  (when (is-key-down-now :c)
+  (when (key-down-now-p :c)
     (trigger-player-lazer)))
 
 (defstruct.ps+ nearest-part-register (part-id -1) (frame-count -1))

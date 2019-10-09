@@ -109,7 +109,7 @@
       (push bit result))
     result))
 
-(defun.ps rotate-shigi-body (body)
+(defun.ps+ rotate-shigi-body (body)
   "The rotation of the shigi body is like a swing of a pendulum. The center of the gravity is the point of the player (only the difference of the angle affects. the distance doesn't). Then, the max rotation speed and the max rotation acceleration is limitted by constant numbers."
   (with-ecs-components (rotate-2d (body-point point-2d)) body
     (with-slots-pair ((speed) rotate-2d
@@ -117,8 +117,8 @@
       (let ((center (find-a-entity-by-tag "shigi-center")))
         (if (get-entity-param center :body-rotate-p)
             (let* ((player (find-a-entity-by-tag "player"))
-                   (angle-to-player (vector-angle
-                                     (decf-vector (clone-vector-2d (get-ecs-component 'point-2d player))
+                   (angle-to-player (vector-2d-angle
+                                     (decf-vector-2d (clone-vector-2d (get-ecs-component 'point-2d player))
                                                   (get-ecs-component 'point-2d center)))))
               (labels ((round-by-abs (value max-value)
                          (max (* -1 max-value)
@@ -127,8 +127,7 @@
                       (round-by-abs (* (diff-angle angle-to-player (- angle (/ PI 2)))
                                        (get-param :shigi :body :rot-gravity))
                                     (get-param :shigi :body :max-rot-accell)))
-                (let ((max-speed))
-                  (setf speed (round-by-abs speed (get-param :shigi :body :max-rot-speed))))))
+                (setf speed (round-by-abs speed (get-param :shigi :body :max-rot-speed)))))
             ;; else
             (setf speed 0))))))
 
@@ -139,7 +138,7 @@
       (incf (cadr result) (cadr pnt)))
     (mapcar #'(lambda (x) (/ x (length pnt-list))) result)))
 
-(defun.ps make-shigi-bodies ()
+(defun.ps+ make-shigi-bodies ()
   (let* ((result '())
          (pnt-list '((#.#y0 #.#y76.8) (#.#y76.8 #.#y115.2)
                      (#.#y92.16 #.#y-57.6) (#.#y0 #.#y-144))))
@@ -176,8 +175,8 @@
                                 :target-tags *shigi-collision-targets*)
            (make-point-2d :x (car center) :y (cadr center))
            (make-rotate-2d :speed (get-param :shigi :body :max-rot-speed)
-                           :radious (vector-abs center-vec)
-                           :angle (vector-angle center-vec))
+                           :radious (vector-2d-abs center-vec)
+                           :angle (vector-2d-angle center-vec))
            (make-script-2d :func #'rotate-shigi-body)
            ;; TODO: parameterize 4 (which is the number of the bit)
            (init-entity-params :color (nth (+ i 4) (get-param :color-chip :colors))
