@@ -21,6 +21,16 @@ a:hover {
   text-align: center;
 }
 
+.log-panel {
+    position: fixed;
+    padding: 5px;
+    margin: 5px;
+    border-radius: 5px;
+    background-color: rgba(200,200,200,0.5);
+    transition: 0.5s;
+    z-index: 1;
+}
+
 #description {
   margin-left: 100px;
   margin-right: auto;
@@ -28,8 +38,48 @@ a:hover {
   font-size: small;
 }
 
+#debug {
+    top: var(--monitor-top);
+    padding-top: 20px;
+    left: 0px;
+    transform-origin: 0% 0% 0;
+}
+
 #log {
-  border: solid 1px #000000;
+    bottom: 0px;
+    padding-bottom: 20px;
+    left: 0px;
+    transform-origin: 0% 100% 0;
+}
+
+.log-box .open-close {
+    display: none;
+    width: 10px;
+    height: 10px;
+}
+
+.open-close:checked + .log-panel {
+    overflow: hidden;
+    opacity: 0;
+    transform: scale(0);
+    transition: 0.5s;
+}
+
+.log-box .open-close-label {
+    position: fixed;
+    width: 15px;
+    height: 15px;
+    background-color: rgba(64, 250, 64, 0.5);
+    border: solid 1px;
+    z-index: 2;
+}
+
+#open-close-label-debug {
+    top: calc(var(--monitor-top) + 8px);
+}
+
+#open-close-label-log {
+    bottom: 8px;
 }
 
 dl {

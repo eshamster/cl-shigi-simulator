@@ -51,7 +51,7 @@
         (r (get-param :player :body-r)))
     (with-ecs-components (point-2d) player
       (macrolet ((move (direction move)
-                   `(when (is-key-down ,direction) ,move)))
+                   `(when (key-down-p ,direction) ,move)))
         (move :left  (decf point-2d.x speed))
         (move :right (incf point-2d.x speed))
         (move :down  (decf point-2d.y speed))
@@ -64,9 +64,9 @@
         (fix-position < point-2d.y r)
         (fix-position > point-2d.y (- (get-param :play-area :height) r))))))
 
-(defun.ps control-player (player)
+(defun.ps+ control-player (player)
   (declare (ignore player))
-  (when (is-key-down-now :c)
+  (when (key-down-now-p :c)
     (trigger-player-lazer)))
 
 (defstruct.ps+ nearest-part-register (part-id -1) (frame-count -1))
@@ -115,6 +115,10 @@
 (defvar.ps+ *moved-by-touch-p* nil)
 (defvar.ps+ *pre-touch-point* (make-vector-2d))
 
+(defun touch-event-touches (e)
+  (declare (ignore e))
+  (error "touch-event-touches is not implemeted in Common Lisp"))
+
 (defun.ps+ update-vector-by-touch (target touch-event)
   (let ((point (aref (touch-event-touches touch-event) 0)))
     (with-slots (x y) point
@@ -131,8 +135,8 @@
            (diff-point (clone-vector-2d *pre-touch-point*)))
        (setf *moved-by-touch-p* t)
        (update-vector-by-touch *pre-touch-point* e)
-       (decf-vector diff-point *pre-touch-point*)
-       (decf-vector center diff-point))))
+       (decf-vector-2d diff-point *pre-touch-point*)
+       (decf-vector-2d center diff-point))))
   (add-touch-end-callback
    (lambda (e)
      (when (= (length (touch-event-touches e)) 0)

@@ -14,17 +14,22 @@
 
 (defvar *handler* nil)
 
-(defun start (&rest args &key server port debug &allow-other-keys)
+(defun start (&rest args &key server port (address "0.0.0.0") debug &allow-other-keys)
   (declare (ignore server port debug))
+  (stop)
   (when *handler*
     (restart-case (error "Server is already running.")
       (restart-server ()
         :report "Restart the server"
         (stop))))
-  (setf *handler*
-        (apply #'clackup *appfile-path* args)))
+  (let ((clack-args (if (getf args :address)
+                        args
+                        (append args (list :address address)))))
+    (setf *handler*
+          (apply #'clackup *appfile-path* clack-args))))
 
 (defun stop ()
-  (prog1
-      (clack:stop *handler*)
-    (setf *handler* nil)))
+  (when *handler*
+    (prog1
+        (clack:stop *handler*)
+      (setf *handler* nil))))

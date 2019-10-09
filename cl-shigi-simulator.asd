@@ -56,7 +56,6 @@
                 :components
                 ((:file "index")
                  (:file "shigi")
-                 (:file "test-collision")
                  (:file "test-ray"))
                 :depends-on ("templates/layouts" "static/js" "static/js/test"))
                (:module "templates/layouts"

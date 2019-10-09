@@ -61,7 +61,7 @@
               :min-speed #y10
               :max-speed #y45
               :accell #y3)
-      :lazer-state (:start (:time 8))
+      :lazer-state (:start (:time 4))
       :lazer-maker (:min-speed #y15
                   :max-speed #y30
                   :min-angle (* PI 60/180)
@@ -94,9 +94,13 @@
 
 ;; --- for initialize --- ;;
 
+(defun.ps+ default-init-function (scene)
+  (declare (ignore scene))
+  nil)
+
 (defun.ps start-game (&key screen-width screen-height
                            (camera-offset-x 0) (camera-offset-y 0)
-                           (init-function (lambda (scene) nil))
+                           (init-function #'default-init-function)
                            (update-function (lambda () nil)))
   (init-gui)
   (start-2d-game :screen-width screen-width
@@ -127,20 +131,3 @@
             `(setf #j.element.innerHTML# ,html))
      element))
 
-(defun.ps refresh-entity-display ()
-  (let ((tree (document.query-selector "#entity-tree"))
-        (test-obj (make-point-2d)))
-    (do-ecs-entities entity
-      (let* ((id (ecs-entity-id entity))
-             (entity-div (create-html-element
-                          "dt"
-                          :id (concatenate 'string "Entity" id)
-                          :html (concatenate 'string "Entity (ID: " id ")")
-                          :class '("entity" "tree"))))
-        (tree.append-child entity-div)
-        (do-ecs-components-of-entity (component entity)
-          (let ((component-div (create-html-element
-                                "dd"
-                                :html component.constructor.name
-                                :class '("component" "tree"))))
-            (tree.append-child component-div)))))))
