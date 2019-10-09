@@ -131,20 +131,3 @@
             `(setf #j.element.innerHTML# ,html))
      element))
 
-(defun.ps refresh-entity-display ()
-  (let ((tree (document.query-selector "#entity-tree"))
-        (test-obj (make-point-2d)))
-    (do-ecs-entities entity
-      (let* ((id (ecs-entity-id entity))
-             (entity-div (create-html-element
-                          "dt"
-                          :id (concatenate 'string "Entity" id)
-                          :html (concatenate 'string "Entity (ID: " id ")")
-                          :class '("entity" "tree"))))
-        (tree.append-child entity-div)
-        (do-ecs-components-of-entity (component entity)
-          (let ((component-div (create-html-element
-                                "dd"
-                                :html component.constructor.name
-                                :class '("component" "tree"))))
-            (tree.append-child component-div)))))))
