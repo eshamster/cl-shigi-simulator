@@ -105,6 +105,7 @@
   (init-gui)
   (start-2d-game :screen-width screen-width
                  :screen-height screen-height
+                 :resize-to-screen-p t
                  :camera (init-camera camera-offset-x camera-offset-y
                                       screen-width screen-height)
                  :rendered-dom (document.query-selector "#renderer")
