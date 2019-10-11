@@ -1,10 +1,6 @@
-(in-package :cl-user)
-(defpackage cl-shigi-simulator-asd
-  (:use :cl :asdf))
-(in-package :cl-shigi-simulator-asd)
-
 (defsystem cl-shigi-simulator
   :version "0.1"
+  :class :package-inferred-system
   :author "eshamster"
   :license "LLGPL"
   :depends-on (:clack
@@ -28,41 +24,15 @@
                ;; for JavaScript
                :ps-experiment
                :cl-ps-ecs
-               :cl-web-2d-game)
-  :components ((:module "src"
-                :components
-                ((:file "main" :depends-on ("config" "view" "db"))
-                 (:file "web" :depends-on ("view"))
-                 (:file "view" :depends-on ("config"))
-                 (:file "db" :depends-on ("config"))
-                 (:file "config"))
-                :depends-on ("templates"))
-               (:module "static/js"
-                :components
-                ((:file "utils")
-                 (:file "basic-ecs")
-                 (:file "tools" :depends-on ("basic-ecs"))
-                 (:file "shigi" :depends-on ("basic-ecs" "tools"))
-                 (:file "lazer" :depends-on ("basic-ecs" "tools" "shigi"))
-                 (:file "player" :depends-on ("basic-ecs" "tools" "shigi" "lazer"))
-                 (:file "color-chip" :depends-on ("basic-ecs" "tools" "shigi"))
-                 (:file "shigi-simulator"
-                        :depends-on ("utils" "basic-ecs" "tools"))))
-               (:module "static/js/test" 
-                :components
-                ((:file "ray"))
-                :depends-on ("static/js"))
-               (:module "templates"
-                :components
-                ((:file "index")
-                 (:file "shigi")
-                 (:file "test-ray"))
-                :depends-on ("templates/layouts" "static/js" "static/js/test"))
-               (:module "templates/layouts"
-                :components
-                ((:file "utils")
-                 (:file "default" :depends-on ("utils"))
-                 (:file "three" :depends-on ("utils")))
-                :depends-on ("static/js")))
+               :cl-web-2d-game
+
+               ;; entrypoints
+               :cl-shigi-simulator/app
+               :cl-shigi-simulator/src/main
+               :cl-shigi-simulator/templates/index
+               :cl-shigi-simulator/templates/shigi
+               :cl-shigi-simulator/templates/test-ray
+               :cl-shigi-simulator/static/js/shigi-simulator
+               :cl-shigi-simulator/static/js/test/ray)
   :description ""
   :in-order-to ((test-op (load-op cl-shigi-simulator-test))))
