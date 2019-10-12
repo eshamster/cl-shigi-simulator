@@ -1,7 +1,6 @@
-(in-package :cl-user)
-(defpackage cl-shigi-simulator.db
+(defpackage cl-shigi-simulator/src/db
   (:use :cl)
-  (:import-from :cl-shigi-simulator.config
+  (:import-from :cl-shigi-simulator/src/config
                 :config)
   (:import-from :datafly
                 :*connection*
@@ -9,7 +8,7 @@
   (:export :connection-settings
            :db
            :with-connection))
-(in-package :cl-shigi-simulator.db)
+(in-package :cl-shigi-simulator/src/db)
 
 (defun connection-settings (&optional (db :maindb))
   (cdr (assoc db (config :databases))))

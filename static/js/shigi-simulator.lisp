@@ -1,5 +1,4 @@
-(in-package :cl-user)
-(defpackage cl-shigi-simulator.static.js.shigi-simulator
+(defpackage cl-shigi-simulator/static/js/shigi-simulator
   (:use :cl
         :cl-ppcre
         :parenscript
@@ -22,18 +21,18 @@
   (:import-from :cl-ps-ecs
                 :with-ecs-components
                 :do-ecs-entities)
-  (:import-from :cl-shigi-simulator.static.js.color-chip
+  (:import-from :cl-shigi-simulator/static/js/color-chip
                 :generate-color-grid)
-  (:import-from :cl-shigi-simulator.static.js.player
+  (:import-from :cl-shigi-simulator/static/js/player
                 :make-player)
-  (:import-from :cl-shigi-simulator.static.js.shigi
+  (:import-from :cl-shigi-simulator/static/js/shigi
                 :make-shigi)
-  (:import-from :cl-shigi-simulator.static.js.tools
+  (:import-from :cl-shigi-simulator/static/js/tools
                 :get-param
                 :start-game
                 :shigi-screen-width
                 :shigi-screen-height))
-(in-package :cl-shigi-simulator.static.js.shigi-simulator)
+(in-package :cl-shigi-simulator/static/js/shigi-simulator)
 
 (defun.ps+ make-mouse-pointer ()
   (let* ((pointer (make-ecs-entity))

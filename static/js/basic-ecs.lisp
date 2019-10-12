@@ -1,5 +1,4 @@
-(in-package :cl-user)
-(defpackage cl-shigi-simulator.static.js.basic-ecs
+(defpackage cl-shigi-simulator/static/js/basic-ecs
   (:use :cl
         :cl-ppcre
         :ps-experiment
@@ -7,7 +6,7 @@
         :cl-web-2d-game
         :parenscript)
   (:export :register-default-systems))
-(in-package :cl-shigi-simulator.static.js.basic-ecs)
+(in-package :cl-shigi-simulator/static/js/basic-ecs)
 
 (enable-ps-experiment-syntax)
 

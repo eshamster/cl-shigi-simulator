@@ -1,5 +1,4 @@
-(in-package :cl-user)
-(defpackage cl-shigi-simulator.config
+(defpackage cl-shigi-simulator/src/config
   (:use :cl)
   (:import-from :envy
                 :config-env-var
@@ -11,7 +10,7 @@
            :appenv
            :developmentp
            :productionp))
-(in-package :cl-shigi-simulator.config)
+(in-package :cl-shigi-simulator/src/config)
 
 (setf (config-env-var) "APP_ENV")
 

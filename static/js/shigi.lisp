@@ -1,19 +1,18 @@
-(in-package :cl-user)
-(defpackage cl-shigi-simulator.static.js.shigi
+(defpackage cl-shigi-simulator/static/js/shigi
   (:use :cl
         :cl-ppcre
         :ps-experiment
         :cl-ps-ecs
         :parenscript
         :cl-web-2d-game
-        :cl-shigi-simulator.static.js.tools)
+        :cl-shigi-simulator/static/js/tools)
   (:import-from :ps-experiment/common-macros
                 :with-slots-pair)
   (:export :shigi-part-valid-p
            :make-shigi-part-point-pairs
            :get-nearest-shigi-part
            :make-shigi))
-(in-package :cl-shigi-simulator.static.js.shigi)
+(in-package :cl-shigi-simulator/static/js/shigi)
 
 (enable-ps-experiment-syntax)
 

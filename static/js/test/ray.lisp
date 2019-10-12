@@ -1,15 +1,14 @@
-(in-package :cl-user)
-(defpackage cl-shigi-simulator.static.js.test.ray
+(defpackage cl-shigi-simulator/static/js/test/ray
   (:use :cl
         :cl-ppcre
         :parenscript
         :ps-experiment
         :cl-web-2d-game
-        :cl-shigi-simulator.static.js.tools 
+        :cl-shigi-simulator/static/js/tools
         :cl-ps-ecs)
   (:import-from :ps-experiment/common-macros
                 :with-slots-pair))
-(in-package :cl-shigi-simulator.static.js.test.ray)
+(in-package :cl-shigi-simulator/static/js/test/ray)
 
 (defun.ps make-mouse-pointer ()
   (let* ((pointer (make-ecs-entity))
@@ -50,8 +49,8 @@
               :init-function init))
 
 (defun js-main ()
-  (with-use-ps-pack (:cl-shigi-simulator.static.js.tools
-                     :cl-shigi-simulator.static.js.basic-ecs
+  (with-use-ps-pack (:cl-shigi-simulator/static/js/tools
+                     :cl-shigi-simulator/static/js/basic-ecs
                      :this)
     (init-input)
     (window.add-event-listener "DOMContentLoaded" main false))) 

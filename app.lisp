@@ -1,19 +1,17 @@
-(ql:quickload :cl-shigi-simulator)
-
-(defpackage cl-shigi-simulator.app
+(defpackage cl-shigi-simulator/app
   (:use :cl)
-  (:import-from :lack.builder
+  (:import-from :lack
                 :builder)
-  (:import-from :ppcre
+  (:import-from :cl-ppcre
                 :scan
                 :regex-replace)
-  (:import-from :cl-shigi-simulator.web
+  (:import-from :cl-shigi-simulator/src/web
                 :*web*)
-  (:import-from :cl-shigi-simulator.config
+  (:import-from :cl-shigi-simulator/src/config
                 :config
                 :productionp
                 :*static-directory*))
-(in-package :cl-shigi-simulator.app)
+(in-package :cl-shigi-simulator/app)
 
 (builder
  (:static

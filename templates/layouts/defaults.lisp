@@ -1,11 +1,10 @@
-(in-package :cl-user)
-(defpackage cl-shigi-simulator.templates.layouts.defaults
+(defpackage cl-shigi-simulator/templates/layouts/defaults
   (:use :cl
         :cl-markup)
-  (:import-from :cl-shigi-simulator.templates.layouts.utils
+  (:import-from :cl-shigi-simulator/templates/layouts/utils
                 :with-markup-to-string)
   (:export :with-default-layout))
-(in-package :cl-shigi-simulator.templates.layouts.defaults)
+(in-package :cl-shigi-simulator/templates/layouts/defaults)
 
 (defmacro with-default-layout ((&key title) &body body)
   `(with-markup-to-string

@@ -1,17 +1,16 @@
-(in-package :cl-user)
-(defpackage cl-shigi-simulator.static.js.lazer
+(defpackage cl-shigi-simulator/static/js/lazer
   (:use :cl
         :cl-ppcre
         :ps-experiment
         :cl-ps-ecs
         :parenscript
         :cl-web-2d-game
-        :cl-shigi-simulator.static.js.shigi
-        :cl-shigi-simulator.static.js.tools)
+        :cl-shigi-simulator/static/js/shigi
+        :cl-shigi-simulator/static/js/tools)
   (:export :shot-lazers)
   (:import-from :ps-experiment/common-macros
                 :with-slots-pair))
-(in-package :cl-shigi-simulator.static.js.lazer)
+(in-package :cl-shigi-simulator/static/js/lazer)
 
 (enable-ps-experiment-syntax)
 

@@ -1,13 +1,13 @@
-(in-package :cl-user)
-(defpackage cl-shigi-simulator
+(defpackage cl-shigi-simulator/src/main
   (:use :cl)
-  (:import-from :cl-shigi-simulator.config
+  (:nicknames :cl-shigi-simulator)
+  (:import-from :cl-shigi-simulator/src/config
                 :config)
   (:import-from :clack
                 :clackup)
   (:export :start
            :stop))
-(in-package :cl-shigi-simulator)
+(in-package :cl-shigi-simulator/src/main)
 
 (defvar *appfile-path*
   (asdf:system-relative-pathname :cl-shigi-simulator #P"app.lisp"))

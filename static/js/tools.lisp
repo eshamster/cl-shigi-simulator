@@ -1,5 +1,4 @@
-(in-package :cl-user)
-(defpackage cl-shigi-simulator.static.js.tools
+(defpackage cl-shigi-simulator/static/js/tools
   (:use :cl
         :cl-ppcre
         :ps-experiment
@@ -12,9 +11,9 @@
            :start-game
            :shigi-screen-width
            :shigi-screen-height)
-  (:import-from :cl-shigi-simulator.static.js.basic-ecs
+  (:import-from :cl-shigi-simulator/static/js/basic-ecs
                 :register-default-systems))
-(in-package :cl-shigi-simulator.static.js.tools)
+(in-package :cl-shigi-simulator/static/js/tools)
 
 (enable-ps-experiment-syntax)
 
@@ -105,6 +104,7 @@
   (init-gui)
   (start-2d-game :screen-width screen-width
                  :screen-height screen-height
+                 :resize-to-screen-p t
                  :camera (init-camera camera-offset-x camera-offset-y
                                       screen-width screen-height)
                  :rendered-dom (document.query-selector "#renderer")

@@ -1,21 +1,14 @@
-(in-package :cl-user)
-(defpackage cl-shigi-simulator.static.js.utils
+(defpackage cl-shigi-simulator/static/js/utils
   (:use :cl)
   (:export :load-js))
-(in-package :cl-shigi-simulator.static.js.utils)
+(in-package :cl-shigi-simulator/static/js/utils)
 
 (defparameter *force-reload-js* t)
 
 (defun split-path (package-name)
-  ;; "some.package.name" -> ("some/package/" . "name")
+  ;; "some/package/name" -> ("some/package/" . "name")
   ;; "name" -> ("" . "name")
-  (let ((splitted (mapcar #'reverse (ppcre:split
-                                     "/"
-                                     (reverse (ppcre:regex-replace-all
-                                               "\\."
-                                               package-name
-                                               "/"))
-                                     :limit 2))))
+  (let ((splitted (mapcar #'reverse (ppcre:split "/" package-name :limit 2))))
     (cons (if (second splitted)
               (concatenate 'string
                            (second splitted) "/")
@@ -61,7 +54,7 @@
     (princ (funcall (intern "JS-MAIN"
                             (string-upcase
                              (concatenate 'string
-                                          "cl-shigi-simulator.static.js."
+                                          "cl-shigi-simulator/static/js/"
                                           name))))
            out)))
 

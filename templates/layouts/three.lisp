@@ -1,16 +1,15 @@
-(in-package :cl-user)
-(defpackage cl-shigi-simulator.templates.layouts.three
+(defpackage cl-shigi-simulator/templates/layouts/three
   (:use :cl
         :cl-markup)
-  (:import-from :cl-shigi-simulator.templates.layouts.utils
+  (:import-from :cl-shigi-simulator/templates/layouts/utils
                 :with-markup-to-string)
-  (:import-from :cl-shigi-simulator.static.js.utils
+  (:import-from :cl-shigi-simulator/static/js/utils
                 :load-js)
   (:import-from :cl-web-2d-game
                 :make-src-list-for-script-tag
                 :ensure-js-files)
   (:export :with-three-layout))
-(in-package :cl-shigi-simulator.templates.layouts.three)
+(in-package :cl-shigi-simulator/templates/layouts/three)
 
 (defparameter *application-root* (asdf:system-source-directory :cl-shigi-simulator))
 (defparameter *js-download-dir* (merge-pathnames #P"static/js/copied/" *application-root*))
