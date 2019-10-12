@@ -1,4 +1,3 @@
-(in-package :cl-user)
 (defpackage cl-shigi-simulator/templates/shigi
   (:use :cl
         :cl-markup)
