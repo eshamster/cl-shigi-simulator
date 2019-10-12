@@ -8,12 +8,16 @@
 (defun split-path (package-name)
   ;; "some/package/name" -> ("some/package/" . "name")
   ;; "name" -> ("" . "name")
-  (let ((splitted (mapcar #'reverse (ppcre:split "/" package-name :limit 2))))
-    (cons (if (second splitted)
-              (concatenate 'string
-                           (second splitted) "/")
-              "")
-          (car splitted))))
+  (flet ((reverse-string (str)
+           (coerce (reverse (coerce str 'list))
+                   'string)))
+    (let ((splitted (mapcar #'reverse-string
+                            (ppcre:split "/" (reverse-string package-name) :limit 2))))
+      (cons (if (second splitted)
+                (concatenate 'string
+                             (second splitted) "/")
+                "")
+            (car splitted)))))
 
 (defun make-full-path (path)
   (check-type path string)
