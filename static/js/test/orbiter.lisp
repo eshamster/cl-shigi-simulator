@@ -13,7 +13,9 @@
                 :get-target-point
                 :set-target-point
                 :get-target-angle
-                :set-target-angle))
+                :set-target-angle)
+  (:import-from :cl-shigi-simulator/static/js/test/orbiter-visualizer
+                :init-visualizer))
 (in-package :cl-shigi-simulator/static/js/test/orbiter)
 
 (defun.ps+ init-mouse-pointer ()
@@ -62,8 +64,10 @@
   (declare (ignore scene))
   (init-mouse-pointer)
   (init-background)
-  (init-launcher)
-  (init-dummy-target)
+  (let ((launcher (init-launcher))
+        (target (init-dummy-target)))
+    (init-visualizer :launcher launcher
+                     :target target))
   (init-controller))
 
 (defun.ps+ main ()
