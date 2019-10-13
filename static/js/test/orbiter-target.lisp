@@ -1,11 +1,10 @@
-(defpackage cl-shigi-simulator/static/js/test/orbiter-utils
+(defpackage cl-shigi-simulator/static/js/test/orbiter-target
   (:use :cl
         :parenscript
         :ps-experiment
         :cl-web-2d-game
         :cl-ps-ecs)
-  (:export :init-dummy-player
-           :init-dummy-target
+  (:export :init-dummy-target
            :get-target-point
            :set-target-point
            :get-target-angle
@@ -14,24 +13,7 @@
                 :get-param
                 :shigi-screen-width
                 :shigi-screen-height))
-(in-package :cl-shigi-simulator/static/js/test/orbiter-utils)
-
-;; --- player --- ;;
-
-(defun.ps+ init-dummy-player ()
-  (let ((player (make-ecs-entity))
-        (r (get-param :player :body-r)))
-    (add-ecs-component-list
-     player
-     (make-point-2d :x (/ shigi-screen-width 2)
-                    :y (* shigi-screen-height 1/5))
-     (make-model-2d :model (make-solid-circle :r r :color #x0000ff)
-                    :depth 1
-                    :offset (make-point-2d :x (* -1 r)
-                                           :y (* -1 r))))
-    (add-ecs-entity player)))
-
-;; --- target --- ;;
+(in-package :cl-shigi-simulator/static/js/test/orbiter-target)
 
 (defun.ps+ init-dummy-target ()
   (let ((target (make-ecs-entity))

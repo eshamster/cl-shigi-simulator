@@ -6,8 +6,9 @@
         :cl-web-2d-game
         :cl-shigi-simulator/static/js/tools
         :cl-ps-ecs)
-  (:import-from :cl-shigi-simulator/static/js/test/orbiter-utils
-                :init-dummy-player
+  (:import-from :cl-shigi-simulator/static/js/test/orbiter-launcher
+                :init-launcher)
+  (:import-from :cl-shigi-simulator/static/js/test/orbiter-target
                 :init-dummy-target
                 :get-target-point
                 :set-target-point
@@ -61,7 +62,7 @@
   (declare (ignore scene))
   (init-mouse-pointer)
   (init-background)
-  (init-dummy-player)
+  (init-launcher)
   (init-dummy-target)
   (init-controller))
 
