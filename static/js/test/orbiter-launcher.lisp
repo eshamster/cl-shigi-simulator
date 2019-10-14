@@ -22,8 +22,8 @@
     (add-entity-tag launcher :launcher)
     (add-ecs-component-list
      launcher
-     (make-point-2d :x (/ shigi-screen-width 2)
-                    :y (* shigi-screen-height 1/5))
+     (make-point-2d :x (* shigi-screen-width 300/1000)
+                    :y (* shigi-screen-height 300/1000))
      (make-model-2d :model (make-solid-circle :r r :color #x0000ff)
                     :depth 1)
      (init-entity-params :start-angle angle))

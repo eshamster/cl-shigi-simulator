@@ -30,7 +30,7 @@
       (add-ecs-component-list
        target
        (make-point-2d :x (* shigi-screen-width 600/1000)
-                      :y (* shigi-screen-height 280/1000))
+                      :y (* shigi-screen-height 400/1000))
        (make-line-model (* -1 half-len) 0 half-len 0)
        (make-line-model 0 (* -1 half-len) 0 half-len)
        (init-entity-params :angle angle)))
