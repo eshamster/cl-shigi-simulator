@@ -104,6 +104,7 @@
                                (move-player player)
                                (register-nearest-part player)
                                (when (get-entity-param *player* :lazer-triggered-p)
+                                 (set-entity-param *player* :lazer-triggered-p nil)
                                  (shot-lazers player))))
      (init-entity-params :lazer-triggered-p nil
                          :nearest-part-register (make-nearest-part-register)))

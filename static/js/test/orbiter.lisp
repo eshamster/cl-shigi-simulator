@@ -7,7 +7,8 @@
         :cl-shigi-simulator/static/js/tools
         :cl-ps-ecs)
   (:import-from :cl-shigi-simulator/static/js/test/orbiter-launcher
-                :init-launcher)
+                :init-launcher
+                :shot-lazer)
   (:import-from :cl-shigi-simulator/static/js/test/orbiter-target
                 :init-dummy-target
                 :get-target-point
@@ -39,6 +40,7 @@
      (make-script-2d
       :func (lambda (entity)
               (declare (ignore entity))
+              ;; Controll target
               (when (eq (get-left-mouse-state) :down)
                 (set-target-point (get-mouse-x)
                                   (get-mouse-y)))
@@ -46,7 +48,10 @@
                 (when (> (get-mouse-wheel-delta-y) 0)
                   (set-target-angle (- (get-target-angle) diff-angle)))
                 (when (< (get-mouse-wheel-delta-y) 0)
-                  (set-target-angle (+ (get-target-angle) diff-angle)))))))
+                  (set-target-angle (+ (get-target-angle) diff-angle))))
+              ;; Controll
+              (when (key-down-now-p :c)
+                (shot-lazer)))))
     (add-ecs-entity ctr)))
 
 (defun.ps+ init-background ()
@@ -62,10 +67,11 @@
 
 (defun.ps+ init (scene)
   (declare (ignore scene))
+  (setf-collider-model-enable nil)
   (init-mouse-pointer)
   (init-background)
-  (let ((launcher (init-launcher))
-        (target (init-dummy-target)))
+  (let* ((target (init-dummy-target))
+         (launcher (init-launcher target)))
     (init-visualizer :launcher launcher
                      :target target))
   (init-controller))

@@ -7,7 +7,8 @@
         :cl-web-2d-game
         :cl-shigi-simulator/static/js/shigi
         :cl-shigi-simulator/static/js/tools)
-  (:export :shot-lazers)
+  (:export :shot-lazers
+           :make-a-lazer)
   (:import-from :ps-experiment/common-macros
                 :with-slots-pair))
 (in-package :cl-shigi-simulator/static/js/lazer)
@@ -288,7 +289,7 @@
                :y (+ (vector-2d-y start-pnt)
                      (* len-to-pnt (sin first-angle))))))
     (when *enable-lazer-debug*
-      (let ((player (find-a-entity-by-tag "player")))
+      (let ((player (find-a-entity-by-tag :player)))
         (draw-debug-point-by-time :point pnt
                                   :parent player)
         (draw-debug-line-by-time :point1 pnt
@@ -326,58 +327,59 @@
         PI ; error case
         )))
 
-;; The base angle of first-angle is the angle of (0, -1)
-(defun.ps make-a-lazer (&key rightp player target
-                             first-angle first-speed first-offset
-                             dummy-target-offset)
-  (check-entity-tags player "player")
+;; The first-angle is a relative angle to the vector (0, -1)
+(defun.ps+ make-a-lazer (&key rightp start-point target
+                              first-angle first-speed first-offset
+                              dummy-target-offset)
   (check-type first-offset vector-2d)
   (when target
-    (check-entity-tags target "shigi-part"))
+    (check-entity-tags target :shigi-part))
   (let ((lazer (make-ecs-entity))
         (dummy-target (make-ecs-entity))
         (num-pnts (get-param :lazer :tail-length))
         (pnt-list '()))
-    (add-entity-tag lazer "lazer")
-    (with-ecs-components (point-2d) player
-      (with-slots (x y) point-2d
-        (dotimes (i num-pnts)
-          (push (list 0 0) pnt-list))
-        (let ((first-x (+ x (vector-2d-x first-offset)))
-              (first-y (+ y (vector-2d-y first-offset))))
-          (add-ecs-component-list
-           dummy-target
-           (make-point-2d :x (+ x (vector-2d-x dummy-target-offset))
-                          :y (+ y (vector-2d-y dummy-target-offset))))
-          (add-ecs-component-list
-           lazer
-           (make-point-2d :x first-x :y first-y)
-           (make-model-2d :model (make-lines :pnt-list pnt-list :color 0xff0000)
-                          :depth (get-param :lazer :depth))
-           (make-script-2d :func #'(lambda (entity)
-                                     (process-lazer-state lazer)
-                                     (update-lazer-points entity)
-                                     (process-lazer-duration entity)))
-           (make-physic-circle :r 0 :on-collision #'process-lazer-collision
-                               :target-tags '("shigi-part"))
-           (init-entity-params :duration-after-stop num-pnts
-                               :duration-after-lost 30
-                               :max-duration 300
-                               :pre-point (make-vector-2d :x first-x :y first-y)
-                               :target target
-                               :dummy-target dummy-target
-                               :speed (make-speed-2d)
-                               :lazer-state nil))
-          (change-lazer-state lazer (make-lazer-start-state
-                                     :rightp rightp
-                                     :first-speed first-speed
-                                     :first-angle first-angle
-                                     :min-time (get-param :lazer-state :start :time))))))
+    (add-entity-tag lazer :lazer)
+    (with-slots (x y) start-point
+      (dotimes (i num-pnts)
+        (push (list 0 0) pnt-list))
+      (let ((first-x (+ x (vector-2d-x first-offset)))
+            (first-y (+ y (vector-2d-y first-offset))))
+        (add-ecs-component-list
+         dummy-target
+         (make-point-2d :x (+ x (vector-2d-x dummy-target-offset))
+                        :y (+ y (vector-2d-y dummy-target-offset))))
+        (add-ecs-component-list
+         lazer
+         (make-point-2d :x first-x :y first-y)
+         (make-model-2d :model (make-lines :pnt-list pnt-list :color #xff0000)
+                        :depth (get-param :lazer :depth))
+         (make-script-2d :func #'(lambda (entity)
+                                   (process-lazer-state lazer)
+                                   (update-lazer-points entity)
+                                   (process-lazer-duration entity)))
+         (make-physic-circle :r 0 :on-collision #'process-lazer-collision
+                             :target-tags '(:shigi-part))
+         (init-entity-params :duration-after-stop num-pnts
+                             :duration-after-lost 30
+                             :max-duration 300
+                             :pre-point (make-vector-2d :x first-x :y first-y)
+                             :target target
+                             :dummy-target dummy-target
+                             :speed (make-speed-2d)
+                             :lazer-state nil))
+        ;; Note about first-angle:
+        ;; A caller sets first-angle as tangential direction of expected circular orbit.
+        ;; But to put a lazer into the orbit it is required to adjust the angle by
+        ;; half of its rotation speed.
+        (change-lazer-state lazer (make-lazer-start-state
+                                   :rightp rightp
+                                   :first-speed first-speed
+                                   :first-angle (- first-angle (/ (get-param :lazer :rot-speed) 2))
+                                   :min-time (get-param :lazer-state :start :time)))))
     lazer))
 
-(defun.ps shot-lazers (player)
-  (check-entity-tags player "player")
-  (set-entity-param player :lazer-triggered-p nil)
+(defun.ps+ shot-lazers (player)
+  (check-entity-tags player :player)
   (let* ((pnt (calc-global-point player))
          (target (get-nearest-shigi-part pnt))
          (min-speed (get-param :lazer-maker :min-speed))
@@ -400,7 +402,7 @@
                      (get-param :lazer :rot-speed))))
         (dolist (rightp '(t nil))
           (add-ecs-entity-to-buffer
-           (make-a-lazer :player player
+           (make-a-lazer :start-point pnt
                          :target target
                          :rightp rightp
                          :first-speed speed
