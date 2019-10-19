@@ -91,6 +91,11 @@
      :on-change (lambda (val)
                   (set-rot-speed val launcher)))))
 
+(defun.ps+ init-description ()
+  (add-to-event-log "Wheel up/down to change target angle")
+  (add-to-event-log "Mouse drag to set target point")
+  (add-to-event-log "Press 'C' key to shot lazer"))
+
 (defun.ps+ init (scene)
   (declare (ignore scene))
   (setf-collider-model-enable nil)
@@ -101,7 +106,8 @@
     (init-visualizer :launcher launcher
                      :target target)
     (init-panel launcher))
-  (init-controller))
+  (init-controller)
+  (init-description))
 
 (defun.ps+ main ()
   (start-game :screen-width shigi-screen-width

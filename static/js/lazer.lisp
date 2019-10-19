@@ -298,8 +298,6 @@
         (draw-debug-line-by-time :point1 pnt
                                  :point2 start-pnt
                                  :parent player)))
-    (add-to-event-log (calc-dist-p2 pnt start-pnt))
-    (add-to-event-log (calc-dist-p2 pnt dummy-pnt))
     (<= (calc-dist-p2 pnt start-pnt)
         (calc-dist-p2 pnt dummy-pnt))))
 
