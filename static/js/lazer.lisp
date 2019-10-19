@@ -143,7 +143,7 @@
    lazer
    (* (get-param :lazer :accell)
       (if (< (abs (adjust-angle-in-range diff-angle))
-             (get-param :lazer :rot-speed))
+             (get-entity-param lazer :rot-speed))
           1 -1))))
 
 (defun.ps+ adjust-to-target-angle (now target rot-speed)
@@ -173,7 +173,7 @@
            (target-angle (calc-angle-to-target lazer target))
            (new-angle (adjust-to-target-angle-first
                           now-angle target-angle
-                          (get-param :lazer :rot-speed) rightp)))
+                          (get-entity-param lazer :rot-speed) rightp)))
       (when change-speed-p
         (adjust-lazer-speed lazer (- target-angle now-angle)))
       (setf-vector-2d-angle speed-2d new-angle)
@@ -189,7 +189,7 @@
       (setf-vector-2d-angle speed-2d
                             (adjust-to-target-angle
                              now-angle target-angle
-                             (get-param :lazer :rot-speed)))))
+                             (get-entity-param lazer :rot-speed)))))
   nil)
 
 (defun.ps get-lazer-geometry (lazer)
@@ -329,7 +329,7 @@
 
 ;; The first-angle is a relative angle to the vector (0, -1)
 (defun.ps+ make-a-lazer (&key rightp start-point target
-                              first-angle first-speed first-offset
+                              first-angle first-speed rot-speed first-offset
                               dummy-target-offset)
   (check-type first-offset vector-2d)
   (when target
@@ -366,7 +366,8 @@
                              :target target
                              :dummy-target dummy-target
                              :speed (make-speed-2d)
-                             :lazer-state nil))
+                             :lazer-state nil
+                             :rot-speed rot-speed))
         ;; Note about first-angle:
         ;; A caller sets first-angle as tangential direction of expected circular orbit.
         ;; But to put a lazer into the orbit it is required to adjust the angle by
@@ -374,7 +375,7 @@
         (change-lazer-state lazer (make-lazer-start-state
                                    :rightp rightp
                                    :first-speed first-speed
-                                   :first-angle (- first-angle (/ (get-param :lazer :rot-speed) 2))
+                                   :first-angle (- first-angle (/ rot-speed 2))
                                    :min-time (get-param :lazer-state :start :time)))))
     lazer))
 
@@ -407,6 +408,7 @@
                          :rightp rightp
                          :first-speed speed
                          :first-angle angle
+                         :rot-speed (get-param :lazer :rot-speed)
                          :first-offset (make-vector-2d :x (* offset-x (if rightp 1 -1))
                                                        :y offset-y)
                          :dummy-target-offset (make-vector-2d

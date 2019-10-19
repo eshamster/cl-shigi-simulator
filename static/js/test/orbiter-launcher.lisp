@@ -8,11 +8,13 @@
            :get-launcher-point
            :get-launcher-angle
            :set-launcher-angle
+           :get-rot-speed
+           :set-rot-speed
            :find-launcher
            :shot-lazer)
   (:import-from :cl-shigi-simulator/static/js/test/orbiter-target
-                :get-target-point
-                :get-target-angle)
+                :get-target-angle
+                :get-target-point)
   (:import-from :cl-shigi-simulator/static/js/lazer-utils
                 :calc-first-lazer-speed)
   (:import-from :cl-shigi-simulator/static/js/lazer
@@ -41,7 +43,8 @@
                                (make-my-lazer entity))))
      (init-entity-params :lazer-triggered-p nil
                          :start-angle angle
-                         :target dummy-target))
+                         :target dummy-target
+                         :rot-speed (get-param :lazer :rot-speed)))
     (add-ecs-entity launcher)))
 
 (defun.ps+ shot-lazer (&optional (launcher (find-launcher)))
@@ -50,7 +53,7 @@
 
 (defun.ps+ make-my-lazer (launcher)
   (let* ((target (get-entity-param launcher :target))
-         (rot-speed (get-param :lazer :rot-speed))
+         (rot-speed   (get-rot-speed launcher))
          (dummy-pnt   (get-target-point target))
          (dummy-angle (get-target-angle target))
          (start-pnt   (get-launcher-point launcher))
@@ -60,13 +63,14 @@
                  :dummy-angle dummy-angle
                  :start-pnt   start-pnt
                  :start-angle start-angle
-                 :rot-speed rot-speed)))
+                 :rot-speed   rot-speed)))
     (add-ecs-entity
      (make-a-lazer :rightp t
                    :start-point start-pnt
                    :first-angle start-angle
                    :first-speed speed
                    :first-offset (make-point-2d)
+                   :rot-speed   rot-speed
                    :dummy-target-offset (sub-vector-2d dummy-pnt start-pnt)))))
 
 (defun.ps+ get-launcher-point (&optional (launcher (find-launcher)))
@@ -82,6 +86,14 @@
   "Set relative angle to -PI/2"
   (check-entity-tags launcher :launcher)
   (set-entity-param launcher :start-angle angle))
+
+(defun.ps+ get-rot-speed (&optional (launcher (find-launcher)))
+  (check-entity-tags launcher :launcher)
+  (get-entity-param launcher :rot-speed))
+
+(defun.ps+ set-rot-speed (rot-speed &optional (launcher (find-launcher)))
+  (check-entity-tags launcher :launcher)
+  (set-entity-param launcher :rot-speed rot-speed))
 
 (defun.ps+ find-launcher ()
   (let ((res (find-a-entity-by-tag :launcher)))

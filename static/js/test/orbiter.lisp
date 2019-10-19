@@ -8,7 +8,11 @@
         :cl-ps-ecs)
   (:import-from :cl-shigi-simulator/static/js/test/orbiter-launcher
                 :init-launcher
-                :shot-lazer)
+                :shot-lazer
+                :get-launcher-angle
+                :set-launcher-angle
+                :get-rot-speed
+                :set-rot-speed)
   (:import-from :cl-shigi-simulator/static/js/test/orbiter-target
                 :init-dummy-target
                 :get-target-point
@@ -42,8 +46,7 @@
               (declare (ignore entity))
               ;; Controll target
               (when (eq (get-left-mouse-state) :down)
-                (set-target-point (get-mouse-x)
-                                  (get-mouse-y)))
+                (set-target-point (get-mouse-x) (get-mouse-y)))
               (let ((diff-angle (* PI 1/60)))
                 (when (> (get-mouse-wheel-delta-y) 0)
                   (set-target-angle (- (get-target-angle) diff-angle)))
@@ -65,6 +68,22 @@
                     :depth -1000))
     (add-ecs-entity bg)))
 
+(defun.ps+ init-panel (launcher)
+  (add-panel-number
+   "Start Angle" (* (get-launcher-angle launcher) (/ 180 PI))
+   :min -45
+   :max 90
+   :on-change (lambda (val)
+                (set-launcher-angle (* val (/ PI 180)) launcher)))
+  (let ((default-rs (get-rot-speed launcher)))
+    (add-panel-number
+     "Rotation Speed" default-rs
+     :min (/ default-rs 3)
+     :max (* default-rs 3)
+     :step (/ default-rs 100)
+     :on-change (lambda (val)
+                  (set-rot-speed val launcher)))))
+
 (defun.ps+ init (scene)
   (declare (ignore scene))
   (setf-collider-model-enable nil)
@@ -73,7 +92,8 @@
   (let* ((target (init-dummy-target))
          (launcher (init-launcher target)))
     (init-visualizer :launcher launcher
-                     :target target))
+                     :target target)
+    (init-panel launcher))
   (init-controller))
 
 (defun.ps+ main ()
