@@ -1,4 +1,3 @@
-(in-package :cl-user)
 (defpackage cl-shigi-simulator/templates/index
   (:use :cl
         :cl-markup)
@@ -11,8 +10,10 @@
 (defun render ()
   (with-default-layout (:title "Welcome to Shigi simulator")
     (:div :id "main"
-          (:div "Welcome to Shigi simulator" "!")
+          (:h1 "Shigi simulator")
           (:div :id "to_shigi" (:a :href "shigi" "Start"))
           (:div :id "test_pages"
                 (:div "Tests")
-                (:div :class "test_url" (:a :href "test/ray" "Ray test"))))))
+                (:div :class "test_url"
+                      (:div (:a :href "test/ray" "Ray test"))
+                      (:div (:a :href "test/orbiter" "Orbiter test")))))))

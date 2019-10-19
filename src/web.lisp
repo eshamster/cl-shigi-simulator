@@ -29,8 +29,15 @@
 (defroute "/shigi" ()
   (render :shigi))
 
-(defroute "/test/ray" ()
-  (render :test-ray))
+(defroute "/test/:name" (&key name)
+  (handler-case
+      (render (intern (format nil "test-~A" (string-upcase name))
+                      (find-package "KEYWORD")))
+    ;; TODO: Throw more proper error message and code
+    (error (c)
+      (format *error-output*
+              "----- ERROR: -----~%    When accessing to /test/~A: ~A" name c)
+      (throw-code 500))))
 
 ;;
 ;; Error pages

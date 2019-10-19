@@ -32,7 +32,9 @@
                :cl-shigi-simulator/templates/index
                :cl-shigi-simulator/templates/shigi
                :cl-shigi-simulator/templates/test-ray
+               :cl-shigi-simulator/templates/test-orbiter
                :cl-shigi-simulator/static/js/shigi-simulator
-               :cl-shigi-simulator/static/js/test/ray)
+               :cl-shigi-simulator/static/js/test/ray
+               :cl-shigi-simulator/static/js/test/orbiter)
   :description ""
   :in-order-to ((test-op (load-op cl-shigi-simulator-test))))
