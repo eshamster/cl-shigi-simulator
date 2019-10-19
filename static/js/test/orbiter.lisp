@@ -46,7 +46,10 @@
               (declare (ignore entity))
               ;; Controll target
               (when (eq (get-left-mouse-state) :down)
-                (set-target-point (get-mouse-x) (get-mouse-y)))
+                (let ((x (get-mouse-x))
+                      (y (get-mouse-y)))
+                  (when (point-in-screen-p x y)
+                    (set-target-point x y))))
               (let ((diff-angle (* PI 1/60)))
                 (when (> (get-mouse-wheel-delta-y) 0)
                   (set-target-angle (- (get-target-angle) diff-angle)))
@@ -56,6 +59,10 @@
               (when (key-down-now-p :c)
                 (shot-lazer)))))
     (add-ecs-entity ctr)))
+
+(defun.ps+ point-in-screen-p (x y)
+  (and (>= x 0) (<= x shigi-screen-width)
+       (>= y 0) (<= y shigi-screen-height)))
 
 (defun.ps+ init-background ()
   (let ((bg (make-ecs-entity)))
