@@ -63,8 +63,10 @@
       :lazer-state (:start (:time 4))
       :lazer-maker (:min-speed #y15
                   :max-speed #y30
-                  :min-angle (* PI 60/180)
-                  :max-angle (* PI 78/180)
+                  :start-angle (:min (* PI 12/180)
+                                :max (* PI 60/180))
+                  :target-angle (:min (* PI 60/180)
+                                 :max (* PI 78/180))
                   :half-num 4
                   :first-offset (:x #y35 :y 0)
                   :dummy-target1 (:x #y184 :y #y112))
