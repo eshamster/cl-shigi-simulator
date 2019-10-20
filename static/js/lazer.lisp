@@ -10,7 +10,7 @@
   (:export :shot-lazers
            :make-a-lazer)
   (:import-from :cl-shigi-simulator/static/js/lazer-utils
-                :calc-first-lazer-speed)
+                :calc-lazer-start-speed)
   (:import-from :ps-experiment/common-macros
                 :with-slots-pair))
 (in-package :cl-shigi-simulator/static/js/lazer)
@@ -40,16 +40,16 @@
     (when next-state
       (change-lazer-state lazer next-state state))))
 
-(defun.ps+ make-lazer-start-state (&key rightp first-speed first-angle min-time)
+(defun.ps+ make-lazer-start-state (&key rightp start-speed start-angle min-time)
   (make-lazer-state
    :start-process
    (lambda (lazer)
      (let ((speed (get-lazer-speed lazer)))
-       (setf (vector-2d-x speed) first-speed)
+       (setf (vector-2d-x speed) start-speed)
        (setf (vector-2d-y speed) 0)
        (setf-vector-2d-angle speed (+ (* -1/2 PI)
                                       (* (if rightp 1 -1)
-                                         first-angle)))))
+                                         start-angle)))))
    :process
    (lambda (lazer)
      (flet ((turn-lazer (target)
@@ -270,11 +270,11 @@
      (adjust-collision-point mine target)
      (change-lazer-state mine (make-lazer-stop-state)))))
 
-;; The first-angle is a relative angle to the vector (0, -1)
+;; The start-angle is a relative angle to the vector (0, -1)
 (defun.ps+ make-a-lazer (&key rightp start-point target
-                              first-angle first-speed rot-speed first-offset
+                              start-angle start-speed rot-speed start-offset
                               dummy-target-offset)
-  (check-type first-offset vector-2d)
+  (check-type start-offset vector-2d)
   (when target
     (check-entity-tags target :shigi-part))
   (let ((lazer (make-ecs-entity))
@@ -285,15 +285,15 @@
     (with-slots (x y) start-point
       (dotimes (i num-pnts)
         (push (list 0 0) pnt-list))
-      (let ((first-x (+ x (vector-2d-x first-offset)))
-            (first-y (+ y (vector-2d-y first-offset))))
+      (let ((start-x (+ x (vector-2d-x start-offset)))
+            (start-y (+ y (vector-2d-y start-offset))))
         (add-ecs-component-list
          dummy-target
          (make-point-2d :x (+ x (vector-2d-x dummy-target-offset))
                         :y (+ y (vector-2d-y dummy-target-offset))))
         (add-ecs-component-list
          lazer
-         (make-point-2d :x first-x :y first-y)
+         (make-point-2d :x start-x :y start-y)
          (make-model-2d :model (make-lines :pnt-list pnt-list :color #xff0000)
                         :depth (get-param :lazer :depth))
          (make-script-2d :func #'(lambda (entity)
@@ -305,20 +305,20 @@
          (init-entity-params :duration-after-stop num-pnts
                              :duration-after-lost 30
                              :max-duration 300
-                             :pre-point (make-vector-2d :x first-x :y first-y)
+                             :pre-point (make-vector-2d :x start-x :y start-y)
                              :target target
                              :dummy-target dummy-target
                              :speed (make-speed-2d)
                              :lazer-state nil
                              :rot-speed rot-speed))
-        ;; Note about first-angle:
-        ;; A caller sets first-angle as tangential direction of expected circular orbit.
+        ;; Note about start-angle:
+        ;; A caller sets start-angle as tangential direction of expected circular orbit.
         ;; But to put a lazer into the orbit it is required to adjust the angle by
         ;; half of its rotation speed.
         (change-lazer-state lazer (make-lazer-start-state
                                    :rightp rightp
-                                   :first-speed first-speed
-                                   :first-angle (- first-angle (/ rot-speed 2))
+                                   :start-speed start-speed
+                                   :start-angle (- start-angle (/ rot-speed 2))
                                    :min-time (get-param :lazer-state :start :time)))))
     lazer))
 
@@ -331,14 +331,14 @@
          (target-min-angle (get-param :lazer-maker :target-angle :min))
          (target-max-angle (get-param :lazer-maker :target-angle :max))
          (half-num (get-param :lazer-maker :half-num))
-         (offset-x (get-param :lazer-maker :first-offset :x))
-         (offset-y (get-param :lazer-maker :first-offset :y)))
+         (offset-x (get-param :lazer-maker :start-offset :x))
+         (offset-y (get-param :lazer-maker :start-offset :y)))
     (dotimes (i half-num)
       (let* ((start-angle (lerp-scalar start-min-angle start-max-angle
                                        (/ i (1- half-num))))
              (target-angle (lerp-scalar target-max-angle target-min-angle
                                         (/ i (1- half-num))))
-             (speed (calc-first-lazer-speed
+             (speed (calc-lazer-start-speed
                      :dummy-pnt
                      (make-vector-2d :x (get-param :lazer-maker :dummy-target1 :x)
                                      :y (get-param :lazer-maker :dummy-target1 :y))
@@ -351,10 +351,10 @@
            (make-a-lazer :start-point pnt
                          :target target
                          :rightp rightp
-                         :first-speed speed
-                         :first-angle start-angle
+                         :start-speed speed
+                         :start-angle start-angle
                          :rot-speed (get-param :lazer :rot-speed)
-                         :first-offset (make-vector-2d :x (* offset-x (if rightp 1 -1))
+                         :start-offset (make-vector-2d :x (* offset-x (if rightp 1 -1))
                                                        :y offset-y)
                          :dummy-target-offset (make-vector-2d
                                                :x (* (get-param :lazer-maker :dummy-target1 :x) (if rightp 1 -1))

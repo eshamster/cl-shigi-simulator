@@ -68,7 +68,7 @@
                   :target-angle (:min (* PI 60/180)
                                  :max (* PI 78/180))
                   :half-num 4
-                  :first-offset (:x #y35 :y 0)
+                  :start-offset (:x #y35 :y 0)
                   :dummy-target1 (:x #y184 :y #y112))
       :shigi (:depth 50
               :color #x112222

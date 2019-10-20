@@ -16,7 +16,7 @@
                 :get-target-angle
                 :get-target-point)
   (:import-from :cl-shigi-simulator/static/js/lazer-utils
-                :calc-first-lazer-speed)
+                :calc-lazer-start-speed)
   (:import-from :cl-shigi-simulator/static/js/lazer
                 :make-a-lazer)
   (:import-from :cl-shigi-simulator/static/js/tools
@@ -58,7 +58,7 @@
          (dummy-angle (get-target-angle target))
          (start-pnt   (get-launcher-point launcher))
          (start-angle (get-launcher-angle launcher))
-         (speed (calc-first-lazer-speed
+         (speed (calc-lazer-start-speed
                  :dummy-pnt   dummy-pnt
                  :dummy-angle dummy-angle
                  :start-pnt   start-pnt
@@ -67,9 +67,9 @@
     (add-ecs-entity
      (make-a-lazer :rightp t
                    :start-point start-pnt
-                   :first-angle start-angle
-                   :first-speed speed
-                   :first-offset (make-point-2d)
+                   :start-angle start-angle
+                   :start-speed speed
+                   :start-offset (make-point-2d)
                    :rot-speed   rot-speed
                    :dummy-target-offset (sub-vector-2d dummy-pnt start-pnt)))))
 
