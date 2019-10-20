@@ -4,12 +4,12 @@
         :cl-ps-ecs
         :parenscript
         :cl-web-2d-game)
-  (:export :calc-first-lazer-speed))
+  (:export :calc-lazer-start-speed))
 (in-package :cl-shigi-simulator/static/js/lazer-utils)
 
 (enable-ps-experiment-syntax)
 
-(defun.ps+ calc-first-lazer-speed (&key dummy-pnt dummy-angle
+(defun.ps+ calc-lazer-start-speed (&key dummy-pnt dummy-angle
                                         start-pnt start-angle
                                         rot-speed)
   "Caluclate first speed of a lazer.

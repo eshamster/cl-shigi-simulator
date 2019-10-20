@@ -13,7 +13,7 @@
                 :get-target-point
                 :get-target-angle)
   (:import-from :cl-shigi-simulator/static/js/lazer-utils
-                :calc-first-lazer-speed))
+                :calc-lazer-start-speed))
 (in-package :cl-shigi-simulator/static/js/test/orbiter-visualizer)
 
 (defun.ps+ init-visualizer (&key launcher target)
@@ -79,7 +79,7 @@
   (let* ((target (get-entity-param vis :target))
          (launcher (get-entity-param vis :launcher))
          (rot-speed (get-rot-speed launcher))
-         (speed (calc-first-lazer-speed
+         (speed (calc-lazer-start-speed
                  :dummy-pnt   (get-target-point target)
                  :dummy-angle (get-target-angle target)
                  :start-pnt   (get-launcher-point launcher)
