@@ -16,10 +16,10 @@
 
 (enable-ps-experiment-syntax)
 
-(defvar.ps+ *shigi-collision-targets* '("lazer"))
+(defvar.ps+ *shigi-collision-targets* '(:lazer))
 
 (defun.ps+ check-shigi-part (entity)
-  (check-entity-tags entity "shigi-part"))
+  (check-entity-tags entity :shigi-part))
 
 (defun.ps+ set-shigi-part-enable (shigi-part enable)
   (if enable
@@ -31,10 +31,10 @@
 (defun.ps+ toggle-all-shigi-parts ()
   (let ((enable t))
     (when (find-a-entity #'(lambda (entity)
-                             (and (has-entity-tag entity "shigi-part")
+                             (and (has-entity-tag entity :shigi-part)
                                   (get-entity-param entity :enable))))
       (setf enable nil))
-    (do-tagged-ecs-entities (part "shigi-part")
+    (do-tagged-ecs-entities (part :shigi-part)
       (set-shigi-part-enable part enable))
     enable))
 
@@ -45,7 +45,7 @@
 
 (defun.ps+ toggle-shigi-part-by-mouse (shigi-part target)
   (when (and (= (get-left-mouse-state) :down-now)
-             (has-entity-tag target "mouse"))
+             (has-entity-tag target :mouse))
     (toggle-shigi-part shigi-part)))
 
 (defun.ps+ shigi-part-valid-p (shigi-part)
@@ -68,13 +68,13 @@
     marker))
 
 (defun.ps+ change-shigi-bit-speed (bit scale)
-  (check-entity-tags bit "shigi-bit")
+  (check-entity-tags bit :shigi-bit)
   (with-ecs-components (rotate-2d) bit
     (setf (rotate-2d-speed rotate-2d)
           (* (get-param :shigi :bit :rot-speed) scale))))
 
 (defun.ps+ change-all-shigi-bits-speed (scale)
-  (do-tagged-ecs-entities (bit "shigi-bit")
+  (do-tagged-ecs-entities (bit :shigi-bit)
     (change-shigi-bit-speed bit scale)))
 
 (defun.ps+ make-shigi-bits ()
@@ -88,7 +88,7 @@
              (angle (* 2 PI i (/ 1 num-bit)))
              (point (make-point-2d)))
         (movef-vector-to-circle point dist angle)
-        (add-entity-tag bit "shigi-part" "shigi-bit")
+        (add-entity-tag bit :shigi-part :shigi-bit)
         (add-ecs-component-list
          bit
          (make-model-2d :model (make-wired-regular-polygon :r r :n 100
@@ -113,9 +113,9 @@
   (with-ecs-components (rotate-2d (body-point point-2d)) body
     (with-slots-pair ((speed) rotate-2d
                       (angle) body-point)
-      (let ((center (find-a-entity-by-tag "shigi-center")))
+      (let ((center (find-a-entity-by-tag :shigi-center)))
         (if (get-entity-param center :body-rotate-p)
-            (let* ((player (find-a-entity-by-tag "player"))
+            (let* ((player (find-a-entity-by-tag :player))
                    (angle-to-player (vector-2d-angle
                                      (decf-vector-2d (clone-vector-2d (get-ecs-component 'point-2d player))
                                                   (get-ecs-component 'point-2d center)))))
@@ -156,7 +156,7 @@
                (model-offset (make-point-2d :x (* -1 (car center))
                                             :y (* -1 (cadr center))
                                             :angle 0)))
-          (add-entity-tag body "shigi-part" "shigi-body")
+          (add-entity-tag body :shigi-part :shigi-body)
           (add-ecs-component-list
            body
            (make-model-2d :model (make-wired-polygon
@@ -186,7 +186,7 @@
 
 (defun.ps+ make-shigi-center ()
   (let ((center (make-ecs-entity)))
-    (add-entity-tag center "shigi-center")
+    (add-entity-tag center :shigi-center)
     (add-ecs-component-list
      center
      (make-point-2d :x (/ (get-param :play-area :width) 2) :y #y800)
@@ -226,7 +226,7 @@
 
 (defun.ps+ make-shigi-part-point-pairs ()
   (let ((result '()))
-    (do-tagged-ecs-entities (entity "shigi-part")
+    (do-tagged-ecs-entities (entity :shigi-part)
       (when (shigi-part-valid-p entity)
         (push (list entity (calc-global-point entity))
               result)))

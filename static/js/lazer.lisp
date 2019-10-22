@@ -211,7 +211,7 @@
 
 (defun.ps update-lazer-points (lazer)
   ;; Note that a model space is relative to the point of the entity. (Ex. (0, 0) in the model space is the same to the point of the entity in the absolute coordinate.)
-  (check-entity-tags "lazer")
+  (check-entity-tags :lazer)
   (with-ecs-components ((new-point point-2d)) lazer
     (let* ((speed (get-entity-param lazer :speed))
            (geometry (get-lazer-geometry lazer))
@@ -230,14 +230,14 @@
       (setf geometry.vertices-need-update t))))
 
 (defun.ps+ process-lazer-duration (entity)
-  (check-entity-tags "lazer")
+  (check-entity-tags :lazer)
   (let ((max-duration (get-entity-param entity :max-duration)))
     (when (= max-duration 0)
       (change-lazer-state entity (make-lazer-stop-state)))
     (set-entity-param entity :max-duration (1- max-duration))))
 
 (defun.ps adjust-collision-point (lazer target)
-  (check-entity-tags lazer "lazer")
+  (check-entity-tags lazer :lazer)
   (with-ecs-components ((lazer-pnt point-2d)) lazer
     (labels ((calc-mid-pnt-f (dst pnt1 pnt2)
                (setf (vector-2d-x dst) (/ (+ (vector-2d-x pnt1) (vector-2d-x pnt2)) 2))

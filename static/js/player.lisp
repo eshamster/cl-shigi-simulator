@@ -81,7 +81,7 @@
                            (pad frame-count 3) "F)")))))
 
 (defun.ps register-nearest-part (player)
-  (check-entity-tags player "player")
+  (check-entity-tags player :player)
   (let* ((register (get-entity-param player :nearest-part-register))
          (nearest (get-nearest-shigi-part (calc-global-point player)))
          (nearest-id (if nearest (ecs-entity-id nearest) -1)))
@@ -95,7 +95,7 @@
 
 (defun.ps make-player-center ()
   (let ((body (make-ecs-entity)))
-    (add-entity-tag body "player")
+    (add-entity-tag body :player)
     (add-ecs-component-list
      body
      (make-point-2d :x (/ (get-param :play-area :width) 2) :y #y100)

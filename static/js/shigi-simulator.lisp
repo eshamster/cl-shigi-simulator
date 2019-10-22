@@ -38,7 +38,7 @@
 (defun.ps+ make-mouse-pointer ()
   (let* ((pointer (make-ecs-entity))
          (r 5))
-    (add-entity-tag pointer "mouse")
+    (add-entity-tag pointer :mouse)
     (add-ecs-component-list
      pointer
      (make-point-2d)
@@ -50,7 +50,7 @@
                                (setf (point-2d-x point-2d) (get-mouse-x))
                                (setf (point-2d-y point-2d) (get-mouse-y)))))
      (make-physic-circle :r r
-                         :target-tags '("shigi-part")))
+                         :target-tags '(:shigi-part)))
     (add-ecs-entity pointer)))
 
 (defun.ps make-sample-entities ()
