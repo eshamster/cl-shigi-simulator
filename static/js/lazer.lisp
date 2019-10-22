@@ -291,6 +291,8 @@
          dummy-target
          (make-point-2d :x (+ x (vector-2d-x dummy-target-offset))
                         :y (+ y (vector-2d-y dummy-target-offset))))
+        (setf (ecs-entity-parent dummy-target)
+              (get-default-ecs-entity-parent))
         (add-ecs-component-list
          lazer
          (make-point-2d :x start-x :y start-y)
@@ -325,6 +327,7 @@
 (defun.ps+ shot-lazers (player)
   (check-entity-tags player :player)
   (let* ((pnt (calc-global-point player))
+         (parent-pnt (calc-parent-global-point player))
          (target (get-nearest-shigi-part pnt))
          (start-min-angle (get-param :lazer-maker :start-angle :min))
          (start-max-angle (get-param :lazer-maker :start-angle :max))
@@ -348,7 +351,7 @@
                      :rot-speed (get-param :lazer :rot-speed))))
         (dolist (rightp '(t nil))
           (add-ecs-entity-to-buffer
-           (make-a-lazer :start-point pnt
+           (make-a-lazer :start-point (transformf-point-inverse (clone-point-2d pnt) parent-pnt)
                          :target target
                          :rightp rightp
                          :start-speed speed

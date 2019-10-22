@@ -29,7 +29,18 @@
   (defun.ps+ calc-absolute-length (relative-length base-length)
     "Calculate an absolute length based on the screen height (1000 = base-length)"
     (* relative-length base-length 0.001))
-  
+
+  "Ex1. '#lx500' represents a half length of the play-area width."
+  "Ex2. '#ly500' represents a half length of the play-area height."
+  (set-dispatch-macro-character
+   #\# #\l
+   #'(lambda (stream &rest rest)
+       (declare (ignore rest))
+       (ecase (read-char stream)
+         (#\x `(calc-absolute-length ,(read stream) play-area-width))
+         (#\y `(calc-absolute-length ,(read stream) play-area-height)))))
+
+  ;; [OBSOLETED]
   "Ex1. '#y0.5' represents a half length of the play-area height."
   "Ex2. '#ys0.5' represents a half length of the screen height."
   (set-dispatch-macro-character
