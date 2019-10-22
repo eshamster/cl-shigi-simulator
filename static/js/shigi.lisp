@@ -21,14 +21,14 @@
 (defun.ps+ check-shigi-part (entity)
   (check-entity-tags entity "shigi-part"))
 
-(defun.ps set-shigi-part-enable (shigi-part enable)
+(defun.ps+ set-shigi-part-enable (shigi-part enable)
   (if enable
       (progn (set-entity-param shigi-part :enable t)
              (enable-model-2d shigi-part))
       (progn (set-entity-param shigi-part :enable nil)
              (disable-model-2d shigi-part))))
 
-(defun.ps toggle-all-shigi-parts ()
+(defun.ps+ toggle-all-shigi-parts ()
   (let ((enable t))
     (when (find-a-entity #'(lambda (entity)
                              (and (has-entity-tag entity "shigi-part")
@@ -38,12 +38,12 @@
       (set-shigi-part-enable part enable))
     enable))
 
-(defun.ps toggle-shigi-part (shigi-part)
+(defun.ps+ toggle-shigi-part (shigi-part)
   (check-shigi-part shigi-part)
   (let ((enable (get-entity-param shigi-part :enable)))
     (set-shigi-part-enable shigi-part (not enable))))
 
-(defun.ps toggle-shigi-part-by-mouse (shigi-part target)
+(defun.ps+ toggle-shigi-part-by-mouse (shigi-part target)
   (when (and (= (get-left-mouse-state) :down-now)
              (has-entity-tag target "mouse"))
     (toggle-shigi-part shigi-part)))
@@ -54,7 +54,7 @@
   (check-shigi-part shigi-part)
   (get-entity-param shigi-part :enable))
 
-(defun.ps make-center-point-marker ()
+(defun.ps+ make-center-point-marker ()
   (let* ((marker (make-ecs-entity))
          (len (get-param :shigi :marker-size))
          (offset (* -1 (/ len 2))))
@@ -77,7 +77,7 @@
   (do-tagged-ecs-entities (bit "shigi-bit")
     (change-shigi-bit-speed bit scale)))
 
-(defun.ps make-shigi-bits ()
+(defun.ps+ make-shigi-bits ()
   (let ((result '())
         (num-bit 4)
         (rot-speed (get-param :shigi :bit :rot-speed))
@@ -104,8 +104,8 @@
          (init-entity-params :color (nth i (get-param :color-chip :colors))
                              :display-name (+ "Bit" (1+ i))
                              :bit-id i
-                             :enable t)))
-      (push bit result))
+                             :enable t))
+        (push bit result)))
     result))
 
 (defun.ps+ rotate-shigi-body (body)
@@ -184,7 +184,7 @@
           (push body result))))
     result))
 
-(defun.ps make-shigi-center ()
+(defun.ps+ make-shigi-center ()
   (let ((center (make-ecs-entity)))
     (add-entity-tag center "shigi-center")
     (add-ecs-component-list
@@ -204,10 +204,11 @@
                                  (set-entity-param center :body-rotate-p value)))
     (add-panel-button 'toggle-all-shigi-parts
                       :on-change (lambda (value)
+                                   (declare (ignore value))
                                    (toggle-all-shigi-parts)))
     center))
 
-(defun.ps make-shigi ()
+(defun.ps+ make-shigi ()
   (let ((center (make-shigi-center))
         (bodies (make-shigi-bodies))
         (bit-list (make-shigi-bits)))
