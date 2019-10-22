@@ -20,6 +20,7 @@
   (:import-from :cl-shigi-simulator/static/js/lazer
                 :make-a-lazer)
   (:import-from :cl-shigi-simulator/static/js/tools
+                :get-depth
                 :get-param
                 :shigi-screen-width
                 :shigi-screen-height))
@@ -36,7 +37,7 @@
      (make-point-2d :x (* shigi-screen-width 300/1000)
                     :y (* shigi-screen-height 300/1000))
      (make-model-2d :model (make-solid-circle :r r :color #x0000ff)
-                    :depth 1)
+                    :depth (get-depth :player))
      (make-script-2d :func (lambda (entity)
                              (when (get-entity-param entity :lazer-triggered-p)
                                (set-entity-param entity :lazer-triggered-p nil)

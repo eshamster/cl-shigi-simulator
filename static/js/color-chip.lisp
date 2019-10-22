@@ -34,7 +34,7 @@
          (size (get-param :color-chip :size))
          (num-x (get-chip-num-x))
          (num-y (get-chip-num-y))
-         (depth (get-param :color-chip :depth)))
+         (depth (get-depth :color-chip)))
     (with-slots (vertices colors faces) geometry
       (dotimes (y (1+ num-y))
         (dotimes (x (1+ num-x))

@@ -297,7 +297,7 @@
          lazer
          (make-point-2d :x start-x :y start-y)
          (make-model-2d :model (make-lines :pnt-list pnt-list :color #xff0000)
-                        :depth (get-param :lazer :depth))
+                        :depth (get-depth :lazer))
          (make-script-2d :func #'(lambda (entity)
                                    (process-lazer-state lazer)
                                    (update-lazer-points entity)

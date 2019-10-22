@@ -19,7 +19,7 @@
      pointer
      (make-point-2d)
      (make-model-2d :model (make-solid-circle :r r :color #xff0000)
-                    :depth 1)
+                    :depth (get-depth :mouse))
      (make-script-2d :func (lambda (entity)
                              (with-ecs-components (point-2d) entity
                                (setf (point-2d-x point-2d) (get-mouse-x)
@@ -31,7 +31,9 @@
         (sw shigi-screen-width)
         (sh shigi-screen-height)
         (width  #lx1000)
-        (height #ly1000))
+        (height #ly1000)
+        (db (get-depth :background))
+        (df (get-depth :foregrond)))
     (flet ((make-model (x y w h depth color)
              (make-model-2d :model (make-solid-rect :width  w
                                                     :height h
@@ -42,16 +44,16 @@
        bg
        (make-point-2d :x (/ (- sw width)  2)
                       :y (/ (- sh height) 2))
-       (make-model 0 0 width height -1000 #xffffff)
+       (make-model 0 0 width height db #xffffff)
        ;; wallpapers
        (make-model (* -1 sw) 0
-                   sw sh 1000 #x000000)
+                   sw sh df #x000000)
        (make-model width 0
-                   sw sh 1000 #x000000)
+                   sw sh df #x000000)
        (make-model 0 (* -1 sh)
-                   sw sh 1000 #x000000)
+                   sw sh df #x000000)
        (make-model 0 height
-                   sw sh 1000 #x000000)))
+                   sw sh df #x000000)))
     (add-ecs-entity bg)))
 
 (defun.ps+ init (scene)

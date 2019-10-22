@@ -21,7 +21,7 @@
      pointer
      (make-point-2d :center (make-vector-2d :x r :y r))
      (make-model-2d :model (make-lines :pnt-list init-pnt-list :color 0xff0000)
-                    :depth 1)
+                    :depth (get-depth :mouse))
      (make-script-2d :func (lambda (entity)
                              (with-ecs-components (model-2d) entity
                                (let* ((geometry model-2d.model.geometry)

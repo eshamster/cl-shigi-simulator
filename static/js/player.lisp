@@ -24,7 +24,7 @@
      ring
      (make-model-2d :model (make-wired-regular-polygon :r r :n 100
                                                        :color (get-param :player :color))
-                 :depth (get-param :player :depth))
+                 :depth (get-depth :player))
      (make-point-2d :x 0 :y 0))
     ring))
 
@@ -35,7 +35,7 @@
      body
      (make-model-2d :model (make-solid-regular-polygon :r r :n 100
                                                        :color (get-param :player :color))
-                    :depth (get-param :player :depth))
+                    :depth (get-depth :player))
      (make-point-2d :x 0 :y 0))
     body))
 

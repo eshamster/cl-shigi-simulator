@@ -62,7 +62,7 @@
      marker
      (make-model-2d :model (make-wired-rect :width len :height len
                                             :color (get-param :shigi :marker-color))
-                    :depth (get-param :shigi :depth)
+                    :depth (get-depth :enemy)
                     :offset (make-point-2d :x offset :y offset))
      (make-point-2d))
     marker))
@@ -93,7 +93,7 @@
          bit
          (make-model-2d :model (make-wired-regular-polygon :r r :n 100
                                                            :color (get-param :shigi :color))
-                        :depth (get-param :shigi :depth))
+                        :depth (get-depth :enemy))
          (make-physic-circle :r r
                              :on-collision #'toggle-shigi-part-by-mouse
                              :target-tags *shigi-collision-targets*)
@@ -162,7 +162,7 @@
            (make-model-2d :model (make-wired-polygon
                                   :pnt-list modified-pnt-list
                                   :color (get-param :shigi :color))
-                          :depth (get-param :shigi :depth)
+                          :depth (get-depth :enemy)
                           :offset model-offset)
            (make-physic-polygon :pnt-list
                                 (mapcar (lambda (pnt-by-list)

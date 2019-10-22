@@ -30,7 +30,7 @@
      pointer
      (make-point-2d)
      (make-model-2d :model (make-solid-circle :r r :color #xff0000)
-                    :depth 1)
+                    :depth (get-depth :mouse))
      (make-script-2d :func (lambda (entity)
                              (with-ecs-components (point-2d) entity
                                (setf (point-2d-x point-2d) (get-mouse-x)
@@ -72,7 +72,7 @@
      (make-model-2d :model (make-solid-rect :width shigi-screen-width
                                             :height shigi-screen-height
                                             :color #xeeeeee)
-                    :depth -1000))
+                    :depth (get-depth :background)))
     (add-ecs-entity bg)))
 
 (defun.ps+ init-panel (launcher)
