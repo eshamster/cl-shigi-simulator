@@ -62,11 +62,14 @@
         (setf (point-2d-y buffer-pnt) (* (+ 0.5 y) size))
         (dotimes (x (get-chip-num-x))
           (setf (point-2d-x buffer-pnt) (* (+ 0.5 x) size))
-          (let* ((nearest-part (get-nearest-target buffer-pnt target-pnt-pairs)))
-            (set-chip-color geometry x y
-                            (if nearest-part
-                                (get-entity-param nearest-part :color)
-                                #xffffff))))))))
+          (flet ((get-color ()
+                   (if (get-entity-param grid :enable-chips)
+                       (let ((nearest-part (get-nearest-target buffer-pnt target-pnt-pairs)))
+                         (if nearest-part
+                             (get-entity-param nearest-part :color)
+                             #xffffff))
+                       #xffffff)))
+            (set-chip-color geometry x y (get-color))))))))
 
 (defun.ps generate-color-grid ()
   (let ((grid (make-ecs-entity)))
