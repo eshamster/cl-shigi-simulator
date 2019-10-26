@@ -6,12 +6,16 @@
         :parenscript
         :cl-web-2d-game
         :cl-shigi-simulator/static/js/tools)
-  (:import-from :ps-experiment/common-macros
-                :with-slots-pair)
   (:export :shigi-part-valid-p
-           :make-shigi-part-point-pairs
-           :get-nearest-shigi-part
-           :make-shigi))
+           :make-shigi
+           :shigi-part-p)
+  (:import-from :cl-shigi-simulator/static/js/target
+                :target-component
+                :make-target-component
+                :target-component-enable
+                :get-target-tag)
+  (:import-from :ps-experiment/common-macros
+                :with-slots-pair))
 (in-package :cl-shigi-simulator/static/js/shigi)
 
 (enable-ps-experiment-syntax)
@@ -21,18 +25,24 @@
 (defun.ps+ check-shigi-part (entity)
   (check-entity-tags entity :shigi-part))
 
+(defun.ps+ get-shigi-part-enable (shigi-part)
+  (let ((target (get-ecs-component 'target-component shigi-part)))
+    (assert target)
+    (target-component-enable target)))
+
 (defun.ps+ set-shigi-part-enable (shigi-part enable)
-  (if enable
-      (progn (set-entity-param shigi-part :enable t)
-             (enable-model-2d shigi-part))
-      (progn (set-entity-param shigi-part :enable nil)
-             (disable-model-2d shigi-part))))
+  (let ((target (get-ecs-component 'target-component shigi-part)))
+    (assert target)
+    (setf (target-component-enable target) enable)
+    (if enable
+        (enable-model-2d shigi-part)
+        (disable-model-2d shigi-part))))
 
 (defun.ps+ toggle-all-shigi-parts ()
   (let ((enable t))
     (when (find-a-entity #'(lambda (entity)
                              (and (has-entity-tag entity :shigi-part)
-                                  (get-entity-param entity :enable))))
+                                  (get-shigi-part-enable entity))))
       (setf enable nil))
     (do-tagged-ecs-entities (part :shigi-part)
       (set-shigi-part-enable part enable))
@@ -40,7 +50,7 @@
 
 (defun.ps+ toggle-shigi-part (shigi-part)
   (check-shigi-part shigi-part)
-  (let ((enable (get-entity-param shigi-part :enable)))
+  (let ((enable (get-shigi-part-enable shigi-part)))
     (set-shigi-part-enable shigi-part (not enable))))
 
 (defun.ps+ toggle-shigi-part-by-mouse (shigi-part target)
@@ -52,7 +62,7 @@
   (unless shigi-part
     (return-from shigi-part-valid-p nil))
   (check-shigi-part shigi-part)
-  (get-entity-param shigi-part :enable))
+  (get-shigi-part-enable shigi-part))
 
 (defun.ps+ make-center-point-marker ()
   (let* ((marker (make-ecs-entity))
@@ -88,7 +98,7 @@
              (angle (* 2 PI i (/ 1 num-bit)))
              (point (make-point-2d)))
         (movef-vector-to-circle point dist angle)
-        (add-entity-tag bit :shigi-part :shigi-bit)
+        (add-entity-tag bit :shigi-part :shigi-bit (get-target-tag))
         (add-ecs-component-list
          bit
          (make-model-2d :model (make-wired-regular-polygon :r r :n 100
@@ -101,10 +111,10 @@
          (make-rotate-2d :speed rot-speed
                          :angle angle
                          :radious dist)
+         (make-target-component)
          (init-entity-params :color (nth i (get-param :color-chip :colors))
                              :display-name (+ "Bit" (1+ i))
-                             :bit-id i
-                             :enable t))
+                             :bit-id i))
         (push bit result)))
     result))
 
@@ -156,9 +166,10 @@
                (model-offset (make-point-2d :x (* -1 (car center))
                                             :y (* -1 (cadr center))
                                             :angle 0)))
-          (add-entity-tag body :shigi-part :shigi-body)
+          (add-entity-tag body :shigi-part :shigi-body (get-target-tag))
           (add-ecs-component-list
            body
+           (make-target-component)
            (make-model-2d :model (make-wired-polygon
                                   :pnt-list modified-pnt-list
                                   :color (get-param :shigi :color))
@@ -179,8 +190,7 @@
            (make-script-2d :func #'rotate-shigi-body)
            ;; TODO: parameterize 4 (which is the number of the bit)
            (init-entity-params :color (nth (+ i 4) (get-param :color-chip :colors))
-                               :display-name (+ "Body_" (if (= i 0) "R" "L"))
-                               :enable t))
+                               :display-name (+ "Body_" (if (= i 0) "R" "L"))))
           (push body result))))
     result))
 
@@ -224,21 +234,5 @@
 
 ;; --- tools --- ;;
 
-(defun.ps+ make-shigi-part-point-pairs ()
-  (let ((result '()))
-    (do-tagged-ecs-entities (entity :shigi-part)
-      (when (shigi-part-valid-p entity)
-        (push (list entity (calc-global-point entity))
-              result)))
-    result))
-
-(defun.ps+ get-nearest-shigi-part (pnt &optional (shigi-parts-points (make-shigi-part-point-pairs)))
-  (let ((min-len -1)
-        (nearest-part nil))
-    (dolist (part-pnt-pair shigi-parts-points)
-      (let ((dist (calc-dist-p2 pnt (cadr part-pnt-pair))))
-        (when (or (< min-len 0)
-                  (< dist min-len))
-          (setf min-len dist)
-          (setf nearest-part (car part-pnt-pair)))))
-    nearest-part))
+(defun.ps+ shigi-part-p (entity)
+  (has-entity-tag entity :shigi-part))

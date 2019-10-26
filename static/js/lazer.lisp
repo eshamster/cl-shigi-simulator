@@ -9,6 +9,8 @@
         :cl-shigi-simulator/static/js/tools)
   (:export :shot-lazers
            :make-a-lazer)
+  (:import-from :cl-shigi-simulator/static/js/target
+                :get-nearest-target)
   (:import-from :cl-shigi-simulator/static/js/lazer-utils
                 :calc-lazer-start-speed)
   (:import-from :ps-experiment/common-macros
@@ -328,7 +330,7 @@
   (check-entity-tags player :player)
   (let* ((pnt (calc-global-point player))
          (parent-pnt (calc-parent-global-point player))
-         (target (get-nearest-shigi-part pnt))
+         (target (get-nearest-target pnt))
          (start-min-angle (get-param :lazer-maker :start-angle :min))
          (start-max-angle (get-param :lazer-maker :start-angle :max))
          (target-min-angle (get-param :lazer-maker :target-angle :min))

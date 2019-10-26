@@ -9,6 +9,8 @@
         :cl-shigi-simulator/static/js/shigi
         :cl-shigi-simulator/static/js/tools)
   (:export :make-player)
+  (:import-from :cl-shigi-simulator/static/js/target
+                :get-nearest-target)
   (:import-from :ps-experiment/common-macros
                 :with-slots-pair))
 (in-package :cl-shigi-simulator/static/js/player)
@@ -83,7 +85,7 @@
 (defun.ps register-nearest-part (player)
   (check-entity-tags player :player)
   (let* ((register (get-entity-param player :nearest-part-register))
-         (nearest (get-nearest-shigi-part (calc-global-point player)))
+         (nearest (get-nearest-target (calc-global-point player)))
          (nearest-id (if nearest (ecs-entity-id nearest) -1)))
     (with-slots (part-id frame-count) register
       (if (= part-id nearest-id)
