@@ -8,6 +8,7 @@
            :make-target-component
            :target-component-num-lazer-to-destroy
            :target-component-enable
+           :target-enable-p
            :get-target-tag
            :get-target-pnt-pairs
            :get-nearest-target
@@ -57,7 +58,13 @@
                   (lambda (a b)
                     (< (cadr a) (cadr b)))))))
 
+(defun.ps+ target-enable-p (target)
+  (unless target
+    (return-from target-enable-p nil))
+  (check-target target)
+  (target-component-enable (get-ecs-component 'target-component target)))
+
 (defun.ps+ check-target (target)
-  (assert (has-entity-tag target (get-target-tag)))
+  (check-entity-tags target (get-target-tag))
   (assert (get-ecs-component 'point-2d target))
   (assert (get-ecs-component 'target-component target)))

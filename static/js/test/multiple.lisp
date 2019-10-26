@@ -6,6 +6,8 @@
         :cl-web-2d-game
         :cl-shigi-simulator/static/js/tools
         :cl-ps-ecs)
+  (:import-from :cl-shigi-simulator/static/js/test/multiple-target
+                :init-targets)
   (:import-from :cl-shigi-simulator/static/js/player
                 :make-player)
   (:import-from :ps-experiment/common-macros
@@ -60,9 +62,10 @@
   (declare (ignore scene))
   (setf-collider-model-enable nil)
   (init-mouse-pointer)
-  (let ((parent (init-global-parent)))
-    (stack-default-ecs-entity-parent parent)
-    (make-player)))
+  ;; --- ;;
+  (stack-default-ecs-entity-parent (init-global-parent))
+  (make-player)
+  (init-targets))
 
 (defun.ps+ main ()
   (start-game :screen-width shigi-screen-width

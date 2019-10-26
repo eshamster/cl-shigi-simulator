@@ -5,14 +5,17 @@
         :cl-ps-ecs
         :parenscript
         :cl-web-2d-game
-        :cl-shigi-simulator/static/js/shigi
         :cl-shigi-simulator/static/js/tools)
   (:export :shot-lazers
-           :make-a-lazer)
+           :make-a-lazer
+           :get-lazer-tag)
   (:import-from :cl-shigi-simulator/static/js/target
-                :get-nearest-target)
+                :get-nearest-target
+                :target-enable-p)
   (:import-from :cl-shigi-simulator/static/js/lazer-utils
                 :calc-lazer-start-speed)
+  (:import-from :cl-shigi-simulator/static/js/target
+                :get-target-tag)
   (:import-from :ps-experiment/common-macros
                 :with-slots-pair))
 (in-package :cl-shigi-simulator/static/js/lazer)
@@ -57,13 +60,13 @@
      (flet ((turn-lazer (target)
               (turn-lazer-to-target-first lazer target rightp nil)))
        (let* ((target (get-entity-param lazer :target))
-              (target-valid-p (shigi-part-valid-p target))
+              (target-enable (target-enable-p target))
               (dummy-target (get-entity-param lazer :dummy-target)))
          (when (and dummy-target (turn-lazer dummy-target))
            (set-entity-param lazer :dummy-target nil))
          (decf min-time)
          (when (<= min-time 0)
-           (if target-valid-p
+           (if target-enable
                (make-lazer-first-homing-state rightp)
                (unless dummy-target
                  (make-lazer-lost-state)))))))))
@@ -73,7 +76,7 @@
   (make-lazer-state
    :process
    (lambda (lazer)
-     (if (shigi-part-valid-p (get-entity-param lazer :target))
+     (if (target-enable-p (get-entity-param lazer :target))
          (when (turn-lazer-to-target-first lazer (get-entity-param lazer :target) rightp)
            (make-lazer-homing-state))
          (make-lazer-lost-state)))))
@@ -83,7 +86,7 @@
   (make-lazer-state
    :process
    (lambda (lazer)
-     (if (shigi-part-valid-p (get-entity-param lazer :target))
+     (if (target-enable-p (get-entity-param lazer :target))
          (turn-lazer-to-target lazer)
          (make-lazer-lost-state)))))
 
@@ -238,16 +241,18 @@
       (change-lazer-state entity (make-lazer-stop-state)))
     (set-entity-param entity :max-duration (1- max-duration))))
 
-(defun.ps adjust-collision-point (lazer target)
+(defun.ps+ adjust-collision-point (lazer target)
   (check-entity-tags lazer :lazer)
-  (with-ecs-components ((lazer-pnt point-2d)) lazer
+  (let ((lazer-pnt (calc-global-point lazer))
+        (parent-pnt (calc-parent-global-point lazer)))
     (labels ((calc-mid-pnt-f (dst pnt1 pnt2)
                (setf (vector-2d-x dst) (/ (+ (vector-2d-x pnt1) (vector-2d-x pnt2)) 2))
                (setf (vector-2d-y dst) (/ (+ (vector-2d-y pnt1) (vector-2d-y pnt2)) 2))
                dst))
       (let ((dummy (make-ecs-entity))
             (head (clone-point-2d lazer-pnt))
-            (next (clone-vector-2d (get-entity-param lazer :pre-point)))
+            (next (transformf-point (clone-point-2d (get-entity-param lazer :pre-point))
+                                    parent-pnt))
             (mid (make-point-2d)))
         (calc-mid-pnt-f mid head next)
         (add-ecs-component-list
@@ -262,15 +267,16 @@
         (decf-offset-from-lazer-tails (get-lazer-geometry lazer)
                                       (- (vector-2d-x head) (vector-2d-x lazer-pnt))
                                       (- (vector-2d-y head) (vector-2d-y lazer-pnt)))
-        (copy-vector-2d-to lazer-pnt head)))))
+        (copy-vector-2d-to (get-ecs-component 'point-2d lazer)
+                           (transformf-point-inverse next parent-pnt))))))
 
-(defun.ps process-lazer-collision (mine target)
+(defun.ps+ process-lazer-collision (mine target)
   (let ((true-target (get-entity-param mine :target)))
     (when (and true-target
                (= (ecs-entity-id target)
                   (ecs-entity-id true-target)))
-     (adjust-collision-point mine target)
-     (change-lazer-state mine (make-lazer-stop-state)))))
+      (adjust-collision-point mine target)
+      (change-lazer-state mine (make-lazer-stop-state)))))
 
 ;; The start-angle is a relative angle to the vector (0, -1)
 (defun.ps+ make-a-lazer (&key rightp start-point target
@@ -278,7 +284,7 @@
                               dummy-target-offset)
   (check-type start-offset vector-2d)
   (when target
-    (check-entity-tags target :shigi-part))
+    (check-entity-tags target (get-target-tag)))
   (let ((lazer (make-ecs-entity))
         (dummy-target (make-ecs-entity))
         (num-pnts (get-param :lazer :tail-length))
@@ -305,11 +311,11 @@
                                    (update-lazer-points entity)
                                    (process-lazer-duration entity)))
          (make-physic-circle :r 0 :on-collision #'process-lazer-collision
-                             :target-tags '(:shigi-part))
+                             :target-tags (list (get-target-tag)))
          (init-entity-params :duration-after-stop num-pnts
                              :duration-after-lost 30
                              :max-duration 300
-                             :pre-point (make-vector-2d :x start-x :y start-y)
+                             :pre-point (make-point-2d :x start-x :y start-y)
                              :target target
                              :dummy-target dummy-target
                              :speed (make-speed-2d)
@@ -364,3 +370,8 @@
                          :dummy-target-offset (make-vector-2d
                                                :x (* (get-param :lazer-maker :dummy-target1 :x) (if rightp 1 -1))
                                                :y (get-param :lazer-maker :dummy-target1 :y)))))))))
+
+;; --- utils --- ;;
+
+(defun.ps+ get-lazer-tag ()
+  :lazer)

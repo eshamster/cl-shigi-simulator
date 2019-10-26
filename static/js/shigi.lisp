@@ -6,9 +6,10 @@
         :parenscript
         :cl-web-2d-game
         :cl-shigi-simulator/static/js/tools)
-  (:export :shigi-part-valid-p
-           :make-shigi
+  (:export :make-shigi
            :shigi-part-p)
+  (:import-from :cl-shigi-simulator/static/js/lazer
+                :get-lazer-tag)
   (:import-from :cl-shigi-simulator/static/js/target
                 :target-component
                 :make-target-component
@@ -20,7 +21,7 @@
 
 (enable-ps-experiment-syntax)
 
-(defvar.ps+ *shigi-collision-targets* '(:lazer))
+(defvar.ps+ *shigi-collision-targets* (list (get-lazer-tag)))
 
 (defun.ps+ check-shigi-part (entity)
   (check-entity-tags entity :shigi-part))
@@ -57,12 +58,6 @@
   (when (and (= (get-left-mouse-state) :down-now)
              (has-entity-tag target :mouse))
     (toggle-shigi-part shigi-part)))
-
-(defun.ps+ shigi-part-valid-p (shigi-part)
-  (unless shigi-part
-    (return-from shigi-part-valid-p nil))
-  (check-shigi-part shigi-part)
-  (get-shigi-part-enable shigi-part))
 
 (defun.ps+ make-center-point-marker ()
   (let* ((marker (make-ecs-entity))

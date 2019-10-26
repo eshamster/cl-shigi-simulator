@@ -96,7 +96,8 @@
                                  #x9bee57
                                  #x77bd77
                                  #xaaf7ff)
-                   :size #y40))))
+                   :size #y40)
+      :test (:multiple (:target-r #y30)))))
 
 (defmacro.ps+ get-param (&rest keys)
   `(get-layered-hash *global-params* ,@keys))
