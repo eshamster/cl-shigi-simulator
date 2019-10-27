@@ -4,7 +4,10 @@
         :cl-ps-ecs
         :parenscript
         :cl-web-2d-game)
-  (:export :calc-lazer-start-speed))
+  (:export :calc-lazer-start-speed
+           :assign-lazers-to-targets)
+  (:import-from :cl-shigi-simulator/static/js/target
+                :get-target-num-lazer-to-destroy))
 (in-package :cl-shigi-simulator/static/js/lazer-utils)
 
 (enable-ps-experiment-syntax)
@@ -27,3 +30,36 @@ it passes throught 'dummy-pnt' at angle 'dummy-angle'."
                        dummy-angle)))
          (radious (/ dist-to-line (1+ temp))))
     (* radious rot-speed)))
+
+(defun.ps+ assign-lazers-to-targets (num-lazer sorted-targets)
+  "Assign lazers to targets according to duration of each target.
+It expects that sorted-target is sorted by its distance from lazer launcher."
+  (assert (> num-lazer 0))
+  (unless sorted-targets
+    (return-from assign-lazers-to-targets nil))
+  (let ((result (list))
+        (rest-lazer num-lazer))
+    ;; Assign lazers to each target until its duration is out or lazer is shourt
+    (dolist (target sorted-targets)
+      (when (<= rest-lazer 0)
+        (return))
+      (let* ((required (get-target-num-lazer-to-destroy target))
+             (assigned (min required rest-lazer)))
+        (dotimes (i assigned)
+          (push target result))
+        (decf rest-lazer assigned)))
+    (assert (>= rest-lazer 0))
+    ;; Assign rest lazers by round-robin
+    (labels ((rec (rest-targets)
+               (when (<= rest-lazer 0)
+                 (return-from rec))
+               (let ((target (car rest-targets))
+                     (rest (cdr rest-targets)))
+                 (push target result)
+                 (decf rest-lazer)
+                 (rec (if (> (length rest) 0)
+                          rest
+                          sorted-targets)))))
+      (rec sorted-targets))
+    (assert (= (length result) num-lazer))
+    (reverse result)))

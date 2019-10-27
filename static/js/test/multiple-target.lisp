@@ -19,7 +19,8 @@
   `(get-param :test :multiple ,@rest))
 
 (defun.ps+ init-targets ()
-  (add-a-target :x #lx200 :y #ly300))
+  (add-a-target :x #lx200 :y #ly300)
+  (add-a-target :x #lx400 :y #ly300))
 
 (defun.ps+ add-a-target (&key x y)
   (let ((target (make-ecs-entity))

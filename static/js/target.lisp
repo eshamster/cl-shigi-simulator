@@ -12,7 +12,8 @@
            :get-target-tag
            :get-target-pnt-pairs
            :get-nearest-target
-           :sort-targets-by-dist))
+           :sort-targets-by-dist
+           :get-target-num-lazer-to-destroy))
 (in-package :cl-shigi-simulator/static/js/target)
 
 (defstruct.ps+ (target-component (:include ecs-component))
@@ -46,13 +47,14 @@
                   nearest-target target)))))
     nearest-target))
 
-(defun.ps+ sort-targets-by-dist (center-pnt &optional (target-pnt-pairs (get-target-pnt-pairs)))
+(defun.ps+ sort-targets-by-dist (center-pnt)
   (let ((target-dist-pairs (list)))
-    (do-tagged-ecs-entities (entity (get-target-tag))
-      (check-target entity)
-      (push (list entity
-                  (calc-dist-p2 center-pnt (calc-global-point entity)))
-            target-dist-pairs))
+    (do-tagged-ecs-entities (target (get-target-tag))
+      (check-target target)
+      (when (target-enable-p target)
+        (push (list target
+                    (calc-dist-p2 center-pnt (calc-global-point target)))
+              target-dist-pairs)))
     (mapcar (lambda (pair) (car pair))
             (sort target-dist-pairs
                   (lambda (a b)
@@ -63,6 +65,21 @@
     (return-from target-enable-p nil))
   (check-target target)
   (target-component-enable (get-ecs-component 'target-component target)))
+
+(defun.ps+ get-target-num-lazer-to-destroy (target)
+  (check-target target)
+  (target-component-num-lazer-to-destroy
+   (get-ecs-component 'target-component target)))
+
+(defun.ps+ set-target-num-lazer-to-destroy (target value)
+  (check-target target)
+  (setf (target-component-num-lazer-to-destroy
+         (get-ecs-component 'target-component target))
+        value))
+
+(defsetf.ps+ get-target-num-lazer-to-destroy
+    (target) (value)
+    `(set-target-num-lazer-to-destroy ,target ,value))
 
 (defun.ps+ check-target (target)
   (check-entity-tags target (get-target-tag))

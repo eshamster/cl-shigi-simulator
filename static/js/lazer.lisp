@@ -11,11 +11,12 @@
            :get-lazer-tag)
   (:import-from :cl-shigi-simulator/static/js/target
                 :get-nearest-target
-                :target-enable-p)
+                :target-enable-p
+                :get-target-tag
+                :sort-targets-by-dist)
   (:import-from :cl-shigi-simulator/static/js/lazer-utils
-                :calc-lazer-start-speed)
-  (:import-from :cl-shigi-simulator/static/js/target
-                :get-target-tag)
+                :calc-lazer-start-speed
+                :assign-lazers-to-targets)
   (:import-from :ps-experiment/common-macros
                 :with-slots-pair))
 (in-package :cl-shigi-simulator/static/js/lazer)
@@ -336,14 +337,18 @@
   (check-entity-tags player :player)
   (let* ((pnt (calc-global-point player))
          (parent-pnt (calc-parent-global-point player))
-         (target (get-nearest-target pnt))
+         (half-num (get-param :lazer-maker :half-num))
+         (sorted-target-list (sort-targets-by-dist pnt))
+         (assigned-target-list (assign-lazers-to-targets (* 2 half-num) sorted-target-list))
          (start-min-angle (get-param :lazer-maker :start-angle :min))
          (start-max-angle (get-param :lazer-maker :start-angle :max))
          (target-min-angle (get-param :lazer-maker :target-angle :min))
          (target-max-angle (get-param :lazer-maker :target-angle :max))
-         (half-num (get-param :lazer-maker :half-num))
          (offset-x (get-param :lazer-maker :start-offset :x))
          (offset-y (get-param :lazer-maker :start-offset :y)))
+    (assert (or (not assigned-target-list)
+                (= (length assigned-target-list)
+                   (* 2 half-num))))
     (dotimes (i half-num)
       (let* ((start-angle (lerp-scalar start-min-angle start-max-angle
                                        (/ i (1- half-num))))
@@ -357,10 +362,10 @@
                      :start-pnt (make-vector-2d :x offset-x :y offset-y)
                      :start-angle start-angle
                      :rot-speed (get-param :lazer :rot-speed))))
-        (dolist (rightp '(t nil))
+        (dolist (rightp '(nil t))
           (add-ecs-entity-to-buffer
            (make-a-lazer :start-point (transformf-point-inverse (clone-point-2d pnt) parent-pnt)
-                         :target target
+                         :target (pop assigned-target-list)
                          :rightp rightp
                          :start-speed speed
                          :start-angle start-angle
