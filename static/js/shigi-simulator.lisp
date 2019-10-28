@@ -25,6 +25,8 @@
                 :generate-color-grid)
   (:import-from :cl-shigi-simulator/static/js/player
                 :make-player)
+  (:import-from :cl-shigi-simulator/static/js/player-observer
+                :make-player-observer)
   (:import-from :cl-shigi-simulator/static/js/shigi
                 :make-shigi)
   (:import-from :cl-shigi-simulator/static/js/tools
@@ -53,8 +55,9 @@
                          :target-tags '(:shigi-part)))
     (add-ecs-entity pointer)))
 
-(defun.ps make-sample-entities ()
-  (make-player)
+(defun.ps+ make-sample-entities ()
+  (let ((player (make-player)))
+    (make-player-observer player))
   (make-shigi)
   (make-mouse-pointer))
 
