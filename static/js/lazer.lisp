@@ -8,7 +8,8 @@
         :cl-shigi-simulator/static/js/tools)
   (:export :shot-lazers
            :make-a-lazer
-           :get-lazer-tag)
+           :get-lazer-tag
+           :get-lazer-num)
   (:import-from :cl-shigi-simulator/static/js/target
                 :get-nearest-target
                 :target-enable-p
@@ -380,3 +381,6 @@
 
 (defun.ps+ get-lazer-tag ()
   :lazer)
+
+(defun.ps+ get-lazer-num ()
+  (* 2 (get-param :lazer-maker :half-num)))

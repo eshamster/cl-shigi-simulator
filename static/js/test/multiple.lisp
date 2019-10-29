@@ -1,13 +1,16 @@
 (defpackage cl-shigi-simulator/static/js/test/multiple
   (:use :cl
-        :cl-ppcre
         :parenscript
         :ps-experiment
         :cl-web-2d-game
         :cl-shigi-simulator/static/js/tools
         :cl-ps-ecs)
+  (:import-from :cl-shigi-simulator/static/js/lazer
+                :get-lazer-num)
   (:import-from :cl-shigi-simulator/static/js/test/multiple-target
-                :init-targets)
+                :init-targets
+                :get-default-test-target-duration
+                :set-test-target-duration)
   (:import-from :cl-shigi-simulator/static/js/player
                 :make-player)
   (:import-from :ps-experiment/common-macros
@@ -58,10 +61,17 @@
                    sw sh df #x000000)))
     (add-ecs-entity bg)))
 
+(defun.ps+ init-panel ()
+  (add-panel-number "Target Duration" (get-default-test-target-duration)
+                    :min 1 :max (get-lazer-num) :step 1
+                    :on-change (lambda (val)
+                                 (set-test-target-duration val))))
+
 (defun.ps+ init (scene)
   (declare (ignore scene))
   (setf-collider-model-enable nil)
   (init-mouse-pointer)
+  (init-panel)
   ;; --- ;;
   (stack-default-ecs-entity-parent (init-global-parent))
   (make-player)
