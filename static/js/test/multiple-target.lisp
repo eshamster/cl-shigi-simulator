@@ -23,8 +23,21 @@
   `(get-param :test :multiple ,@rest))
 
 (defun.ps+ init-targets ()
-  (add-a-target :x #lx200 :y #ly300)
-  (add-a-target :x #lx400 :y #ly300))
+  (let ((x-dist #lx250)
+        (y-dist #ly100)
+        (y-top #ly600)
+        (num-row 5))
+    (flet ((add-targets (y num)
+             (let ((x (ecase num
+                        (2 (- #lx500 (* 1/2 x-dist)))
+                        (3 (- #lx500 x-dist)))))
+               (dotimes (i num)
+                 (add-a-target :x x :y y)
+                 (incf x x-dist)))))
+      (let ((num 3))
+        (dotimes (i num-row)
+          (add-targets (- y-top (* y-dist i)) num)
+          (setf num (if (= num 3) 2 3)))))))
 
 (defun.ps+ add-a-target (&key x y)
   (let ((target (make-ecs-entity))

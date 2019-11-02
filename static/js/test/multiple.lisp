@@ -11,6 +11,8 @@
                 :init-targets
                 :get-default-test-target-duration
                 :set-test-target-duration)
+  (:import-from :cl-shigi-simulator/static/js/test/multiple-observer
+                :make-observer)
   (:import-from :cl-shigi-simulator/static/js/player
                 :make-player)
   (:import-from :ps-experiment/common-macros
@@ -70,11 +72,13 @@
 (defun.ps+ init (scene)
   (declare (ignore scene))
   (setf-collider-model-enable nil)
+  (load-font "../js/copied/")
   (init-mouse-pointer)
   (init-panel)
   ;; --- ;;
   (stack-default-ecs-entity-parent (init-global-parent))
-  (make-player)
+  (let ((player (make-player)))
+    (make-observer player))
   (init-targets))
 
 (defun.ps+ main ()
