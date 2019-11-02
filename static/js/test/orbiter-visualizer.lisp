@@ -12,6 +12,8 @@
   (:import-from :cl-shigi-simulator/static/js/test/orbiter-target
                 :get-target-point
                 :get-target-angle)
+  (:import-from :cl-shigi-simulator/static/js/tools
+                :get-depth)
   (:import-from :cl-shigi-simulator/static/js/lazer-utils
                 :calc-lazer-start-speed))
 (in-package :cl-shigi-simulator/static/js/test/orbiter-visualizer)
@@ -19,7 +21,7 @@
 (defun.ps+ init-visualizer (&key launcher target)
   (let ((vis (make-ecs-entity))
         (line-color #xaaaaaa)
-        (line-depth -11))
+        (line-depth (get-depth :orbiter-visualizer)))
     (add-entity-tag vis :visualizer)
     (flet ((make-line-model (&key x y angle label)
              (make-model-2d
@@ -98,5 +100,5 @@
      :offset (make-point-2d
               :x (+ (point-2d-x start-pnt) (* r (cos start-angle)))
               :y (+ (point-2d-y start-pnt) (* r (sin start-angle))))
-     :depth -1
+     :depth (get-depth :orbiter-visualizer)
      :label :start-circle)))

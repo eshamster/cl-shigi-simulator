@@ -16,4 +16,5 @@
                 (:div "Tests")
                 (:div :class "test_url"
                       (:div (:a :href "test/ray" "Ray test"))
-                      (:div (:a :href "test/orbiter" "Orbiter test")))))))
+                      (:div (:a :href "test/orbiter" "Orbiter test"))
+                      (:div (:a :href "test/multiple" "Multiple test")))))))

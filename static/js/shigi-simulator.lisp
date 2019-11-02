@@ -25,9 +25,12 @@
                 :generate-color-grid)
   (:import-from :cl-shigi-simulator/static/js/player
                 :make-player)
+  (:import-from :cl-shigi-simulator/static/js/player-observer
+                :make-player-observer)
   (:import-from :cl-shigi-simulator/static/js/shigi
                 :make-shigi)
   (:import-from :cl-shigi-simulator/static/js/tools
+                :get-depth
                 :get-param
                 :start-game
                 :shigi-screen-width
@@ -37,23 +40,24 @@
 (defun.ps+ make-mouse-pointer ()
   (let* ((pointer (make-ecs-entity))
          (r 5))
-    (add-entity-tag pointer "mouse")
+    (add-entity-tag pointer :mouse)
     (add-ecs-component-list
      pointer
      (make-point-2d)
      (make-model-2d :model (make-wired-circle :r r
                                               :color (get-param :cursor :color))
-                    :depth 1)
+                    :depth (get-depth :mouse))
      (make-script-2d :func (lambda (entity)
                              (with-ecs-components (point-2d) entity
                                (setf (point-2d-x point-2d) (get-mouse-x))
                                (setf (point-2d-y point-2d) (get-mouse-y)))))
      (make-physic-circle :r r
-                         :target-tags '("shigi-part")))
+                         :target-tags '(:shigi-part)))
     (add-ecs-entity pointer)))
 
-(defun.ps make-sample-entities ()
-  (make-player)
+(defun.ps+ make-sample-entities ()
+  (let ((player (make-player)))
+    (make-player-observer player))
   (make-shigi)
   (make-mouse-pointer))
 
@@ -83,7 +87,7 @@
                   frame
                   (make-model-2d :model (make-solid-rect :width width :height height
                                                          :color #x000000)
-                                 :depth 999)
+                                 :depth (get-depth :foregrond))
                   (make-point-2d :x (- x offset-x) :y (- y offset-y)))
                  (add-ecs-entity frame))))
       (add-rect 0 0 shigi-screen-width offset-y)

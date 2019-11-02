@@ -11,6 +11,7 @@
            :set-target-angle
            :find-target)
   (:import-from :cl-shigi-simulator/static/js/tools
+                :get-depth
                 :get-param
                 :shigi-screen-width
                 :shigi-screen-height))
@@ -26,7 +27,7 @@
               :model (make-line :pos-a (list x1 y1)
                                 :pos-b (list x2 y2)
                                 :color #x888888)
-              :depth 0)))
+              :depth (get-depth :enemy))))
       (add-ecs-component-list
        target
        (make-point-2d :x (* shigi-screen-width 600/1000)

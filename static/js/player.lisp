@@ -8,7 +8,10 @@
         :cl-shigi-simulator/static/js/lazer
         :cl-shigi-simulator/static/js/shigi
         :cl-shigi-simulator/static/js/tools)
-  (:export :make-player)
+  (:export :make-player
+           :check-player)
+  (:import-from :cl-shigi-simulator/static/js/target
+                :get-nearest-target)
   (:import-from :ps-experiment/common-macros
                 :with-slots-pair))
 (in-package :cl-shigi-simulator/static/js/player)
@@ -17,25 +20,25 @@
 
 ;; --- body --- ;;
 
-(defun.ps make-player-ring ()
+(defun.ps+ make-player-ring ()
   (let ((ring (make-ecs-entity))
         (r (get-param :player :ring-r)))
     (add-ecs-component-list
      ring
      (make-model-2d :model (make-wired-regular-polygon :r r :n 100
                                                        :color (get-param :player :color))
-                 :depth (get-param :player :depth))
+                 :depth (get-depth :player))
      (make-point-2d :x 0 :y 0))
     ring))
 
-(defun.ps make-player-body ()
+(defun.ps+ make-player-body ()
   (let ((body (make-ecs-entity))
         (r (get-param :player :body-r)))
     (add-ecs-component-list
      body
      (make-model-2d :model (make-solid-regular-polygon :r r :n 100
                                                        :color (get-param :player :color))
-                    :depth (get-param :player :depth))
+                    :depth (get-depth :player))
      (make-point-2d :x 0 :y 0))
     body))
 
@@ -68,46 +71,19 @@
   (when (key-down-now-p :c)
     (trigger-player-lazer)))
 
-(defstruct.ps+ nearest-part-register (part-id -1) (frame-count -1))
-
-(defun.ps display-nearest-part (part-id frame-count)
-  (let ((part (find-a-entity #'(lambda (entity)
-                                 (= (ecs-entity-id entity) part-id)))))
-    (labels ((pad (str len)
-               ;; easy impremetation
-               ((@ (+ "      " str) slice) (* len -1))))
-      (add-to-event-log (+ (pad (get-entity-param part :display-name) 6) ":"
-                           (pad (floor (* frame-count 1000/60)) 4) "ms ("
-                           (pad frame-count 3) "F)")))))
-
-(defun.ps register-nearest-part (player)
-  (check-entity-tags player "player")
-  (let* ((register (get-entity-param player :nearest-part-register))
-         (nearest (get-nearest-shigi-part (calc-global-point player)))
-         (nearest-id (if nearest (ecs-entity-id nearest) -1)))
-    (with-slots (part-id frame-count) register
-      (if (= part-id nearest-id)
-          (incf frame-count)
-          (progn (when (>= part-id 0)
-                   (display-nearest-part part-id frame-count))
-                 (setf part-id nearest-id
-                       frame-count 0))))))
-
-(defun.ps make-player-center ()
+(defun.ps+ make-player-center ()
   (let ((body (make-ecs-entity)))
-    (add-entity-tag body "player")
+    (add-entity-tag body :player)
     (add-ecs-component-list
      body
      (make-point-2d :x (/ (get-param :play-area :width) 2) :y #y100)
      (make-script-2d :func #'(lambda (player)
                                (control-player player)
                                (move-player player)
-                               (register-nearest-part player)
                                (when (get-entity-param *player* :lazer-triggered-p)
                                  (set-entity-param *player* :lazer-triggered-p nil)
                                  (shot-lazers player))))
-     (init-entity-params :lazer-triggered-p nil
-                         :nearest-part-register (make-nearest-part-register)))
+     (init-entity-params :lazer-triggered-p nil))
     body))
 
 ;; --- controller --- ;;
@@ -144,9 +120,14 @@
          (setf *moved-by-touch-p* nil)
          (trigger-player-lazer))))))
 
+;; --- tools --- ;;
+
+(defun.ps+ check-player (player)
+  (check-entity-tags player :player))
+
 ;; --- make --- ;;
 
-(defun.ps make-player ()
+(defun.ps+ make-player ()
   (let ((center (make-player-center))
         (body (make-player-body))
         (ring (make-player-ring)))

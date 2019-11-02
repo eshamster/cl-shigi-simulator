@@ -8,6 +8,9 @@
         :cl-shigi-simulator/static/js/shigi
         :cl-shigi-simulator/static/js/tools)
   (:export :generate-color-grid)
+  (:import-from :cl-shigi-simulator/static/js/target
+                :get-target-pnt-pairs
+                :get-nearest-target)
   (:import-from :ps-experiment/common-macros
                 :with-slots-pair))
 (in-package :cl-shigi-simulator/static/js/color-chip)
@@ -34,7 +37,7 @@
          (size (get-param :color-chip :size))
          (num-x (get-chip-num-x))
          (num-y (get-chip-num-y))
-         (depth (get-param :color-chip :depth)))
+         (depth (get-depth :color-chip)))
     (with-slots (vertices colors faces) geometry
       (dotimes (y (1+ num-y))
         (dotimes (x (1+ num-x))
@@ -53,18 +56,20 @@
     (let ((geometry model-2d.model.geometry)
           (size (get-param :color-chip :size))
           (buffer-pnt (make-point-2d))
-          (pair-list (make-shigi-part-point-pairs)))
+          (target-pnt-pairs (get-target-pnt-pairs)))
       (setf geometry.colors-need-update t)
       (dotimes (y (get-chip-num-y))
         (setf (point-2d-y buffer-pnt) (* (+ 0.5 y) size))
         (dotimes (x (get-chip-num-x))
           (setf (point-2d-x buffer-pnt) (* (+ 0.5 x) size))
-          (let* ((nearest-part (and (get-entity-param grid :enable-chips)
-                                    (get-nearest-shigi-part buffer-pnt pair-list))))
-            (set-chip-color geometry x y
-                            (if nearest-part
-                                (get-entity-param nearest-part :color)
-                                #xffffff))))))))
+          (flet ((get-color ()
+                   (if (get-entity-param grid :enable-chips)
+                       (let ((nearest-part (get-nearest-target buffer-pnt target-pnt-pairs)))
+                         (if nearest-part
+                             (get-entity-param nearest-part :color)
+                             #xffffff))
+                       #xffffff)))
+            (set-chip-color geometry x y (get-color))))))))
 
 (defun.ps generate-color-grid ()
   (let ((grid (make-ecs-entity)))
