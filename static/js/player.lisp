@@ -25,9 +25,9 @@
         (r (get-param :player :ring-r)))
     (add-ecs-component-list
      ring
-     (make-model-2d :model (make-wired-regular-polygon :r r :n 100
-                                                       :color (get-param :player :color))
-                 :depth (get-depth :player))
+     (make-model-2d :model (make-wired-circle :r r
+                                              :color (get-param :player :color))
+                    :depth (get-depth :player))
      (make-point-2d :x 0 :y 0))
     ring))
 
@@ -36,8 +36,8 @@
         (r (get-param :player :body-r)))
     (add-ecs-component-list
      body
-     (make-model-2d :model (make-solid-regular-polygon :r r :n 100
-                                                       :color (get-param :player :color))
+     (make-model-2d :model (make-solid-circle :r r
+                                              :color (get-param :player :color))
                     :depth (get-depth :player))
      (make-point-2d :x 0 :y 0))
     body))
@@ -48,23 +48,24 @@
   (when *player*
     (set-entity-param *player* :lazer-triggered-p t)))
 
-(defun.ps move-player (player)
+(defun.ps+ move-player (player)
   (let ((speed (get-param :player :speed))
         (r (get-param :player :body-r)))
     (with-ecs-components (point-2d) player
-      (macrolet ((move (direction move)
-                   `(when (key-down-p ,direction) ,move)))
-        (move :left  (decf point-2d.x speed))
-        (move :right (incf point-2d.x speed))
-        (move :down  (decf point-2d.y speed))
-        (move :up    (incf point-2d.y speed)))
-      (macrolet ((fix-position (op place value)
-                   `(when (,op ,place ,value)
-                      (setf ,place ,value))))
-        (fix-position < point-2d.x r)
-        (fix-position > point-2d.x (- (get-param :play-area :width) r))
-        (fix-position < point-2d.y r)
-        (fix-position > point-2d.y (- (get-param :play-area :height) r))))))
+      (with-slots (x y) point-2d
+        (macrolet ((move (direction move)
+                     `(when (key-down-p ,direction) ,move)))
+          (move :left  (decf x speed))
+          (move :right (incf x speed))
+          (move :down  (decf y speed))
+          (move :up    (incf y speed)))
+        (macrolet ((fix-position (op place value)
+                     `(when (,op ,place ,value)
+                        (setf ,place ,value))))
+          (fix-position < x r)
+          (fix-position > x (- (get-param :play-area :width) r))
+          (fix-position < y r)
+          (fix-position > y (- (get-param :play-area :height) r)))))))
 
 (defun.ps+ control-player (player)
   (declare (ignore player))
