@@ -48,17 +48,15 @@
   (when *player*
     (set-entity-param *player* :lazer-triggered-p t)))
 
-(defun.ps+ move-player (player)
-  (let ((speed (get-param :player :speed))
-        (r (get-param :player :body-r)))
+(defun.ps+ move-player-at (player global-x global-y)
+  (let ((r (get-param :player :body-r))
+        (local-pnt (transformf-point-inverse
+                    (make-point-2d :x global-x :y global-y)
+                    (calc-parent-global-point player))))
     (with-ecs-components (point-2d) player
       (with-slots (x y) point-2d
-        (macrolet ((move (direction move)
-                     `(when (key-down-p ,direction) ,move)))
-          (move :left  (decf x speed))
-          (move :right (incf x speed))
-          (move :down  (decf y speed))
-          (move :up    (incf y speed)))
+        (setf x (point-2d-x local-pnt)
+              y (point-2d-y local-pnt))
         (macrolet ((fix-position (op place value)
                      `(when (,op ,place ,value)
                         (setf ,place ,value))))
@@ -67,8 +65,31 @@
           (fix-position < y r)
           (fix-position > y (- (get-param :play-area :height) r)))))))
 
+(defun.ps+ move-player-by (player diff-x diff-y)
+  (let ((pnt (calc-global-point player)))
+    (move-player-at player
+                    (+ (point-2d-x pnt) diff-x)
+                    (+ (point-2d-y pnt) diff-y))))
+
+(defun.ps+ move-player-to (player dir)
+  (let ((speed (get-param :player :speed)))
+    (ecase dir
+      (:right (move-player-by player speed 0))
+      (:left  (move-player-by player (* -1 speed) 0))
+      (:up    (move-player-by player 0 speed))
+      (:down  (move-player-by player 0 (* -1 speed))))))
+
+(defun.ps+ control-player-move (player)
+  (flet ((move (dir)
+           (when (key-down-p dir)
+             (move-player-to player dir))))
+    (move :right)
+    (move :left)
+    (move :up)
+    (move :down)))
+
 (defun.ps+ control-player (player)
-  (declare (ignore player))
+  (control-player-move player)
   (when (key-down-now-p :c)
     (trigger-player-lazer)))
 
@@ -80,7 +101,6 @@
      (make-point-2d :x (/ (get-param :play-area :width) 2) :y #y100)
      (make-script-2d :func #'(lambda (player)
                                (control-player player)
-                               (move-player player)
                                (when (get-entity-param *player* :lazer-triggered-p)
                                  (set-entity-param *player* :lazer-triggered-p nil)
                                  (shot-lazers player))))
