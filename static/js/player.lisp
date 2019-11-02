@@ -77,20 +77,6 @@
       (:up    (move-player-by player 0 speed))
       (:down  (move-player-by player 0 (* -1 speed))))))
 
-(defun.ps+ control-player-move (player)
-  (flet ((move (dir)
-           (when (key-down-p dir)
-             (move-player-to player dir))))
-    (move :right)
-    (move :left)
-    (move :up)
-    (move :down)))
-
-(defun.ps+ control-player (player)
-  (control-player-move player)
-  (when (key-down-now-p :c)
-    (trigger-player-lazer player)))
-
 (defun.ps+ make-player-center ()
   (let ((body (make-ecs-entity)))
     (add-entity-tag body :player)
@@ -98,7 +84,6 @@
      body
      (make-point-2d :x (/ (get-param :play-area :width) 2) :y #y100)
      (make-script-2d :func #'(lambda (player)
-                               (control-player player)
                                (when (get-entity-param player :lazer-triggered-p)
                                  (set-entity-param player :lazer-triggered-p nil)
                                  (shot-lazers player))))
@@ -107,37 +92,58 @@
 
 ;; --- controller --- ;;
 
-(defvar.ps+ *moved-by-touch-p* nil)
-(defvar.ps+ *pre-touch-point* (make-vector-2d))
+(defun.ps+ add-controler (player)
+  (add-keyboard-controler player)
+  (add-touch-controler player))
 
-(defun touch-event-touches (e)
-  (declare (ignore e))
-  (error "touch-event-touches is not implemeted in Common Lisp"))
+;; - keybord - ;;
 
-(defun.ps+ update-vector-by-touch (target touch-event)
-  (let ((point (aref (touch-event-touches touch-event) 0)))
-    (with-slots (x y) point
-      (setf (vector-2d-x target) x)
-      (setf (vector-2d-y target) y))))
+(defun.ps+ add-keyboard-controler (player)
+  (let ((ctrl (make-ecs-entity)))
+    (add-ecs-component-list
+     ctrl
+     (make-script-2d :func (lambda (entity)
+                             (declare (ignore entity))
+                             (control-player-by-keyboard player))))
+    (add-ecs-entity ctrl)))
 
-(defun.ps+ initialize-player-controller (player)
-  (add-touch-start-callback
-   (lambda (e)
-     (update-vector-by-touch *pre-touch-point* e)))
-  (add-touch-move-callback
-   (lambda (e)
-     (let ((center (get-ecs-component 'point-2d player))
-           (diff-point (clone-vector-2d *pre-touch-point*)))
-       (setf *moved-by-touch-p* t)
-       (update-vector-by-touch *pre-touch-point* e)
-       (decf-vector-2d diff-point *pre-touch-point*)
-       (decf-vector-2d center diff-point))))
-  (add-touch-end-callback
-   (lambda (e)
-     (when (= (length (touch-event-touches e)) 0)
-       (when *moved-by-touch-p*
-         (setf *moved-by-touch-p* nil)
-         (trigger-player-lazer player))))))
+(defun.ps+ control-player-by-keyboard (player)
+  (flet ((move (dir)
+           (when (key-down-p dir)
+             (move-player-to player dir))))
+    (move :right)
+    (move :left)
+    (move :up)
+    (move :down))
+  (when (key-down-now-p :c)
+    (trigger-player-lazer player)))
+
+;; - touch - ;;
+
+(defun.ps+ add-touch-controler (player)
+  (let ((ctrl (make-ecs-entity)))
+    (add-ecs-component-list
+     ctrl
+     (make-script-2d :func (lambda (entity)
+                             (control-player-by-touch entity player)))
+     (init-entity-params :pre-pnt (make-point-2d)))
+    (add-ecs-entity ctrl)))
+
+(defun.ps+ control-player-by-touch (ctrl player)
+  (let ((state (get-total-touch-state)))
+    (when (or (eq state :down)
+              (eq state :down-now))
+      (let ((pre-pnt (get-entity-param ctrl :pre-pnt))
+            (x (get-total-touch-x))
+            (y (get-total-touch-y)))
+        (when (eq state :down)
+          (move-player-by player
+                          (- x (point-2d-x pre-pnt))
+                          (- y (point-2d-y pre-pnt))))
+        (setf (point-2d-x pre-pnt) x
+              (point-2d-y pre-pnt) y)))
+    (when (eq state :up-now)
+      (trigger-player-lazer player))))
 
 ;; --- tools --- ;;
 
@@ -153,5 +159,5 @@
     (add-ecs-entity center)
     (add-ecs-entity body center)
     (add-ecs-entity ring center)
-    (initialize-player-controller center)
+    (add-controler center)
     center))
