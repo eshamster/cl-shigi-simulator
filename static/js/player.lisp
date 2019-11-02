@@ -42,11 +42,9 @@
      (make-point-2d :x 0 :y 0))
     body))
 
-(defvar.ps+ *player* nil)
-
-(defun.ps+ trigger-player-lazer ()
-  (when *player*
-    (set-entity-param *player* :lazer-triggered-p t)))
+(defun.ps+ trigger-player-lazer (player)
+  (when player
+    (set-entity-param player :lazer-triggered-p t)))
 
 (defun.ps+ move-player-at (player global-x global-y)
   (let ((r (get-param :player :body-r))
@@ -91,7 +89,7 @@
 (defun.ps+ control-player (player)
   (control-player-move player)
   (when (key-down-now-p :c)
-    (trigger-player-lazer)))
+    (trigger-player-lazer player)))
 
 (defun.ps+ make-player-center ()
   (let ((body (make-ecs-entity)))
@@ -101,8 +99,8 @@
      (make-point-2d :x (/ (get-param :play-area :width) 2) :y #y100)
      (make-script-2d :func #'(lambda (player)
                                (control-player player)
-                               (when (get-entity-param *player* :lazer-triggered-p)
-                                 (set-entity-param *player* :lazer-triggered-p nil)
+                               (when (get-entity-param player :lazer-triggered-p)
+                                 (set-entity-param player :lazer-triggered-p nil)
                                  (shot-lazers player))))
      (init-entity-params :lazer-triggered-p nil))
     body))
@@ -139,7 +137,7 @@
      (when (= (length (touch-event-touches e)) 0)
        (when *moved-by-touch-p*
          (setf *moved-by-touch-p* nil)
-         (trigger-player-lazer))))))
+         (trigger-player-lazer player))))))
 
 ;; --- tools --- ;;
 
@@ -156,4 +154,4 @@
     (add-ecs-entity body center)
     (add-ecs-entity ring center)
     (initialize-player-controller center)
-    (setf *player* center)))
+    center))
