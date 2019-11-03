@@ -96,8 +96,8 @@
         (add-entity-tag bit :shigi-part :shigi-bit (get-target-tag))
         (add-ecs-component-list
          bit
-         (make-model-2d :model (make-wired-regular-polygon :r r :n 100
-                                                           :color (get-param :shigi :color))
+         (make-model-2d :model (make-wired-circle :r r
+                                                  :color (get-param :shigi :color))
                         :depth (get-depth :enemy))
          (make-physic-circle :r r
                              :on-collision #'toggle-shigi-part-by-mouse
