@@ -37,14 +37,18 @@
                                      (point-2d-y point-2d) (get-mouse-y))))))
     (add-ecs-entity pointer)))
 
-(defun.ps+ init-controller ()
+(defun.ps+ init-controler ()
+  (init-mouse-controler)
+  (init-touch-controler))
+
+(defun.ps+ init-mouse-controler ()
   (let ((ctr (make-ecs-entity)))
     (add-ecs-component-list
      ctr
      (make-script-2d
       :func (lambda (entity)
               (declare (ignore entity))
-              ;; Controll target
+              ;; Control target
               (when (eq (get-left-mouse-state) :down)
                 (let ((x (get-mouse-x))
                       (y (get-mouse-y)))
@@ -55,9 +59,27 @@
                   (set-target-angle (- (get-target-angle) diff-angle)))
                 (when (< (get-mouse-wheel-delta-y) 0)
                   (set-target-angle (+ (get-target-angle) diff-angle))))
-              ;; Controll
+              ;; Control lazer
               (when (key-down-now-p :c)
                 (shot-lazer)))))
+    (add-ecs-entity ctr)))
+
+(defun.ps+ init-touch-controler ()
+  (let ((ctr (make-ecs-entity)))
+    (add-ecs-component-list
+     ctr
+     (make-script-2d
+      :func (lambda (entity)
+              (declare (ignore entity))
+              (let ((state (get-total-touch-state)))
+                ;; Control target
+                (when (or (eq state :down-now)
+                          (eq state :down))
+                  (set-target-point (get-total-touch-x)
+                                    (get-total-touch-y)))
+                ;; Control lazer
+                (when (eq state :up-now)
+                  (shot-lazer))))))
     (add-ecs-entity ctr)))
 
 (defun.ps+ point-in-screen-p (x y)
@@ -106,7 +128,7 @@
     (init-visualizer :launcher launcher
                      :target target)
     (init-panel launcher))
-  (init-controller)
+  (init-controler)
   (init-description))
 
 (defun.ps+ main ()
