@@ -47,31 +47,68 @@
     (when next-state
       (change-lazer-state lazer next-state state))))
 
-(defun.ps+ make-lazer-start-state (&key rightp start-speed start-angle min-time)
-  (make-lazer-state
-   :start-process
-   (lambda (lazer)
-     (let ((speed (get-lazer-speed lazer)))
-       (setf (vector-2d-x speed) start-speed)
-       (setf (vector-2d-y speed) 0)
-       (setf-vector-2d-angle speed (+ (* -1/2 PI)
-                                      (* (if rightp 1 -1)
-                                         start-angle)))))
-   :process
-   (lambda (lazer)
-     (flet ((turn-lazer (target)
-              (turn-lazer-to-target-first lazer target rightp nil)))
-       (let* ((target (get-entity-param lazer :target))
-              (target-enable (target-enable-p target))
-              (dummy-target (get-entity-param lazer :dummy-target)))
-         (when (and dummy-target (turn-lazer dummy-target))
-           (set-entity-param lazer :dummy-target nil))
-         (decf min-time)
-         (when (<= min-time 0)
-           (if target-enable
-               (make-lazer-first-homing-state rightp)
-               (unless dummy-target
-                 (make-lazer-lost-state)))))))))
+(defun.ps+ init-lazer-state (lazer &key rightp start-speed start-angle min-time)
+  (let ((target (get-entity-param lazer :target)))
+    (change-lazer-state
+     lazer
+     (if target
+         (make-lazer-start-state-with-target
+          :target target
+          :rightp rightp
+          :start-speed start-speed
+          :start-angle start-angle
+          :min-time min-time)
+         (make-lazer-start-state
+          :rightp rightp
+          :start-speed start-speed
+          :start-angle start-angle)))))
+
+(defun.ps+ start-process-in-start-state (&key lazer rightp start-speed start-angle)
+  (let ((speed (get-lazer-speed lazer)))
+    (setf (vector-2d-x speed) start-speed)
+    (setf (vector-2d-y speed) 0)
+    (setf-vector-2d-angle speed (+ (* -1/2 PI)
+                                   (* (if rightp 1 -1)
+                                      start-angle)))))
+
+(defun.ps+ make-lazer-start-state-with-target (&key target rightp start-speed start-angle min-time)
+  (assert target)
+  (let ((turn-ended-p nil))
+    (make-lazer-state
+     :start-process
+     (lambda (lazer)
+       (start-process-in-start-state :lazer lazer
+                                     :rightp rightp
+                                     :start-speed start-speed
+                                     :start-angle start-angle))
+     :process
+     (lambda (lazer)
+       (if (target-enable-p target)
+           (progn (when (turn-lazer-to-target-first lazer target rightp nil)
+                    (setf turn-ended-p t))
+                  (decf min-time)
+                  (cond (turn-ended-p
+                         (make-lazer-homing-state))
+                        ((<= min-time 0)
+                         (make-lazer-first-homing-state rightp))))
+           (make-lazer-lost-state))))))
+
+(defun.ps+ make-lazer-start-state (&key rightp start-speed start-angle)
+  (let ((turn-ended-p nil))
+    (make-lazer-state
+     :start-process
+     (lambda (lazer)
+       (start-process-in-start-state :lazer lazer
+                                     :rightp rightp
+                                     :start-speed start-speed
+                                     :start-angle start-angle))
+     :process
+     (lambda (lazer)
+       (let ((dummy-target (get-entity-param lazer :dummy-target)))
+         (when (and dummy-target (turn-lazer-to-target-first lazer dummy-target rightp nil))
+           (setf turn-ended-p t))
+         (when turn-ended-p
+           (make-lazer-lost-state)))))))
 
 (defun.ps+ make-lazer-first-homing-state (rightp)
   "This only can rotate to one direction (right or left)."
@@ -327,11 +364,12 @@
         ;; A caller sets start-angle as tangential direction of expected circular orbit.
         ;; But to put a lazer into the orbit it is required to adjust the angle by
         ;; half of its rotation speed.
-        (change-lazer-state lazer (make-lazer-start-state
-                                   :rightp rightp
-                                   :start-speed start-speed
-                                   :start-angle (- start-angle (/ rot-speed 2))
-                                   :min-time (get-param :lazer-state :start :time)))))
+        (init-lazer-state
+         lazer
+         :rightp rightp
+         :start-speed start-speed
+         :start-angle (- start-angle (/ rot-speed 2))
+         :min-time (get-param :lazer-state :start :time))))
     lazer))
 
 (defun.ps+ shot-lazers (player)
